@@ -1,6 +1,6 @@
 package com.example.quiz_game.ui.activity.main.destination
 
-import android.util.Log
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -23,10 +23,17 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
+import androidx.navigation.compose.rememberNavController
+import com.example.quiz_game.R
+import com.example.quiz_game.data.quiz.Quiz
+import com.example.quiz_game.ui.activity.main.MainDestination
+import com.example.quiz_game.ui.shared.ButtonGameChoices
 import com.example.quiz_game.ui.shared.ButtonPrimary
-import com.example.quiz_game.ui.shared.ButtonSecondary
 import com.example.quiz_game.ui.shared.LoadingInfiniteLine
 import com.example.quiz_game.ui.shared.TextBig
 import com.example.quiz_game.ui.shared.TextButton
@@ -37,7 +44,11 @@ import com.example.quiz_game.ui.viewmodel.QuizAction
 import com.example.quiz_game.ui.viewmodel.QuizState
 import com.example.quiz_game.ui.viewmodel.SharedAction
 import com.example.quiz_game.ui.viewmodel.SharedState
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.tasks.await
 
 // TODO: Fix the button behavior and track the score (log mark per question)
 
@@ -52,54 +63,57 @@ fun Game(
     sharedAction: (SharedAction) -> Unit = {},
     sharedState: SharedState = SharedState(),
     categoryState: CategoryState = CategoryState(),
+    navController: NavController = rememberNavController(),
 ) {
     if (quizState.executing.or(sharedState.executing).or(categoryState.executing)) {
-        LoadingInfiniteLine(subject = arrayOf("test"))
+        LoadingInfiniteLine(subject = arrayOf(stringResource(R.string.loading_quizzes_by_category)))
     } else {
         val context = LocalContext.current
         var currentQuizIndex by rememberSaveable { mutableIntStateOf(0) }
 
         val quizzes = categoryName?.let { category ->
-            quizState.quizzes.filter {
-                it.category == category
-            }
+            quizState.quizzes.filter { it.category == category }
         } ?: quizState.quizzes
 
-        Log.d(TAG, "Game: ${quizzes.joinToString("\n")}")
+        var selectedAnswer by remember { mutableStateOf<String?>(null) }
+        var showFeedback by remember { mutableStateOf(false) }
+        var lastMark by remember { mutableIntStateOf(0) }
+        var incorrectlyAnswered by remember { mutableIntStateOf(0) }
 
-        var selectedAnswer by remember {
-            mutableStateOf("")
-        }
-        var mark by remember {
-            mutableIntStateOf(0)
-        }
-        var incorrectlyAnswered by remember {
-            mutableIntStateOf(0)
-        }
-
-        var disableQuizOnTimeout by remember {
-            mutableStateOf(false)
-        }
         QuizCard(
             categoryName = quizzes[currentQuizIndex].category,
             question = quizzes[currentQuizIndex].question.orEmpty(),
             choices = listOf(quizzes[currentQuizIndex].correctAnswer.orEmpty()) + (quizzes[currentQuizIndex].incorrectAnswers
                 ?: emptyList()),
-            onAnswerSelected = {
-                selectedAnswer = it
-                quizzes[currentQuizIndex].incorrectAnswers?.let { incorrects ->
-                    if (incorrects.contains(it)) {
-                        incorrectlyAnswered += 1
-                        mark -= quizzes[currentQuizIndex].generateMark()
+            isLastQuestion = currentQuizIndex == quizzes.size - 1,
+            onAnswerSelected = { selectedAnswer = it },
+            quizzes = quizzes,
+            currentQuizIndex = currentQuizIndex,
+            correctAnswer = quizzes[currentQuizIndex].correctAnswer,
+            onConfirm = { answer ->
+                val currentQuiz = quizzes[currentQuizIndex]
+                val correct = currentQuiz.correctAnswer
+                val markEarned =
+                    if (answer == correct) currentQuiz.generateMark() else -currentQuiz.generateMark()
+
+                lastMark = markEarned
+                showFeedback = true
+
+                if (answer != correct) incorrectlyAnswered += 1
+                sharedAction(SharedAction.UpdateScore(context, markEarned, incorrectlyAnswered))
+
+                // Delay to show feedback before proceeding
+                CoroutineScope(Dispatchers.Main).launch {
+                    delay(1000)
+                    selectedAnswer = null
+                    showFeedback = false
+                    if (currentQuizIndex < quizzes.lastIndex) {
+                        currentQuizIndex++
                     } else {
-                        mark += quizzes[currentQuizIndex].generateMark()
+                        sharedAction(SharedAction.Navigate(MainDestination.PostGame, navController))
                     }
                 }
-            },
-            onConfirm = {
-                sharedAction(SharedAction.UpdateScore(context, mark, incorrectlyAnswered))
-                currentQuizIndex += 1
-            },
+            }
         )
     }
 }
@@ -110,43 +124,54 @@ fun QuizCard(
     categoryName: String? = null,
     question: String,
     choices: List<String>,
+    correctAnswer: String? = null,
     onAnswerSelected: (String) -> Unit,
     onConfirm: (String) -> Unit,
+    sharedState: SharedState = SharedState(),
+    isLastQuestion: Boolean = false,
+    quizzes: List<Quiz> = emptyList(),
+    currentQuizIndex: Int = 0
 ) {
     var selectedAnswer by rememberSaveable { mutableStateOf<String?>(null) }
-    var timeRemaining by rememberSaveable { mutableIntStateOf(10) } // Timer starts at 10 seconds
     var isAnswered by rememberSaveable { mutableStateOf(false) }
-    var disableQuizOnTimeout by rememberSaveable { mutableStateOf(false) }
+    var timeRemaining by rememberSaveable { mutableIntStateOf(10) }
+    var translatedTimerText by remember { mutableStateOf("") }
 
-    // Timer logic
-    LaunchedEffect(timeRemaining) {
+    // Reset isAnswered state when the question changes (every time currentQuizIndex updates)
+    LaunchedEffect(key1 = question) {
+        isAnswered = false
+        selectedAnswer = null
+        timeRemaining = 15 // Reset time for each new question
+    }
+
+    // TIMER
+    LaunchedEffect(timeRemaining, isAnswered) {
         if (timeRemaining > 0 && !isAnswered) {
-            delay(1000L) // Wait for 1 second
+            delay(1000L)
             timeRemaining -= 1
-        } else if (timeRemaining == 0 && !isAnswered) {
-            // Time up, auto-confirm answer
-            disableQuizOnTimeout = true
         }
+
+        translatedTimerText =
+            sharedState.translator?.translate("Time remaining: $timeRemaining seconds")?.await()
+                ?: "Time remaining: $timeRemaining seconds"
     }
 
-    // When the answer is selected, update the state
-    fun onSelectAnswer(answer: String) {
-        if (!isAnswered) {
-            selectedAnswer = answer
-            onAnswerSelected(answer)
-        }
+    val showAnswers = isAnswered || timeRemaining == 0
+    val buttonText = when {
+        isLastQuestion -> "Finish"
+        showAnswers -> "Next question"
+        selectedAnswer != null -> "Confirm my choice"
+        else -> "Waiting..."
     }
 
-    // Determine button text based on whether the question is answered
-    val buttonText =
-        if (isAnswered) "Done" else if (timeRemaining == 0) "Next question" else "Confirm my answer"
+    // Track the correct and wrong answers states after confirmation
+    val choiceStates = choices.associate { choice ->
+        choice to (choice == correctAnswer)
+    }
 
-    // Layout for the Quiz Card
     Card(
         modifier = modifier.padding(16.dp),
-        elevation = CardDefaults.cardElevation(
-            defaultElevation = 8.dp
-        ),
+        elevation = CardDefaults.cardElevation(defaultElevation = 8.dp),
         shape = RoundedCornerShape(16.dp),
     ) {
         Column(
@@ -155,54 +180,76 @@ fun QuizCard(
                 .verticalScroll(rememberScrollState()),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
-            // Category Name (only show if it's not null)
             categoryName?.let {
-                TextFancy(
-                    text = it,
-                    color = MaterialTheme.colorScheme.primary,
-                )
-
+                TextFancy(text = it, color = MaterialTheme.colorScheme.primary)
                 Spacer(modifier = Modifier.height(8.dp))
                 HorizontalDivider(color = MaterialTheme.colorScheme.primary)
                 Spacer(modifier = Modifier.height(8.dp))
             }
 
-            // Question
-            TextBig(
-                text = question,
-                modifier = Modifier.padding(bottom = 16.dp)
-            )
+            TextBig(text = question, modifier = Modifier.padding(bottom = 16.dp))
 
-            // Choices (Buttons)
             choices.forEach { choice ->
-                ButtonPrimary(
-                    onClick = { onSelectAnswer(choice) },
+                ButtonGameChoices(
+                    onClick = {
+                        if (!isAnswered && timeRemaining > 0) {
+                            selectedAnswer = choice
+                            onAnswerSelected(choice)
+                        }
+                    },
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(vertical = 4.dp),
+                    reveal = showAnswers,
+                    isCorrectChoice = choiceStates[choice] == true, // Only true if this choice is correct
+                    isSelected = selectedAnswer == choice,
+                    enabled = !showAnswers // Prevent selection after confirmation
                 ) {
                     TextButton(text = choice)
                 }
             }
 
-            // Timer
+            // Show Timer Text
             TextSmol(
-                text = "Time remaining: $timeRemaining seconds",
+                text = translatedTimerText,
                 color = if (timeRemaining <= 3) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurface,
                 modifier = Modifier.padding(top = 8.dp)
             )
 
-            // Confirm Button
+            // Show Score Overlay
+            if (isAnswered && selectedAnswer != null) {
+                val markText = if (quizzes.isNotEmpty() && currentQuizIndex < quizzes.size) {
+                    val currentQuiz = quizzes[currentQuizIndex]
+                    if (selectedAnswer == currentQuiz.correctAnswer) {
+                        "+${currentQuiz.generateMark()}"
+                    } else {
+                        "-${currentQuiz.generateMark()}"
+                    }
+                } else {
+                    "Error: Invalid question index"
+                }
+                TextBig(
+                    text = markText,
+                    color = if (selectedAnswer == correctAnswer) Color.Green else MaterialTheme.colorScheme.error,
+                    modifier = Modifier
+                        .padding(top = 16.dp)
+                        .background(Color.Black.copy(alpha = 0.7f), RoundedCornerShape(8.dp))
+                        .padding(8.dp)
+                )
+            }
+
             Spacer(modifier = Modifier.height(16.dp))
-            ButtonSecondary(
+            ButtonPrimary(
                 onClick = {
-                    if (selectedAnswer != null) {
+                    if (!isAnswered && selectedAnswer != null) {
                         isAnswered = true
+                        onConfirm(selectedAnswer ?: "")
+                    } else if (showAnswers) {
                         onConfirm(selectedAnswer ?: "")
                     }
                 },
                 modifier = Modifier.fillMaxWidth(),
-                enabled = disableQuizOnTimeout
+                enabled = selectedAnswer != null || showAnswers
             ) {
                 TextButton(text = buttonText)
             }

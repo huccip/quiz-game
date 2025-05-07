@@ -19,7 +19,6 @@ data class Quiz(
     var correctAnswer: String? = null,
     @SerializedName("incorrect_answers")
     var incorrectAnswers: List<String>? = null,
-    var answeredAt: String? = null,
     var mark: Int? = null,
 ) {
     fun generateUid(): String = Base64.encodeToString(

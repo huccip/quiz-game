@@ -52,6 +52,7 @@ object QuizRepository {
                 App.db.quizDao()
                     .insert(*(quiz.map {
                         it.uid = it.generateUid()
+                        it.mark = it.generateMark()
                         it
                     }).toTypedArray())
             },
@@ -176,19 +177,6 @@ object QuizRepository {
         runWithTimeout(
             block = { App.db.quizDao().truncate() },
             onFinish = onSuccess,
-            onTimeout = onError
-        )
-    }
-
-    suspend fun updateAnsweredAt(uid: String, onSuccess: (Quiz) -> Unit, onError: (Throwable) -> Unit) {
-        runWithTimeout(
-            block = {
-                App.db.quizDao()
-                    .updateAnsweredAt(uid, Utils.stringDateFormat(System.currentTimeMillis()))
-
-                getByUid(uid, onSuccess, onError)
-            },
-            onFinish = {  },
             onTimeout = onError
         )
     }

@@ -24,6 +24,7 @@ import com.example.quiz_game.ui.activity.main.destination.Browse
 import com.example.quiz_game.ui.activity.main.destination.Game
 import com.example.quiz_game.ui.activity.main.destination.Home
 import com.example.quiz_game.ui.activity.main.destination.Language
+import com.example.quiz_game.ui.activity.main.destination.PostGame
 import com.example.quiz_game.ui.theme.QuizgameTheme
 import com.example.quiz_game.ui.viewmodel.CategoryAction
 import com.example.quiz_game.ui.viewmodel.CategoryViewModel
@@ -109,6 +110,10 @@ class MainActivity : BaseActivity() {
                                     sharedAction = sharedViewModel::onAction
                                 )
                             }
+
+                            composable<MainDestination.PostGame> {
+                                PostGame()
+                            }
                         }
                     }
                 }
@@ -129,4 +134,7 @@ sealed interface MainDestination : AppDestination {
 
     @Serializable
     data object Language : MainDestination
+
+    @Serializable
+    data object PostGame : MainDestination
 }

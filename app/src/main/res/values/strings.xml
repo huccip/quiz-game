@@ -25,6 +25,8 @@
         <item>achievements</item>
     </string-array>
 
+    <string name="loading_quizzes_by_category">Quizzes</string>
+
     <string name="home_title">Let\'s Go!</string>
     <string name="home_subtitle">One of the buttons should be enough to get you started</string>
 

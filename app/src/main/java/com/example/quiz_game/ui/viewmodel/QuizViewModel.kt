@@ -42,9 +42,9 @@ class QuizViewModel : ViewModel() {
                 }
 
                 is QuizAction.Answered -> execute {
-                    Repository.quizRepository.updateAnsweredAt(
+                    Repository.quizRepository.deleteByUid(
                         uid = action.quiz.uid,
-                        onSuccess = { updateStateOnSuccess(data = it) },
+                        onSuccess = { onAction(QuizAction.GetAll) },
                         onError = { updateStateOnError(it) }
                     )
                 }
