@@ -1,0 +1,37 @@
+<resources>
+    <string name="app_name">لعبة الأسئلة</string>
+
+    <string name="onboard_welcome">مرحباً بك،<br />هل أنت مستعد لرحلة رائعة؟</string>
+
+    <string name="onboard_name_label">الاسم المستعار</string>
+    <string name="onboard_name_hint">ماذا يجب أن أناديك يا صديقي؟</string>
+    <string name="onboard_avatar_label">الصورة الرمزية</string>
+    <string name="onboard_avatar_hint">اختر بطلك الأسطوري ولنبدأ التحدي 🔥</string>
+    <string name="onboard_button_letsgo">لننطلق!</string>
+
+    <string name="home_button_primary">ابدأ</string>
+    <string name="home_button_secondary">تصفح جميع الفئات</string>
+
+    <string name="loading_title">انتظر قليلاً، يتم تحميل </string>
+    <string-array name="loading_subjects">
+        <item>قائمة الأسئلة</item>
+        <item>المعلومات العامة</item>
+        <item>أوقات ممتعة</item>
+        <item>رحلة التعلم</item>
+        <item>عالم الأذكياء</item>
+        <item>حقيبة المعرفة</item>
+        <item>امتحان مفاجئ 😈</item>
+        <item>انتهى، بسهولة!</item>
+        <item>الإنجازات</item>
+    </string-array>
+
+    <string name="home_title">لننطلق!</string>
+    <string name="home_subtitle">أحد هذه الأزرار يجب أن يكون كافياً للبدء</string>
+
+    <string name="avatar_wind">الرياح</string>
+    <string name="avatar_fire">ولد النار</string>
+    <string name="avatar_rock">الصخرة</string>
+    <string name="avatar_water">فتاة الماء</string>
+
+    <string name="guide_button_finish">تم الفهم!</string>
+</resources>

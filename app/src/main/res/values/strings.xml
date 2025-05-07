@@ -1,0 +1,37 @@
+<resources>
+    <string name="app_name">quiz-game</string>
+
+    <string name="onboard_welcome">Hey you,<br />Are you ready for an awesome journey?</string>
+
+    <string name="onboard_name_label">Nickname</string>
+    <string name="onboard_name_hint">What should I call you bud</string>
+    <string name="onboard_avatar_label">Avatar</string>
+    <string name="onboard_avatar_hint">Pick your hero legend and let\'s begin the grind 🔥</string>
+    <string name="onboard_button_letsgo">Let\'s go!</string>
+
+    <string name="home_button_primary">Start</string>
+    <string name="home_button_secondary">Browse all categories</string>
+
+    <string name="loading_title">Hold on, loading your </string>
+    <string-array name="loading_subjects">
+        <item>quiz list</item>
+        <item>trivia</item>
+        <item>fun times</item>
+        <item>learning journey</item>
+        <item>smart world</item>
+        <item>backpack of knowledge</item>
+        <item>sudden exam paper 😈</item>
+        <item>GG, EZ!</item>
+        <item>achievements</item>
+    </string-array>
+
+    <string name="home_title">Let\'s Go!</string>
+    <string name="home_subtitle">One of the buttons should be enough to get you started</string>
+
+    <string name="avatar_wind">Windy</string>
+    <string name="avatar_fire">Fire Boy</string>
+    <string name="avatar_rock">The Rock</string>
+    <string name="avatar_water">Water Girl</string>
+
+    <string name="guide_button_finish">Got it!</string>
+</resources>
