@@ -76,7 +76,7 @@ fun Home(
                 onClick = {
                     sharedAction(
                         SharedAction.Navigate(
-                            MainDestination.Game,
+                            MainDestination.Game(),
                             navController
                         )
                     )

@@ -23,6 +23,8 @@ import com.example.quiz_game.ui.viewmodel.SharedAction
 import com.google.mlkit.nl.translate.TranslateLanguage
 import java.util.Locale
 
+// TODO: clicking triggers the restart but doesn't switch the static content's language
+
 private const val TAG = "test1234 Language"
 
 @Composable
@@ -45,7 +47,7 @@ fun Language(
                 headlineContent = {
                     Column {
                         Text(country)
-                        TextBerySmol(text = Locale.forLanguageTag(language).displayLanguage)
+                        TextBerySmol(text = Locale(language, countryCode).displayLanguage)
                         HorizontalDivider()
                     }
                 },
@@ -76,7 +78,7 @@ fun Language(
 
                             commit()
 
-                            Utils.updateAppLocale(context, language)
+                            Utils.updateAppLocale(language)
                             sharedAction(SharedAction.Restart(context))
                         }
                     }

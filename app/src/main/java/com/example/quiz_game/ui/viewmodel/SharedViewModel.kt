@@ -1,16 +1,17 @@
 package com.example.quiz_game.ui.viewmodel
 
-import android.app.Activity
-import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
 import android.os.Handler
 import android.os.Looper
 import androidx.activity.ComponentActivity
+import androidx.core.content.edit
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.NavController
+import com.example.quiz_game.App
 import com.example.quiz_game.AppDestination
+import com.example.quiz_game.R
 import com.example.quiz_game.data.Repository
 import com.example.quiz_game.ui.activity.main.MainActivity
 import com.google.mlkit.nl.translate.Translator
@@ -71,15 +72,47 @@ class SharedViewModel : ViewModel() {
 
                     Handler(Looper.getMainLooper()).postDelayed({
                         state.value = state.value.copy(executing = false)
-                        val packageManager = action.context.packageManager
-                        val intent = packageManager.getLaunchIntentForPackage(action.context.packageName)
-                        intent?.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK)
+
+                        val intent = Intent(action.context, MainActivity::class.java)
+                        intent.flags =
+                            Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
                         action.context.startActivity(intent)
-                        if (action.context is Activity) {
-                            action.context.finish()
-                        }
                         Runtime.getRuntime().exit(0)
                     }, 500)
+                }
+
+                is SharedAction.UpdateScore -> {
+                    state.value = state.value.copy(
+                        executing = true
+                    )
+
+                    App.userPrefs.edit {
+                        putInt("score", App.userPrefs.getInt("score", 0) + action.mark)
+                        putStringSet(
+                            "achievements",
+                            App.userPrefs.getStringSet("achievements", mutableSetOf())?.apply {
+                                if (App.userPrefs.getInt("score", 0) > action.mark) {
+                                    add(action.context.getString(R.string.achievements_new_score))
+                                }
+
+                                add(
+                                    when (action.incorrectlyAnswered) {
+                                        0 -> action.context.getString(R.string.achievements_no_mistakes)
+                                        1 -> action.context.getString(R.string.achievements_one_mistake)
+                                        2 -> action.context.getString(R.string.achievements_two_mistakes)
+                                        10 -> action.context.getString(R.string.achievements_ten_mistakes)
+                                        30 -> action.context.getString(R.string.achievements_thirty_mistakes)
+                                        50 -> action.context.getString(R.string.achievements_fifty_mistakes)
+                                        else -> action.context.getString(R.string.achievements_empty)
+                                    }
+                                )
+                            }
+                        )
+
+                        state.value = state.value.copy(executing = false)
+
+                        commit()
+                    }
                 }
             }
         }
@@ -88,7 +121,7 @@ class SharedViewModel : ViewModel() {
 
 data class SharedState(
     val executing: Boolean = false,
-    val errors: ArrayList<Throwable> = arrayListOf<Throwable>(),
+    val errors: ArrayList<Throwable> = arrayListOf(),
     val translator: Translator? = null
 )
 
@@ -102,4 +135,7 @@ sealed interface SharedAction {
 
     data object PrepareTranslator : SharedAction
     data class Restart(val context: Context) : SharedAction
+
+    data class UpdateScore(val context: Context, val mark: Int, val incorrectlyAnswered: Int) :
+        SharedAction
 }

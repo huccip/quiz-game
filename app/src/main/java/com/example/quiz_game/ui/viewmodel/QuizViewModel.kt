@@ -40,6 +40,14 @@ class QuizViewModel : ViewModel() {
                         onError = { updateStateOnError(it) }
                     )
                 }
+
+                is QuizAction.Answered -> execute {
+                    Repository.quizRepository.updateAnsweredAt(
+                        uid = action.quiz.uid,
+                        onSuccess = { updateStateOnSuccess(data = it) },
+                        onError = { updateStateOnError(it) }
+                    )
+                }
             }
         }
     }
@@ -70,8 +78,8 @@ class QuizViewModel : ViewModel() {
 
 data class QuizState(
     var executing: Boolean = false,
-    var errors: ArrayList<Throwable> = arrayListOf<Throwable>(),
-    var quizzes: List<Quiz> = emptyList<Quiz>(),
+    var errors: ArrayList<Throwable> = arrayListOf(),
+    var quizzes: List<Quiz> = emptyList(),
     var quiz: Quiz = Quiz()
 )
 
@@ -79,4 +87,5 @@ sealed interface QuizAction {
     data object GetAll : QuizAction
     data class GetByCategory(val category: String) : QuizAction
     data class GetByUid(val uid: String) : QuizAction
+    data class Answered(val quiz: Quiz) : QuizAction
 }

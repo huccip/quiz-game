@@ -40,7 +40,7 @@ class App : Application() {
         if (!userPrefs.contains("lastKnownLanguage")) {
             userPrefs.edit {
                 putString(
-                    "lasKnownLanguage",
+                    "lastKnownLanguage",
                     if (Utils.supportedLanguage(Locale.getDefault().language)) Locale.getDefault().language else "en"
                 )
                 commit()
@@ -63,14 +63,12 @@ class App : Application() {
     }
 
     override fun attachBaseContext(base: Context?) {
-        val safeBase = base ?: return super.attachBaseContext(base)
-
-        val prefs = safeBase.getSharedPreferences("user-preferences", MODE_PRIVATE)
-        val lang = prefs.getString("selectedLanguage", "en") ?: "en"
-
-        val wrapped = LocaleHelper.wrap(safeBase, lang)
-        super.attachBaseContext(wrapped)
+        val prefs = base?.getSharedPreferences("user-preferences", MODE_PRIVATE)
+        val lang = prefs?.getString("selectedLanguage", "en") ?: "en"
+        val newBase = LocaleHelper.wrap(base!!, lang)
+        super.attachBaseContext(newBase)
     }
+
 }
 
 interface AppDestination

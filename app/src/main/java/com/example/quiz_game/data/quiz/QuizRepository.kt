@@ -3,6 +3,7 @@ package com.example.quiz_game.data.quiz
 import com.example.quiz_game.App
 import com.example.quiz_game.data.Repository
 import com.example.quiz_game.data.Service
+import com.example.quiz_game.other.Utils
 import com.example.quiz_game.other.Utils.runWithTimeout
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -175,6 +176,19 @@ object QuizRepository {
         runWithTimeout(
             block = { App.db.quizDao().truncate() },
             onFinish = onSuccess,
+            onTimeout = onError
+        )
+    }
+
+    suspend fun updateAnsweredAt(uid: String, onSuccess: (Quiz) -> Unit, onError: (Throwable) -> Unit) {
+        runWithTimeout(
+            block = {
+                App.db.quizDao()
+                    .updateAnsweredAt(uid, Utils.stringDateFormat(System.currentTimeMillis()))
+
+                getByUid(uid, onSuccess, onError)
+            },
+            onFinish = {  },
             onTimeout = onError
         )
     }

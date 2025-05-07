@@ -95,8 +95,8 @@ class CategoryViewModel() : ViewModel() {
 
 data class CategoryState(
     var executing: Boolean = false,
-    var errors: ArrayList<Throwable> = arrayListOf<Throwable>(),
-    var categories: List<Category> = emptyList<Category>(),
+    var errors: ArrayList<Throwable> = arrayListOf(),
+    var categories: List<Category> = emptyList(),
     var category: Category = Category(),
     var translator: Translator? = null
 )

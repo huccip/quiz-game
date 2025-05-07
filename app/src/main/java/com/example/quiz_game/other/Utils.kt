@@ -1,7 +1,8 @@
 package com.example.quiz_game.other
 
-import android.content.Context
+import android.content.res.Configuration
 import android.util.Log
+import com.example.quiz_game.App
 import com.google.mlkit.common.model.DownloadConditions
 import com.google.mlkit.nl.translate.Translation
 import com.google.mlkit.nl.translate.Translator
@@ -10,6 +11,8 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.TimeoutCancellationException
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.withTimeout
+import java.text.SimpleDateFormat
+import java.util.Date
 import java.util.Locale
 import java.util.concurrent.TimeUnit
 
@@ -81,13 +84,21 @@ object Utils {
         }/$type/$size.png"
     }
 
-    fun updateAppLocale(context: Context, language: String) {
+    fun updateAppLocale(language: String) {
         val locale = Locale(language)
         Locale.setDefault(locale)
 
-        val resources = context.resources
-        val config = resources.configuration
+        val resources = App.instance.baseContext.resources
+        val config = Configuration(resources.configuration)
         config.setLocale(locale)
-        context.applicationContext.createConfigurationContext(config)
+
+        resources.updateConfiguration(config, resources.displayMetrics) // ✅ force update
     }
+
+    fun stringDateFormat(date: Long): String {
+        val sdf = SimpleDateFormat("dd/MM/yyyy HH:mm:ss", Locale.getDefault())
+        val dateObject = Date(date)
+        return sdf.format(dateObject)
+    }
+
 }

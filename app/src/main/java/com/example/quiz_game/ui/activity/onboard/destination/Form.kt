@@ -1,9 +1,12 @@
 package com.example.quiz_game.ui.activity.onboard.destination
 
 import androidx.compose.foundation.horizontalScroll
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.Text
@@ -13,6 +16,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -26,6 +30,7 @@ import androidx.navigation.compose.rememberNavController
 import com.example.quiz_game.App
 import com.example.quiz_game.R
 import com.example.quiz_game.other.Constants
+import com.example.quiz_game.other.scaleDownOnPress
 import com.example.quiz_game.ui.activity.main.MainActivity
 import com.example.quiz_game.ui.activity.onboard.OnboardDestination
 import com.example.quiz_game.ui.shared.ButtonPrimary
@@ -51,6 +56,7 @@ fun Form(
     var avatarString by rememberSaveable {
         mutableIntStateOf(R.string.app_name)
     }
+    val interactionSource = remember { MutableInteractionSource() }
 
     LaunchedEffect(Unit) {
         if (App.userPrefs.contains("onboarded") && App.userPrefs.getBoolean("onboarded", true)) {
@@ -71,7 +77,7 @@ fun Form(
             verticalAlignment = Alignment.CenterVertically,
             modifier = Modifier.horizontalScroll(rememberScrollState())
         ) {
-            Constants.USER_AVATARS.entries.onEach { (drawable, string) ->
+            Constants.USER_AVATARS.onEach { (drawable, string) ->
                 FilterChip(
                     selected = avatarDrawable == drawable,
                     enabled = avatarDrawable != drawable,
@@ -84,10 +90,15 @@ fun Form(
                     },
                     leadingIcon = {
                         IconButton(
-                            painter = painterResource(avatarDrawable),
+                            painter = painterResource(drawable),
                             contentDescription = null
                         )
-                    }
+                    },
+                    modifier = modifier
+                        .scaleDownOnPress(
+                            scaleRatio = .2f,
+                            interactionSource = interactionSource
+                        )
                 )
             }
         }

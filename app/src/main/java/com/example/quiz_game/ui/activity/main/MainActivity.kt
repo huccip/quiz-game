@@ -1,7 +1,6 @@
 package com.example.quiz_game.ui.activity.main
 
 import android.os.Bundle
-import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
@@ -17,7 +16,9 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.toRoute
 import com.example.quiz_game.AppDestination
+import com.example.quiz_game.BaseActivity
 import com.example.quiz_game.ui.activity.main.MainDestination.Home
 import com.example.quiz_game.ui.activity.main.destination.Browse
 import com.example.quiz_game.ui.activity.main.destination.Game
@@ -33,7 +34,7 @@ import kotlinx.serialization.Serializable
 
 private const val TAG = "test1234 MainActivity"
 
-class MainActivity : ComponentActivity() {
+class MainActivity : BaseActivity() {
 
     val sharedViewModel by viewModels<SharedViewModel>()
     val categoryViewModel by viewModels<CategoryViewModel>()
@@ -82,13 +83,24 @@ class MainActivity : ComponentActivity() {
                             }
 
                             composable<MainDestination.Game> {
-                                Game()
+                                Game(
+                                    quizState = quizState,
+                                    categoryName = it.toRoute<MainDestination.Game>().categoryName,
+                                    sharedAction = sharedViewModel::onAction,
+                                    quizAction = quizViewModel::onAction,
+                                    categoryState = categoryState,
+                                    sharedState = sharedState,
+                                )
                             }
 
                             composable<MainDestination.Browse> {
                                 Browse(
                                     sharedState = sharedState,
                                     categoryState = categoryState,
+                                    sharedAction = sharedViewModel::onAction,
+                                    navController = navController,
+                                    quizAction = quizViewModel::onAction,
+                                    categoryAction = categoryViewModel::onAction
                                 )
                             }
 
@@ -110,7 +122,7 @@ sealed interface MainDestination : AppDestination {
     data object Home : MainDestination
 
     @Serializable
-    data object Game : MainDestination
+    data class Game(val categoryName: String? = null) : MainDestination
 
     @Serializable
     data object Browse : MainDestination

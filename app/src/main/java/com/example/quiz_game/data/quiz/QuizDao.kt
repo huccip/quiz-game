@@ -24,4 +24,7 @@ interface QuizDao {
 
     @Query("DELETE FROM quizzes")
     fun truncate()
+
+    @Query("UPDATE quizzes SET answeredAt = :answeredAt WHERE uid = :uid")
+    fun updateAnsweredAt(uid: String, answeredAt: String)
 }
