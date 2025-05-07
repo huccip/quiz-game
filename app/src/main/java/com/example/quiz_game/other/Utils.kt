@@ -1,8 +1,10 @@
 package com.example.quiz_game.other
 
+import android.content.Context
 import android.content.res.Configuration
 import android.util.Log
 import com.example.quiz_game.App
+import com.example.quiz_game.R
 import com.google.mlkit.common.model.DownloadConditions
 import com.google.mlkit.nl.translate.Translation
 import com.google.mlkit.nl.translate.Translator
@@ -99,6 +101,38 @@ object Utils {
         val sdf = SimpleDateFormat("dd/MM/yyyy HH:mm:ss", Locale.getDefault())
         val dateObject = Date(date)
         return sdf.format(dateObject)
+    }
+
+    fun achievementIcon(achievement: String, context: Context): Int {
+        return when (achievement) {
+            context.getString(R.string.achievements_no_mistakes) -> {
+                R.drawable.ic_no_mistake
+            }
+
+            context.getString(R.string.achievements_new_record) -> {
+                R.drawable.ic_new_record
+            }
+
+            context.getString(R.string.achievements_one_mistake) -> {
+                R.drawable.ic_one_mistake
+            }
+
+            context.getString(R.string.achievements_two_mistakes) -> {
+                R.drawable.ic_two_mistake
+            }
+
+            context.getString(R.string.achievements_ten_mistakes) -> {
+                R.drawable.ic_ten_mistake
+            }
+
+            context.getString(R.string.achievements_twenty_mistakes) -> {
+                R.drawable.ic_twenty_mistakes
+            }
+
+            else -> {
+                R.drawable.ic_launcher_foreground
+            }
+        }
     }
 
 }

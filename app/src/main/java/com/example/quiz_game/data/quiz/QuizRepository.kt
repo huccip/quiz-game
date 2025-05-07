@@ -180,4 +180,12 @@ object QuizRepository {
             onTimeout = onError
         )
     }
+
+    suspend fun updateExpired(uid: String, onSuccess: () -> Unit, onError: (Throwable) -> Unit) {
+        runWithTimeout(
+            block = { App.db.quizDao().updateExpired(uid) },
+            onFinish = onSuccess,
+            onTimeout = onError
+        )
+    }
 }

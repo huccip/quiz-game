@@ -20,6 +20,7 @@ data class Quiz(
     @SerializedName("incorrect_answers")
     var incorrectAnswers: List<String>? = null,
     var mark: Int? = null,
+    var expired: Boolean = false,
 ) {
     fun generateUid(): String = Base64.encodeToString(
         (type + difficulty + category + question + correctAnswer + incorrectAnswers?.fastJoinToString(

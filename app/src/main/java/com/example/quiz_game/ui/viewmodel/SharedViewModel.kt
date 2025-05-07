@@ -88,11 +88,27 @@ class SharedViewModel : ViewModel() {
 
                     App.userPrefs.edit {
                         putInt("score", App.userPrefs.getInt("score", 0) + action.mark)
+                        state.value = state.value.copy(executing = false)
+                        commit()
+                    }
+                }
+
+                is SharedAction.FinishQuizSession -> {
+                    state.value = state.value.copy(
+                        executing = true
+                    )
+
+                    App.userPrefs.edit {
                         putStringSet(
                             "achievements",
                             App.userPrefs.getStringSet("achievements", mutableSetOf())?.apply {
-                                if (App.userPrefs.getInt("score", 0) > action.mark) {
-                                    add(action.context.getString(R.string.achievements_new_score))
+                                if (App.userPrefs.getInt("score", 0) > App.userPrefs.getInt("high_score", 0)) {
+                                    add(action.context.getString(R.string.achievements_new_record))
+                                    App.userPrefs.edit {
+                                        putInt("high_score", App.userPrefs.getInt("score", 0))
+                                        putInt("score", 0)
+                                        commit()
+                                    }
                                 }
 
                                 add(
@@ -101,17 +117,12 @@ class SharedViewModel : ViewModel() {
                                         1 -> action.context.getString(R.string.achievements_one_mistake)
                                         2 -> action.context.getString(R.string.achievements_two_mistakes)
                                         10 -> action.context.getString(R.string.achievements_ten_mistakes)
-                                        30 -> action.context.getString(R.string.achievements_thirty_mistakes)
-                                        50 -> action.context.getString(R.string.achievements_fifty_mistakes)
+                                        20 -> action.context.getString(R.string.achievements_ten_mistakes)
                                         else -> action.context.getString(R.string.achievements_empty)
                                     }
                                 )
                             }
                         )
-
-                        state.value = state.value.copy(executing = false)
-
-                        commit()
                     }
                 }
             }
@@ -136,6 +147,6 @@ sealed interface SharedAction {
     data object PrepareTranslator : SharedAction
     data class Restart(val context: Context) : SharedAction
 
-    data class UpdateScore(val context: Context, val mark: Int, val incorrectlyAnswered: Int) :
-        SharedAction
+    data class UpdateScore(val mark: Int) : SharedAction
+    data class FinishQuizSession(val context: Context, val incorrectlyAnswered: Int) : SharedAction
 }

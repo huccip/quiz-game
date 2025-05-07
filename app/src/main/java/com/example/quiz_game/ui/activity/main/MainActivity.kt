@@ -19,6 +19,7 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
 import com.example.quiz_game.AppDestination
 import com.example.quiz_game.BaseActivity
+import com.example.quiz_game.data.quiz.Quiz
 import com.example.quiz_game.ui.activity.main.MainDestination.Home
 import com.example.quiz_game.ui.activity.main.destination.Browse
 import com.example.quiz_game.ui.activity.main.destination.Game
@@ -112,7 +113,13 @@ class MainActivity : BaseActivity() {
                             }
 
                             composable<MainDestination.PostGame> {
-                                PostGame()
+                                PostGame(
+                                    sharedAction = sharedViewModel::onAction,
+                                    quizAction = quizViewModel::onAction,
+                                    navController = navController,
+                                    expiredUids = it.toRoute<MainDestination.PostGame>().expiredUids,
+                                    quizState = quizState
+                                )
                             }
                         }
                     }
@@ -136,5 +143,5 @@ sealed interface MainDestination : AppDestination {
     data object Language : MainDestination
 
     @Serializable
-    data object PostGame : MainDestination
+    data class PostGame(val expiredUids: List<String>) : MainDestination
 }

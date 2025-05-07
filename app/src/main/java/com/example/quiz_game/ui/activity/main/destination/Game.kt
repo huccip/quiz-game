@@ -1,5 +1,6 @@
 package com.example.quiz_game.ui.activity.main.destination
 
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -13,6 +14,7 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -27,6 +29,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.util.fastMap
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.example.quiz_game.R
@@ -50,7 +53,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 
-// TODO: Fix the button behavior and track the score (log mark per question)
+// TODO: Fix
 
 private const val TAG = "test1234 Game"
 
@@ -61,61 +64,81 @@ fun Game(
     quizState: QuizState = QuizState(),
     quizAction: (QuizAction) -> Unit = {},
     sharedAction: (SharedAction) -> Unit = {},
-    sharedState: SharedState = SharedState(),
-    categoryState: CategoryState = CategoryState(),
     navController: NavController = rememberNavController(),
 ) {
-    if (quizState.executing.or(sharedState.executing).or(categoryState.executing)) {
-        LoadingInfiniteLine(subject = arrayOf(stringResource(R.string.loading_quizzes_by_category)))
-    } else {
-        val context = LocalContext.current
-        var currentQuizIndex by rememberSaveable { mutableIntStateOf(0) }
+    val context = LocalContext.current
+    var currentQuizIndex by rememberSaveable { mutableIntStateOf(0) }
 
-        val quizzes = categoryName?.let { category ->
-            quizState.quizzes.filter { it.category == category }
-        } ?: quizState.quizzes
+    // Filter quizzes by category
+    val quizzes = categoryName?.let { category ->
+        quizState.quizzes.filter { it.category == category }
+    } ?: quizState.quizzes
 
-        var selectedAnswer by remember { mutableStateOf<String?>(null) }
-        var showFeedback by remember { mutableStateOf(false) }
-        var lastMark by remember { mutableIntStateOf(0) }
-        var incorrectlyAnswered by remember { mutableIntStateOf(0) }
+    // Debugging output to check the quizzes data
+    if (quizzes.isEmpty()) {
+        Log.e("test1234 Game", "Quizzes list is empty. categoryName: $categoryName, quizState: ${quizState.quizzes}")
+    }
 
-        QuizCard(
-            categoryName = quizzes[currentQuizIndex].category,
-            question = quizzes[currentQuizIndex].question.orEmpty(),
-            choices = listOf(quizzes[currentQuizIndex].correctAnswer.orEmpty()) + (quizzes[currentQuizIndex].incorrectAnswers
-                ?: emptyList()),
-            isLastQuestion = currentQuizIndex == quizzes.size - 1,
-            onAnswerSelected = { selectedAnswer = it },
-            quizzes = quizzes,
-            currentQuizIndex = currentQuizIndex,
-            correctAnswer = quizzes[currentQuizIndex].correctAnswer,
-            onConfirm = { answer ->
-                val currentQuiz = quizzes[currentQuizIndex]
-                val correct = currentQuiz.correctAnswer
-                val markEarned =
-                    if (answer == correct) currentQuiz.generateMark() else -currentQuiz.generateMark()
+    // Ensure that quizzes is not empty and currentQuizIndex is within valid bounds
+    if (quizzes.isEmpty() || currentQuizIndex >= quizzes.size) {
+        Text("No quizzes available or index is invalid.")
+        return
+    }
 
-                lastMark = markEarned
-                showFeedback = true
+    val quiz = quizzes[currentQuizIndex]
+    val choices = buildList {
+        quiz.correctAnswer?.let { add(it) }
+        quiz.incorrectAnswers?.let { addAll(it) }
+    }.shuffled() // Randomize the choices
 
-                if (answer != correct) incorrectlyAnswered += 1
-                sharedAction(SharedAction.UpdateScore(context, markEarned, incorrectlyAnswered))
+    var selectedAnswer by remember { mutableStateOf<String?>(null) }
+    var showFeedback by remember { mutableStateOf(false) }
+    var lastMark by remember { mutableIntStateOf(0) }
+    var incorrectlyAnswered by remember { mutableIntStateOf(0) }
 
-                // Delay to show feedback before proceeding
-                CoroutineScope(Dispatchers.Main).launch {
-                    delay(1000)
-                    selectedAnswer = null
-                    showFeedback = false
-                    if (currentQuizIndex < quizzes.lastIndex) {
-                        currentQuizIndex++
-                    } else {
-                        sharedAction(SharedAction.Navigate(MainDestination.PostGame, navController))
-                    }
+    // QuizCard composable will handle the display of the question and choices
+    QuizCard(
+        categoryName = quiz.category,
+        question = quiz.question.orEmpty(),
+        choices = choices,
+        isLastQuestion = currentQuizIndex == quizzes.lastIndex,
+        onAnswerSelected = { selectedAnswer = it },
+        quizzes = quizzes,
+        currentQuizIndex = currentQuizIndex,
+        correctAnswer = quiz.correctAnswer,
+        onConfirm = { answer ->
+            val correct = quiz.correctAnswer
+            val markEarned = if (answer == correct) quiz.mark ?: 0 else -(quiz.mark ?: 0)
+
+            lastMark = markEarned
+            showFeedback = true
+
+            if (answer != correct) incorrectlyAnswered += 1
+            sharedAction(SharedAction.UpdateScore(markEarned))
+            quizAction(QuizAction.UpdateExpired(quiz.uid))
+
+            // Handle the logic to move to the next question or finish the quiz
+            CoroutineScope(Dispatchers.Main).launch {
+                delay(1000)  // Delay for feedback visibility
+                selectedAnswer = null
+                showFeedback = false
+                if (currentQuizIndex < quizzes.lastIndex) {
+                    currentQuizIndex++  // Move to the next question
+                } else {
+                    // Once all questions are answered, finish the quiz
+                    sharedAction(SharedAction.FinishQuizSession(context, incorrectlyAnswered))
+
+                    // Navigate to the PostGame screen
+                    sharedAction(
+                        SharedAction.Navigate(
+                            MainDestination.PostGame(quizzes.fastMap { it.uid }),
+                            navController
+                        )
+                    )
                 }
             }
-        )
-    }
+        }
+    )
 }
 
 @Composable
@@ -134,21 +157,23 @@ fun QuizCard(
 ) {
     var selectedAnswer by rememberSaveable { mutableStateOf<String?>(null) }
     var isAnswered by rememberSaveable { mutableStateOf(false) }
-    var timeRemaining by rememberSaveable { mutableIntStateOf(10) }
+    var timeRemaining by rememberSaveable { mutableIntStateOf(15) }
     var translatedTimerText by remember { mutableStateOf("") }
 
-    // Reset isAnswered state when the question changes (every time currentQuizIndex updates)
-    LaunchedEffect(key1 = question) {
+    // Reset when the question changes
+    LaunchedEffect(question) {
         isAnswered = false
         selectedAnswer = null
-        timeRemaining = 15 // Reset time for each new question
+        timeRemaining = 15
     }
 
-    // TIMER
+    // Countdown timer
     LaunchedEffect(timeRemaining, isAnswered) {
         if (timeRemaining > 0 && !isAnswered) {
             delay(1000L)
-            timeRemaining -= 1
+            timeRemaining--
+        } else if (timeRemaining == 0 && !isAnswered) {
+            isAnswered = true // reveal correct answers, don't confirm yet
         }
 
         translatedTimerText =
@@ -156,29 +181,26 @@ fun QuizCard(
                 ?: "Time remaining: $timeRemaining seconds"
     }
 
-    val showAnswers = isAnswered || timeRemaining == 0
+    val showAnswers = isAnswered
     val buttonText = when {
-        isLastQuestion -> "Finish"
+        isLastQuestion && showAnswers -> "Finish"
         showAnswers -> "Next question"
         selectedAnswer != null -> "Confirm my choice"
         else -> "Waiting..."
     }
 
-    // Track the correct and wrong answers states after confirmation
-    val choiceStates = choices.associate { choice ->
-        choice to (choice == correctAnswer)
-    }
+    val choiceStates = choices.associateWith { it == correctAnswer }
 
     Card(
         modifier = modifier.padding(16.dp),
-        elevation = CardDefaults.cardElevation(defaultElevation = 8.dp),
+        elevation = CardDefaults.cardElevation(8.dp),
         shape = RoundedCornerShape(16.dp),
     ) {
         Column(
             modifier = Modifier
                 .padding(16.dp)
                 .verticalScroll(rememberScrollState()),
-            horizontalAlignment = Alignment.CenterHorizontally,
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
             categoryName?.let {
                 TextFancy(text = it, color = MaterialTheme.colorScheme.primary)
@@ -201,36 +223,30 @@ fun QuizCard(
                         .fillMaxWidth()
                         .padding(vertical = 4.dp),
                     reveal = showAnswers,
-                    isCorrectChoice = choiceStates[choice] == true, // Only true if this choice is correct
+                    isCorrectChoice = choiceStates[choice] == true,
                     isSelected = selectedAnswer == choice,
-                    enabled = !showAnswers // Prevent selection after confirmation
+                    enabled = !showAnswers
                 ) {
                     TextButton(text = choice)
                 }
             }
 
-            // Show Timer Text
             TextSmol(
                 text = translatedTimerText,
                 color = if (timeRemaining <= 3) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurface,
                 modifier = Modifier.padding(top = 8.dp)
             )
 
-            // Show Score Overlay
-            if (isAnswered && selectedAnswer != null) {
-                val markText = if (quizzes.isNotEmpty() && currentQuizIndex < quizzes.size) {
-                    val currentQuiz = quizzes[currentQuizIndex]
-                    if (selectedAnswer == currentQuiz.correctAnswer) {
-                        "+${currentQuiz.generateMark()}"
-                    } else {
-                        "-${currentQuiz.generateMark()}"
-                    }
-                } else {
-                    "Error: Invalid question index"
-                }
+            // Show score feedback after confirming (only if user answered)
+            if (showAnswers && selectedAnswer != null) {
+                val currentQuiz = quizzes.getOrNull(currentQuizIndex)
+                val mark = currentQuiz?.mark ?: 0
+                val markText = if (selectedAnswer == correctAnswer) "+$mark" else "-$mark"
+                val color = if (selectedAnswer == correctAnswer) Color.Green else MaterialTheme.colorScheme.error
+
                 TextBig(
                     text = markText,
-                    color = if (selectedAnswer == correctAnswer) Color.Green else MaterialTheme.colorScheme.error,
+                    color = color,
                     modifier = Modifier
                         .padding(top = 16.dp)
                         .background(Color.Black.copy(alpha = 0.7f), RoundedCornerShape(8.dp))

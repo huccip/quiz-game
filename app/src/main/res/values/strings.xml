@@ -37,12 +37,13 @@
 
     <string name="guide_button_finish">Got it!</string>
 
-    <string name="achievements_new_score">New score unlocked</string>
+    <string name="achievements_new_record">New score record!!</string>
     <string name="achievements_no_mistakes">The nerd</string>
     <string name="achievements_one_mistake">People make mistakes, and it\'s okay</string>
     <string name="achievements_two_mistakes">Fool me once shame on you, fool me twice shame on me</string>
-    <string name="achievements_ten_mistakes">Don\'t give up, you got this</string>
-    <string name="achievements_thirty_mistakes">Yeah you should probably give up</string>
-    <string name="achievements_fifty_mistakes">Game over bro</string>
+    <string name="achievements_ten_mistakes">Don\'t give up now, you got this</string>
+    <string name="achievements_twenty_mistakes">Yeah… Better luck next time</string>
     <string name="achievements_empty" />
+
+    <string name="postgame_button_navigate_home">Restart</string>
 </resources>

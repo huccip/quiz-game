@@ -24,4 +24,7 @@ interface QuizDao {
 
     @Query("DELETE FROM quizzes")
     fun truncate()
+
+    @Query("UPDATE quizzes SET expired = 1 WHERE uid = :uid")
+    fun updateExpired(uid: String)
 }

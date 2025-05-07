@@ -41,10 +41,18 @@ class QuizViewModel : ViewModel() {
                     )
                 }
 
-                is QuizAction.Answered -> execute {
+                is QuizAction.DeleteByUid -> execute {
                     Repository.quizRepository.deleteByUid(
-                        uid = action.quiz.uid,
+                        uid = action.uid,
                         onSuccess = { onAction(QuizAction.GetAll) },
+                        onError = { updateStateOnError(it) }
+                    )
+                }
+
+                is QuizAction.UpdateExpired -> execute {
+                    Repository.quizRepository.updateExpired(
+                        uid = action.uid,
+                        onSuccess = { updateStateOnSuccess() },
                         onError = { updateStateOnError(it) }
                     )
                 }
@@ -87,5 +95,6 @@ sealed interface QuizAction {
     data object GetAll : QuizAction
     data class GetByCategory(val category: String) : QuizAction
     data class GetByUid(val uid: String) : QuizAction
-    data class Answered(val quiz: Quiz) : QuizAction
+    data class DeleteByUid(val uid: String) : QuizAction
+    data class UpdateExpired(val uid: String) : QuizAction
 }
