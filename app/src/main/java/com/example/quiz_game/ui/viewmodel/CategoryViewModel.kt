@@ -84,12 +84,9 @@ class CategoryViewModel() : ViewModel() {
     }
 
     private fun updateStateOnSuccess(data: Category? = null, list: List<Category>? = null) {
-        state.value = state.value.copy(
-            executing = false,
-            errors = arrayListOf(),
-            category = data ?: Category(),
-            categories = list ?: emptyList()
-        )
+        state.value = state.value.copy(executing = false)
+        data?.let { state.value = state.value.copy(category = data) }
+        list?.let { state.value = state.value.copy(categories = list) }
     }
 }
 

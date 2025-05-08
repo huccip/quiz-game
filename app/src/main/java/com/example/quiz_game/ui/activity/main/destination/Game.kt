@@ -1,18 +1,15 @@
 package com.example.quiz_game.ui.activity.main.destination
 
-import android.util.Log
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -20,38 +17,28 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.util.fastMap
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
-import com.example.quiz_game.R
 import com.example.quiz_game.data.quiz.Quiz
+import com.example.quiz_game.other.Constants
 import com.example.quiz_game.ui.activity.main.MainDestination
 import com.example.quiz_game.ui.shared.ButtonGameChoices
 import com.example.quiz_game.ui.shared.ButtonPrimary
-import com.example.quiz_game.ui.shared.LoadingInfiniteLine
 import com.example.quiz_game.ui.shared.TextBig
 import com.example.quiz_game.ui.shared.TextButton
 import com.example.quiz_game.ui.shared.TextFancy
 import com.example.quiz_game.ui.shared.TextSmol
-import com.example.quiz_game.ui.viewmodel.CategoryState
 import com.example.quiz_game.ui.viewmodel.QuizAction
 import com.example.quiz_game.ui.viewmodel.QuizState
 import com.example.quiz_game.ui.viewmodel.SharedAction
-import com.example.quiz_game.ui.viewmodel.SharedState
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.tasks.await
 
 // TODO: Fix
 
@@ -67,75 +54,53 @@ fun Game(
     navController: NavController = rememberNavController(),
 ) {
     val context = LocalContext.current
-    var currentQuizIndex by rememberSaveable { mutableIntStateOf(0) }
 
-    // Filter quizzes by category
-    val quizzes = categoryName?.let { category ->
+    val quizzes = (categoryName?.let { category ->
         quizState.quizzes.filter { it.category == category }
-    } ?: quizState.quizzes
+    } ?: quizState.quizzes)
+        .take(Constants.DEFAULT_QUIZ_SESSION_AMOUNT)
+        .filter { !it.expired }
 
-    // Debugging output to check the quizzes data
     if (quizzes.isEmpty()) {
-        Log.e("test1234 Game", "Quizzes list is empty. categoryName: $categoryName, quizState: ${quizState.quizzes}")
-    }
-
-    // Ensure that quizzes is not empty and currentQuizIndex is within valid bounds
-    if (quizzes.isEmpty() || currentQuizIndex >= quizzes.size) {
-        Text("No quizzes available or index is invalid.")
+        Text("No quizzes found for this category.")
         return
     }
 
-    val quiz = quizzes[currentQuizIndex]
+    var quizIndex by rememberSaveable { mutableIntStateOf(0) }
+    var incorrectlyAnswered by rememberSaveable { mutableIntStateOf(0) }
+    val quiz = quizzes[quizIndex]
     val choices = buildList {
         quiz.correctAnswer?.let { add(it) }
         quiz.incorrectAnswers?.let { addAll(it) }
-    }.shuffled() // Randomize the choices
+    }.shuffled()
 
-    var selectedAnswer by remember { mutableStateOf<String?>(null) }
-    var showFeedback by remember { mutableStateOf(false) }
-    var lastMark by remember { mutableIntStateOf(0) }
-    var incorrectlyAnswered by remember { mutableIntStateOf(0) }
-
-    // QuizCard composable will handle the display of the question and choices
     QuizCard(
-        categoryName = quiz.category,
-        question = quiz.question.orEmpty(),
+        quiz = quiz,
         choices = choices,
-        isLastQuestion = currentQuizIndex == quizzes.lastIndex,
-        onAnswerSelected = { selectedAnswer = it },
-        quizzes = quizzes,
-        currentQuizIndex = currentQuizIndex,
-        correctAnswer = quiz.correctAnswer,
-        onConfirm = { answer ->
-            val correct = quiz.correctAnswer
-            val markEarned = if (answer == correct) quiz.mark ?: 0 else -(quiz.mark ?: 0)
+        correctChoice = quiz.correctAnswer,
+        onAnswered = { answer, mark ->
+            quizIndex += 1
+            quiz.incorrectAnswers?.let { incorrects ->
+                if (incorrects.contains(answer)) incorrectlyAnswered += 1
+            }
 
-            lastMark = markEarned
-            showFeedback = true
+            // update this session's score
+            sharedAction(SharedAction.UpdateScore(mark))
 
-            if (answer != correct) incorrectlyAnswered += 1
-            sharedAction(SharedAction.UpdateScore(markEarned))
+            // update quiz expiration
             quizAction(QuizAction.UpdateExpired(quiz.uid))
 
-            // Handle the logic to move to the next question or finish the quiz
-            CoroutineScope(Dispatchers.Main).launch {
-                delay(1000)  // Delay for feedback visibility
-                selectedAnswer = null
-                showFeedback = false
-                if (currentQuizIndex < quizzes.lastIndex) {
-                    currentQuizIndex++  // Move to the next question
-                } else {
-                    // Once all questions are answered, finish the quiz
-                    sharedAction(SharedAction.FinishQuizSession(context, incorrectlyAnswered))
-
-                    // Navigate to the PostGame screen
-                    sharedAction(
-                        SharedAction.Navigate(
-                            MainDestination.PostGame(quizzes.fastMap { it.uid }),
-                            navController
-                        )
+            if (quizIndex >= quizzes.lastIndex) {
+                // update achievements
+                sharedAction(
+                    SharedAction.UpdateTrophies(
+                        context,
+                        incorrectlyAnswered
                     )
-                }
+                )
+
+                // end session
+                sharedAction(SharedAction.Navigate(MainDestination.PostGame, navController))
             }
         }
     )
@@ -144,131 +109,131 @@ fun Game(
 @Composable
 fun QuizCard(
     modifier: Modifier = Modifier,
-    categoryName: String? = null,
-    question: String,
-    choices: List<String>,
-    correctAnswer: String? = null,
-    onAnswerSelected: (String) -> Unit,
-    onConfirm: (String) -> Unit,
-    sharedState: SharedState = SharedState(),
-    isLastQuestion: Boolean = false,
-    quizzes: List<Quiz> = emptyList(),
-    currentQuizIndex: Int = 0
+    quiz: Quiz = Quiz(),
+    choices: List<String> = emptyList<String>(),
+    correctChoice: String? = null,
+    onAnswered: (String, Int) -> Unit = { str, int -> }, // send selected answer and its mark
 ) {
-    var selectedAnswer by rememberSaveable { mutableStateOf<String?>(null) }
-    var isAnswered by rememberSaveable { mutableStateOf(false) }
-    var timeRemaining by rememberSaveable { mutableIntStateOf(15) }
-    var translatedTimerText by remember { mutableStateOf("") }
+    var answer by rememberSaveable { mutableStateOf("") }
+    var enabled by rememberSaveable { mutableStateOf(true) }
+    var answeredState by rememberSaveable { mutableStateOf(AnsweredState.IDLE) }
 
-    // Reset when the question changes
-    LaunchedEffect(question) {
-        isAnswered = false
-        selectedAnswer = null
-        timeRemaining = 15
+    var timer by rememberSaveable { mutableIntStateOf(Constants.DEFAULT_QUIZ_TIMER) }
+
+    LaunchedEffect(quiz.uid) {
+        println("test1234 ${quiz.uid}")
+        timer = Constants.DEFAULT_QUIZ_TIMER
+        enabled = true
+        answer = ""
+        answeredState = AnsweredState.IDLE
     }
 
-    // Countdown timer
-    LaunchedEffect(timeRemaining, isAnswered) {
-        if (timeRemaining > 0 && !isAnswered) {
-            delay(1000L)
-            timeRemaining--
-        } else if (timeRemaining == 0 && !isAnswered) {
-            isAnswered = true // reveal correct answers, don't confirm yet
+    LaunchedEffect(answeredState) {
+        if (answeredState == AnsweredState.LOCKED) {
+            delay(3000L)
+            onAnswered(answer, if (answer == correctChoice) +quiz.mark!! else -quiz.mark!!)
         }
-
-        translatedTimerText =
-            sharedState.translator?.translate("Time remaining: $timeRemaining seconds")?.await()
-                ?: "Time remaining: $timeRemaining seconds"
     }
 
-    val showAnswers = isAnswered
-    val buttonText = when {
-        isLastQuestion && showAnswers -> "Finish"
-        showAnswers -> "Next question"
-        selectedAnswer != null -> "Confirm my choice"
-        else -> "Waiting..."
+    LaunchedEffect(timer) {
+        if (answeredState != AnsweredState.LOCKED) {
+            if (timer > 0) {
+                delay(1000L)
+                timer -= 1
+            } else {
+                // same logic as if clicked "confirm"
+                enabled = false
+                answeredState = AnsweredState.LOCKED
+            }
+        }
     }
 
-    val choiceStates = choices.associateWith { it == correctAnswer }
-
-    Card(
-        modifier = modifier.padding(16.dp),
-        elevation = CardDefaults.cardElevation(8.dp),
-        shape = RoundedCornerShape(16.dp),
-    ) {
+    Card(Modifier.padding(16.dp)) {
         Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
             modifier = Modifier
                 .padding(16.dp)
-                .verticalScroll(rememberScrollState()),
-            horizontalAlignment = Alignment.CenterHorizontally
+                .verticalScroll(rememberScrollState())
         ) {
-            categoryName?.let {
+            quiz.category?.let {
                 TextFancy(text = it, color = MaterialTheme.colorScheme.primary)
-                Spacer(modifier = Modifier.height(8.dp))
-                HorizontalDivider(color = MaterialTheme.colorScheme.primary)
-                Spacer(modifier = Modifier.height(8.dp))
+
+                Spacer(Modifier.height(16.dp))
+                HorizontalDivider(thickness = 4.dp, color = MaterialTheme.colorScheme.primary)
+                Spacer(Modifier.height(16.dp))
             }
 
-            TextBig(text = question, modifier = Modifier.padding(bottom = 16.dp))
+            quiz.question?.let {
+                TextBig(text = it)
 
-            choices.forEach { choice ->
-                ButtonGameChoices(
-                    onClick = {
-                        if (!isAnswered && timeRemaining > 0) {
-                            selectedAnswer = choice
-                            onAnswerSelected(choice)
-                        }
-                    },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(vertical = 4.dp),
-                    reveal = showAnswers,
-                    isCorrectChoice = choiceStates[choice] == true,
-                    isSelected = selectedAnswer == choice,
-                    enabled = !showAnswers
-                ) {
-                    TextButton(text = choice)
-                }
+                Spacer(Modifier.height(16.dp))
             }
 
-            TextSmol(
-                text = translatedTimerText,
-                color = if (timeRemaining <= 3) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurface,
-                modifier = Modifier.padding(top = 8.dp)
-            )
-
-            // Show score feedback after confirming (only if user answered)
-            if (showAnswers && selectedAnswer != null) {
-                val currentQuiz = quizzes.getOrNull(currentQuizIndex)
-                val mark = currentQuiz?.mark ?: 0
-                val markText = if (selectedAnswer == correctAnswer) "+$mark" else "-$mark"
-                val color = if (selectedAnswer == correctAnswer) Color.Green else MaterialTheme.colorScheme.error
-
-                TextBig(
-                    text = markText,
-                    color = color,
-                    modifier = Modifier
-                        .padding(top = 16.dp)
-                        .background(Color.Black.copy(alpha = 0.7f), RoundedCornerShape(8.dp))
-                        .padding(8.dp)
-                )
-            }
-
-            Spacer(modifier = Modifier.height(16.dp))
-            ButtonPrimary(
-                onClick = {
-                    if (!isAnswered && selectedAnswer != null) {
-                        isAnswered = true
-                        onConfirm(selectedAnswer ?: "")
-                    } else if (showAnswers) {
-                        onConfirm(selectedAnswer ?: "")
+            if (choices.isNotEmpty()) {
+                choices.onEach {
+                    ButtonGameChoices(
+                        modifier = Modifier.fillMaxWidth(),
+                        onClick = {
+                            answer = it
+                            answeredState = AnsweredState.PICKED
+                        },
+                        enabled = enabled && answer != it,
+                        isCorrectChoice = correctChoice == it,
+                        answeredState = answeredState
+                    ) {
+                        TextButton(text = it, modifier = Modifier.fillMaxWidth())
                     }
-                },
+                }
+
+                Spacer(Modifier.height(16.dp))
+                HorizontalDivider()
+                Spacer(Modifier.height(16.dp))
+            }
+
+            Column {
+                TextSmol(
+                    text = "Time remaining $timer seconds",
+                    color = when (timer) {
+                        in Constants.DEFAULT_QUIZ_TIMER / 2..Constants.DEFAULT_QUIZ_TIMER -> MaterialTheme.colorScheme.primary
+                        in Constants.DEFAULT_QUIZ_TIMER / 6..Constants.DEFAULT_QUIZ_TIMER / 2 -> Color.Yellow
+                        else -> MaterialTheme.colorScheme.error
+                    }
+                )
+                LinearProgressIndicator(
+                    progress = { timer.toFloat() / Constants.DEFAULT_QUIZ_TIMER },
+                    color = when (timer) {
+                        in Constants.DEFAULT_QUIZ_TIMER / 2..Constants.DEFAULT_QUIZ_TIMER -> MaterialTheme.colorScheme.primary
+                        in Constants.DEFAULT_QUIZ_TIMER / 6..Constants.DEFAULT_QUIZ_TIMER / 2 -> Color.Yellow
+                        else -> MaterialTheme.colorScheme.error
+                    },
+                    modifier = Modifier.fillMaxWidth()
+                )
+
+                Spacer(Modifier.height(16.dp))
+                HorizontalDivider()
+                Spacer(Modifier.height(16.dp))
+            }
+
+            ButtonPrimary(
                 modifier = Modifier.fillMaxWidth(),
-                enabled = selectedAnswer != null || showAnswers
+                onClick = {
+                    enabled = false
+                    answeredState = AnsweredState.LOCKED
+                },
+                enabled = answeredState == AnsweredState.PICKED
             ) {
-                TextButton(text = buttonText)
+                TextButton(
+                    text = when (answeredState) {
+                        AnsweredState.IDLE -> "Waiting..."
+                        AnsweredState.PICKED -> "Confirm answer"
+                        AnsweredState.LOCKED -> "Next question"
+                    }
+                )
             }
         }
     }
+}
+
+enum class AnsweredState {
+    IDLE, PICKED, LOCKED
 }

@@ -90,8 +90,7 @@ class MainActivity : BaseActivity() {
                                     categoryName = it.toRoute<MainDestination.Game>().categoryName,
                                     sharedAction = sharedViewModel::onAction,
                                     quizAction = quizViewModel::onAction,
-                                    categoryState = categoryState,
-                                    sharedState = sharedState,
+                                    navController = navController
                                 )
                             }
 
@@ -115,10 +114,9 @@ class MainActivity : BaseActivity() {
                             composable<MainDestination.PostGame> {
                                 PostGame(
                                     sharedAction = sharedViewModel::onAction,
-                                    quizAction = quizViewModel::onAction,
                                     navController = navController,
-                                    expiredUids = it.toRoute<MainDestination.PostGame>().expiredUids,
-                                    quizState = quizState
+                                    quizState = quizState,
+                                    quizAction = quizViewModel::onAction
                                 )
                             }
                         }
@@ -143,5 +141,5 @@ sealed interface MainDestination : AppDestination {
     data object Language : MainDestination
 
     @Serializable
-    data class PostGame(val expiredUids: List<String>) : MainDestination
+    data object PostGame : MainDestination
 }

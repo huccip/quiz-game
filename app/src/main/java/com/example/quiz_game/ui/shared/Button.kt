@@ -2,6 +2,7 @@ package com.example.quiz_game.ui.shared
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.IntrinsicSize
@@ -10,16 +11,12 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Clear
-import androidx.compose.material.icons.filled.Done
-import androidx.compose.material.icons.filled.Face
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.IconButtonDefaults
+import androidx.compose.material3.ListItem
+import androidx.compose.material3.ListItemDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedCard
-import androidx.compose.material3.OutlinedIconButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -34,6 +31,7 @@ import androidx.compose.ui.unit.sp
 import com.example.quiz_game.R
 import com.example.quiz_game.other.alphaOutOnPress
 import com.example.quiz_game.other.scaleDownOnPress
+import com.example.quiz_game.ui.activity.main.destination.AnsweredState
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
@@ -138,50 +136,41 @@ fun ButtonGameChoices(
     modifier: Modifier = Modifier,
     onClick: () -> Unit = {},
     enabled: Boolean = true,
-    reveal: Boolean = false,
     isCorrectChoice: Boolean = true,
-    isSelected: Boolean = false,
+    answeredState: AnsweredState = AnsweredState.IDLE,
     content: @Composable () -> Unit = {}
 ) {
     val interactionSource = remember { MutableInteractionSource() }
 
-    // Define the border color and content color based on the reveal and selection state
-    val borderColor = when {
-        reveal && isCorrectChoice -> Color.Green  // Correct answer
-        reveal && !isCorrectChoice -> MaterialTheme.colorScheme.error  // Wrong answer
-        isSelected -> MaterialTheme.colorScheme.primary  // Selected answer
-        else -> MaterialTheme.colorScheme.onSurface  // Default color
+    var contentColor = when {
+        !enabled && answeredState == AnsweredState.PICKED -> MaterialTheme.colorScheme.primary
+        !enabled && isCorrectChoice -> Color.Green
+        !enabled && !isCorrectChoice -> MaterialTheme.colorScheme.error
+        else -> MaterialTheme.colorScheme.onSurface
     }
 
-    val contentColor = borderColor
-
-    OutlinedIconButton(
-        onClick = onClick,
-        enabled = enabled,
-        border = BorderStroke(1.dp, borderColor),
-        colors = IconButtonDefaults.outlinedIconButtonColors(contentColor = contentColor),
-        interactionSource = interactionSource,
-        modifier = modifier.scaleDownOnPress(.2f, interactionSource)
-    ) {
-        Row(
-            horizontalArrangement = Arrangement.spacedBy(8.dp)
-        ) {
-            // If the answer is revealed, show a checkmark or cross for correct/incorrect answers
-            if (reveal) {
-                IconButton(
-                    imageVector = if (isCorrectChoice) Icons.Default.Done else Icons.Default.Clear,
-                    color = borderColor,
-                )
-            } else if (isSelected) {
-                // Show a selected icon (e.g., checkmark or filled circle) when the answer is chosen
-                IconButton(
-                    imageVector = Icons.Default.Face,
-                    color = borderColor,
-                )
+    ListItem(
+        colors = ListItemDefaults.colors(
+            headlineColor = contentColor,
+            trailingIconColor = contentColor,
+        ),
+        modifier = modifier
+            .scaleDownOnPress(.9f, interactionSource)
+            .clickable(
+                enabled = enabled,
+                interactionSource = interactionSource,
+                indication = null,
+                onClick = onClick
+            ),
+        headlineContent = {
+            content()
+        },
+        trailingContent = {
+            if (!enabled && answeredState == AnsweredState.PICKED) {
+                IconButton(painter = painterResource(R.drawable.ic_pin))
             }
-            content() // The actual choice content (text)
         }
-    }
+    )
 }
 
 

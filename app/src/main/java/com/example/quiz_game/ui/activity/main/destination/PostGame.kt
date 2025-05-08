@@ -39,6 +39,8 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.util.fastFilter
+import androidx.compose.ui.util.fastForEach
 import androidx.compose.ui.util.fastSumBy
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
@@ -63,9 +65,8 @@ import kotlin.random.Random
 fun PostGame(
     modifier: Modifier = Modifier,
     sharedAction: (SharedAction) -> Unit = {},
-    quizAction: (QuizAction) -> Unit,
+    quizAction: (QuizAction) -> Unit = {},
     quizState: QuizState = QuizState(),
-    expiredUids: List<String> = emptyList(),
     navController: NavController = rememberNavController()
 ) {
     val maximumScore by rememberSaveable {
@@ -85,24 +86,22 @@ fun PostGame(
         mutableStateOf(App.userPrefs.getString("nickname", null))
     }
 
-    LaunchedEffect(Unit) {
-        expiredUids.onEach {
-            quizAction(QuizAction.DeleteByUid(it))
-        }
-    }
-
-    // Animate the sweep angle of the arc from 0 to the current score
     val sweepAngle by animateFloatAsState(
         targetValue = (userScore.toFloat() / maximumScore.toFloat()) * 360f,
         animationSpec = tween(durationMillis = 1000, easing = FastOutSlowInEasing)
     )
+
+    LaunchedEffect(Unit) {
+        quizState.quizzes
+            .fastFilter { it.expired }
+            .fastForEach { quizAction(QuizAction.DeleteByUid(it.uid)) }
+    }
 
     Column(
         Modifier
             .verticalScroll(rememberScrollState())
             .padding(16.dp)
     ) {
-        // Header section with user info
         Box(
             modifier = Modifier.fillMaxWidth(),
             contentAlignment = Alignment.Center
@@ -119,7 +118,7 @@ fun PostGame(
                 drawArc(
                     color = Color.Green,
                     startAngle = 0f,
-                    sweepAngle = sweepAngle, // Animated sweepAngle
+                    sweepAngle = sweepAngle,
                     useCenter = true,
                     size = Size(100f, 100f),
                     style = Stroke(10f)
@@ -161,14 +160,16 @@ fun TrophyCard(modifier: Modifier = Modifier, achievement: String) {
     val context = LocalContext.current
     val iconRes = achievementIcon(achievement, context)
 
-    // Scale and Rotation Animation
     val scale by animateFloatAsState(
         targetValue = 1f,
         animationSpec = tween(durationMillis = 500, easing = FastOutSlowInEasing)
     )
 
     val rotation by animateFloatAsState(
-        targetValue = Random.nextFloat() * 10f + 20f,  // Random between 20° and 30°
+        targetValue = arrayOf(
+            Random.nextFloat() * 10f + 20f,
+            Random.nextFloat() * 10f - 20f
+        ).random(),
         animationSpec = tween(durationMillis = 500, easing = FastOutSlowInEasing)
     )
 
@@ -177,17 +178,14 @@ fun TrophyCard(modifier: Modifier = Modifier, achievement: String) {
             .fillMaxWidth()
             .padding(8.dp)
             .graphicsLayer(
-                scaleX = scale,  // Apply scale animation
-                scaleY = scale,  // Apply scale animation
-                rotationZ = rotation // Apply rotation animation
+                scaleX = scale,
+                scaleY = scale,
+                rotationZ = rotation
             ),
         elevation = CardDefaults.cardElevation(
             defaultElevation = 8.dp
         ),
         shape = RoundedCornerShape(16.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = Color(0xFFF5F5F5)
-        )
     ) {
         Row(
             modifier = Modifier
@@ -195,20 +193,17 @@ fun TrophyCard(modifier: Modifier = Modifier, achievement: String) {
                 .fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            // Icon for the achievement
             Image(
                 painter = painterResource(id = iconRes),
                 contentDescription = achievement,
                 modifier = Modifier
                     .size(40.dp)
                     .clip(CircleShape)
-                    .background(Color(0xFFFB6E5B))
                     .padding(8.dp)
             )
 
             Spacer(modifier = Modifier.width(12.dp))
 
-            // Achievement Text
             TextBig(
                 text = achievement,
             )

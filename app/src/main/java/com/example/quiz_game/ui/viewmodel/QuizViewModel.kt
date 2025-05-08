@@ -75,12 +75,9 @@ class QuizViewModel : ViewModel() {
     }
 
     private fun updateStateOnSuccess(data: Quiz? = null, list: List<Quiz>? = null) {
-        state.value = state.value.copy(
-            executing = false,
-            errors = arrayListOf(),
-            quiz = data ?: Quiz(),
-            quizzes = list ?: emptyList()
-        )
+        state.value = state.value.copy(executing = false)
+        data?.let { state.value = state.value.copy(quiz = data) }
+        list?.let { state.value = state.value.copy(quizzes = list) }
     }
 }
 

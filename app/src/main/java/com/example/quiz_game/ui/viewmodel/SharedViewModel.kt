@@ -93,7 +93,7 @@ class SharedViewModel : ViewModel() {
                     }
                 }
 
-                is SharedAction.FinishQuizSession -> {
+                is SharedAction.UpdateTrophies -> {
                     state.value = state.value.copy(
                         executing = true
                     )
@@ -148,5 +148,5 @@ sealed interface SharedAction {
     data class Restart(val context: Context) : SharedAction
 
     data class UpdateScore(val mark: Int) : SharedAction
-    data class FinishQuizSession(val context: Context, val incorrectlyAnswered: Int) : SharedAction
+    data class UpdateTrophies(val context: Context, val incorrectlyAnswered: Int) : SharedAction
 }
