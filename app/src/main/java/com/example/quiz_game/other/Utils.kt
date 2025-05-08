@@ -2,6 +2,7 @@ package com.example.quiz_game.other
 
 import android.content.Context
 import android.content.res.Configuration
+import android.text.Html
 import android.util.Log
 import com.example.quiz_game.App
 import com.example.quiz_game.R
@@ -134,5 +135,8 @@ object Utils {
             }
         }
     }
+
+    fun decodeHtml(html: String): String =
+        Html.fromHtml(html, Html.FROM_HTML_MODE_LEGACY).toString()
 
 }

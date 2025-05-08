@@ -4,7 +4,7 @@ import com.google.mlkit.nl.translate.TranslateLanguage
 
 object Constants {
     const val DEFAULT_QUIZ_AMOUNT = 50
-    const val DEFAULT_QUIZ_SESSION_AMOUNT = 20
+    const val DEFAULT_QUIZ_SESSION_AMOUNT = 2
     const val DEFAULT_QUIZ_TIMER = 21 // seconds
     val SUPPORTED_LANGUAGES = arrayOf(
         TranslateLanguage.ARABIC to "مصر" too "EG",

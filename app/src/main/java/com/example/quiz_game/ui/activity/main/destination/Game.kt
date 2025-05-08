@@ -1,6 +1,15 @@
 package com.example.quiz_game.ui.activity.main.destination
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.EaseInExpo
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -8,7 +17,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Card
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -17,6 +25,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -39,8 +48,6 @@ import com.example.quiz_game.ui.viewmodel.QuizAction
 import com.example.quiz_game.ui.viewmodel.QuizState
 import com.example.quiz_game.ui.viewmodel.SharedAction
 import kotlinx.coroutines.delay
-
-// TODO: Fix
 
 private const val TAG = "test1234 Game"
 
@@ -69,17 +76,18 @@ fun Game(
     var quizIndex by rememberSaveable { mutableIntStateOf(0) }
     var incorrectlyAnswered by rememberSaveable { mutableIntStateOf(0) }
     val quiz = quizzes[quizIndex]
-    val choices = buildList {
-        quiz.correctAnswer?.let { add(it) }
-        quiz.incorrectAnswers?.let { addAll(it) }
-    }.shuffled()
+    val choices = remember(quiz.uid) {
+        buildList {
+            quiz.correctAnswer?.let { add(it) }
+            quiz.incorrectAnswers?.let { addAll(it) }
+        }.shuffled()
+    }
 
     QuizCard(
         quiz = quiz,
         choices = choices,
         correctChoice = quiz.correctAnswer,
         onAnswered = { answer, mark ->
-            quizIndex += 1
             quiz.incorrectAnswers?.let { incorrects ->
                 if (incorrects.contains(answer)) incorrectlyAnswered += 1
             }
@@ -101,7 +109,11 @@ fun Game(
 
                 // end session
                 sharedAction(SharedAction.Navigate(MainDestination.PostGame, navController))
+
+                return@QuizCard
             }
+
+            quizIndex += 1
         }
     )
 }
@@ -121,7 +133,6 @@ fun QuizCard(
     var timer by rememberSaveable { mutableIntStateOf(Constants.DEFAULT_QUIZ_TIMER) }
 
     LaunchedEffect(quiz.uid) {
-        println("test1234 ${quiz.uid}")
         timer = Constants.DEFAULT_QUIZ_TIMER
         enabled = true
         answer = ""
@@ -130,7 +141,7 @@ fun QuizCard(
 
     LaunchedEffect(answeredState) {
         if (answeredState == AnsweredState.LOCKED) {
-            delay(3000L)
+            delay(1500L)
             onAnswered(answer, if (answer == correctChoice) +quiz.mark!! else -quiz.mark!!)
         }
     }
@@ -159,9 +170,35 @@ fun QuizCard(
                 TextFancy(text = it, color = MaterialTheme.colorScheme.primary)
 
                 Spacer(Modifier.height(16.dp))
-                HorizontalDivider(thickness = 4.dp, color = MaterialTheme.colorScheme.primary)
-                Spacer(Modifier.height(16.dp))
             }
+
+            Row(
+                Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(16.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                LinearProgressIndicator(
+                    progress = { timer.toFloat() / Constants.DEFAULT_QUIZ_TIMER },
+                    color = when (timer) {
+                        in Constants.DEFAULT_QUIZ_TIMER / 2..Constants.DEFAULT_QUIZ_TIMER -> MaterialTheme.colorScheme.primary
+                        in Constants.DEFAULT_QUIZ_TIMER / 6..Constants.DEFAULT_QUIZ_TIMER / 2 -> Color.Yellow
+                        else -> MaterialTheme.colorScheme.error
+                    },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .weight(1f)
+                )
+                TextSmol(
+                    text = "$timer",
+                    color = when (timer) {
+                        in Constants.DEFAULT_QUIZ_TIMER / 2..Constants.DEFAULT_QUIZ_TIMER -> MaterialTheme.colorScheme.primary
+                        in Constants.DEFAULT_QUIZ_TIMER / 6..Constants.DEFAULT_QUIZ_TIMER / 2 -> Color.Yellow
+                        else -> MaterialTheme.colorScheme.error
+                    }
+                )
+            }
+
+            Spacer(Modifier.height(16.dp))
 
             quiz.question?.let {
                 TextBig(text = it)
@@ -186,31 +223,30 @@ fun QuizCard(
                 }
 
                 Spacer(Modifier.height(16.dp))
-                HorizontalDivider()
-                Spacer(Modifier.height(16.dp))
             }
 
-            Column {
-                TextSmol(
-                    text = "Time remaining $timer seconds",
-                    color = when (timer) {
-                        in Constants.DEFAULT_QUIZ_TIMER / 2..Constants.DEFAULT_QUIZ_TIMER -> MaterialTheme.colorScheme.primary
-                        in Constants.DEFAULT_QUIZ_TIMER / 6..Constants.DEFAULT_QUIZ_TIMER / 2 -> Color.Yellow
-                        else -> MaterialTheme.colorScheme.error
-                    }
-                )
-                LinearProgressIndicator(
-                    progress = { timer.toFloat() / Constants.DEFAULT_QUIZ_TIMER },
-                    color = when (timer) {
-                        in Constants.DEFAULT_QUIZ_TIMER / 2..Constants.DEFAULT_QUIZ_TIMER -> MaterialTheme.colorScheme.primary
-                        in Constants.DEFAULT_QUIZ_TIMER / 6..Constants.DEFAULT_QUIZ_TIMER / 2 -> Color.Yellow
-                        else -> MaterialTheme.colorScheme.error
-                    },
-                    modifier = Modifier.fillMaxWidth()
-                )
+            if (answeredState == AnsweredState.LOCKED) {
+                AnimatedVisibility(
+                    visible = answeredState == AnsweredState.LOCKED,
+                    enter = slideInVertically(
+                        initialOffsetY = { it / 2 },
+                        animationSpec = tween(750, easing = EaseInExpo)
+                    ) + fadeIn(initialAlpha = 0.25f),
+                    exit = slideOutVertically(
+                        targetOffsetY = { it / 2 },
+                        animationSpec = tween(750, easing = EaseInExpo)
+                    ) + fadeOut()
+                ) {
+                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                        TextBig(
+                            text = "${if (answer == correctChoice) "+" else "-"}${quiz.mark}",
+                            color = if (answer == correctChoice) Color.Green else MaterialTheme.colorScheme.error
+                        )
 
-                Spacer(Modifier.height(16.dp))
-                HorizontalDivider()
+                        Spacer(Modifier.height(16.dp))
+                    }
+                }
+
                 Spacer(Modifier.height(16.dp))
             }
 

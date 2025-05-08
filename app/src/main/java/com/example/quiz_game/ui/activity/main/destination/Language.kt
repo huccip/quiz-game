@@ -23,8 +23,6 @@ import com.example.quiz_game.ui.viewmodel.SharedAction
 import com.google.mlkit.nl.translate.TranslateLanguage
 import java.util.Locale
 
-// TODO: clicking triggers the restart but doesn't switch the static content's language
-
 private const val TAG = "test1234 Language"
 
 @Composable

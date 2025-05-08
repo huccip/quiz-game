@@ -1,5 +1,6 @@
 package com.example.quiz_game.data.quiz
 
+import androidx.compose.ui.util.fastMap
 import com.example.quiz_game.App
 import com.example.quiz_game.data.Repository
 import com.example.quiz_game.data.Service
@@ -53,6 +54,11 @@ object QuizRepository {
                     .insert(*(quiz.map {
                         it.uid = it.generateUid()
                         it.mark = it.generateMark()
+                        if (it.question != null) it.question = Utils.decodeHtml(it.question!!)
+                        if (it.correctAnswer != null) it.correctAnswer = Utils.decodeHtml(it.correctAnswer!!)
+                        if (it.incorrectAnswers != null) {
+                            it.incorrectAnswers!!.fastMap { Utils.decodeHtml(it) }
+                        }
                         it
                     }).toTypedArray())
             },
@@ -167,7 +173,7 @@ object QuizRepository {
 
     suspend fun deleteByUid(uid: String, onSuccess: () -> Unit, onError: (Throwable) -> Unit) {
         runWithTimeout(
-            block = { App.db.quizDao().getByUid(uid) },
+            block = { App.db.quizDao().deleteByUid(uid) },
             onFinish = onSuccess,
             onTimeout = onError
         )

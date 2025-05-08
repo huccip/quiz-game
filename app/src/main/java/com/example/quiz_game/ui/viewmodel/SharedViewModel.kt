@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.Intent
 import android.os.Handler
 import android.os.Looper
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.core.content.edit
 import androidx.lifecycle.ViewModel
@@ -20,6 +21,8 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 
 class SharedViewModel : ViewModel() {
+
+    private val TAG = "test1234 SharedViewModel"
 
     var state = MutableStateFlow(SharedState())
         private set
@@ -88,8 +91,8 @@ class SharedViewModel : ViewModel() {
 
                     App.userPrefs.edit {
                         putInt("score", App.userPrefs.getInt("score", 0) + action.mark)
+                        Log.i(TAG, "onAction: ${App.userPrefs.getInt("score", 0)} - ${action.mark}")
                         state.value = state.value.copy(executing = false)
-                        commit()
                     }
                 }
 
@@ -102,12 +105,11 @@ class SharedViewModel : ViewModel() {
                         putStringSet(
                             "achievements",
                             App.userPrefs.getStringSet("achievements", mutableSetOf())?.apply {
-                                if (App.userPrefs.getInt("score", 0) > App.userPrefs.getInt("high_score", 0)) {
+                                if (App.userPrefs.getInt("score", 0) >= App.userPrefs.getInt("high_score", 0)) {
                                     add(action.context.getString(R.string.achievements_new_record))
                                     App.userPrefs.edit {
                                         putInt("high_score", App.userPrefs.getInt("score", 0))
                                         putInt("score", 0)
-                                        commit()
                                     }
                                 }
 
@@ -123,6 +125,8 @@ class SharedViewModel : ViewModel() {
                                 )
                             }
                         )
+
+                        state.value = state.value.copy(executing = false)
                     }
                 }
             }

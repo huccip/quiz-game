@@ -1,5 +1,6 @@
 package com.example.quiz_game.ui.activity.main.destination
 
+import android.util.Log
 import androidx.compose.foundation.layout.Column
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -65,6 +66,11 @@ fun Home(
             }
         }
     }
+
+    Log.i(
+        TAG,
+        "Home: ${sharedState.executing} - ${quizState.executing} - ${categoryState.executing}"
+    )
 
     if (sharedState.executing || quizState.executing || categoryState.executing) {
         LoadingInfiniteLine(subject = stringArrayResource(R.array.loading_subjects))

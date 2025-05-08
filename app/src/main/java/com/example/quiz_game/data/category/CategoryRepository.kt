@@ -3,6 +3,7 @@ package com.example.quiz_game.data.category
 import androidx.compose.ui.util.fastMap
 import com.example.quiz_game.App
 import com.example.quiz_game.data.Service
+import com.example.quiz_game.other.Utils
 import com.example.quiz_game.other.Utils.runWithTimeout
 import kotlinx.coroutines.launch
 
@@ -42,7 +43,10 @@ object CategoryRepository {
     ) {
         runWithTimeout(
             block = {
-                App.db.categoryDao().insert(*category)
+                App.db.categoryDao().insert(*category.map {
+                    if (it.name != null) it.name = Utils.decodeHtml(it.name!!)
+                    it
+                }.toTypedArray())
             },
             onFinish = onSuccess,
             onTimeout = onError

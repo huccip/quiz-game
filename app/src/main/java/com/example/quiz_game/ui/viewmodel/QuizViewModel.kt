@@ -44,7 +44,7 @@ class QuizViewModel : ViewModel() {
                 is QuizAction.DeleteByUid -> execute {
                     Repository.quizRepository.deleteByUid(
                         uid = action.uid,
-                        onSuccess = { onAction(QuizAction.GetAll) },
+                        onSuccess = {  updateStateOnSuccess() },
                         onError = { updateStateOnError(it) }
                     )
                 }
@@ -63,7 +63,7 @@ class QuizViewModel : ViewModel() {
     private suspend fun execute(block: suspend () -> Unit) {
         state.value = state.value.copy(executing = true)
 
-        delay(3000L)
+        delay(1000L)
         block()
     }
 
