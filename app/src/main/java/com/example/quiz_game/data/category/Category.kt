@@ -14,7 +14,7 @@ data class Category(
     var name: String? = null,
 ) {
     fun generateUid(): String = Base64.encodeToString(
-        (id.toString() + name + UUID.randomUUID().mostSignificantBits.toString())
+        (id.toString() + name + UUID.randomUUID().mostSignificantBits)
             .split("")
             .shuffled()
             .fastJoinToString("")

@@ -25,7 +25,7 @@ data class Quiz(
     fun generateUid(): String = Base64.encodeToString(
         (type + difficulty + category + question + correctAnswer + incorrectAnswers?.fastJoinToString(
             ""
-        ) + UUID.randomUUID().mostSignificantBits.toString())
+        ) + UUID.randomUUID().mostSignificantBits)
             .split("")
             .shuffled()
             .fastJoinToString("")

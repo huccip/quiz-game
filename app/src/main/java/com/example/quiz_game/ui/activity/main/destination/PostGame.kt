@@ -31,7 +31,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -52,6 +51,7 @@ import com.example.quiz_game.R
 import com.example.quiz_game.other.Utils.achievementIcon
 import com.example.quiz_game.ui.activity.main.MainDestination
 import com.example.quiz_game.ui.shared.ButtonPrimary
+import com.example.quiz_game.ui.shared.TextBig
 import com.example.quiz_game.ui.shared.TextButton
 import com.example.quiz_game.ui.shared.TextFancy
 import com.example.quiz_game.ui.shared.TextSmol
@@ -64,18 +64,19 @@ import kotlin.random.Random
  * showcasing game terminated session stats
  * */
 
-// TODO: Fix score shows 0 no matter what
-
 @Composable
 fun PostGame(
     modifier: Modifier = Modifier,
     sharedAction: (SharedAction) -> Unit = {},
+    categoryName: String? = null,
     quizAction: (QuizAction) -> Unit = {},
     quizState: QuizState = QuizState(),
     navController: NavController = rememberNavController()
 ) {
     LaunchedEffect(Unit) {
-        quizAction(QuizAction.GetAll)
+        categoryName?.let {
+            quizAction(QuizAction.GetByCategory(it))
+        } ?: quizAction(QuizAction.GetAll)
     }
 
     val maximumScore = remember(quizState) {
@@ -84,15 +85,15 @@ fun PostGame(
             .fastSumBy { it.mark ?: 0 }
     }
 
-    val userScore by rememberUpdatedState(App.userPrefs.getInt("score", 0))
-    val achievements by rememberUpdatedState(App.userPrefs.getStringSet("achievements", emptySet()))
-    val username by rememberUpdatedState(App.userPrefs.getString("nickname", null))
+    val sessionScore = App.sessionPrefs.getInt("score", 0)
+    val achievements = App.userPrefs.getStringSet("achievements", emptySet())
+    val username = App.userPrefs.getString("nickname", null)
 
     val sweepAngle = remember { Animatable(0f) }
 
-    LaunchedEffect(maximumScore, userScore) {
+    LaunchedEffect(maximumScore, sessionScore) {
         val target = if (maximumScore > 0) {
-            (userScore.toFloat() / maximumScore.toFloat()) * 360f
+            (sessionScore.toFloat() / maximumScore.toFloat()) * 360f
         } else {
             0f
         }
@@ -117,7 +118,10 @@ fun PostGame(
                     text = username ?: "Undefined",
                     color = MaterialTheme.colorScheme.primary
                 )
-                TextSmol(text = "$userScore / $maximumScore")
+                categoryName?.let {
+                    TextBig(text = "in $it")
+                }
+                TextSmol(text = "$sessionScore / $maximumScore")
             }
 
             Canvas(
@@ -181,6 +185,9 @@ fun PostGame(
                     .fastFilter { it.expired }
                     .fastForEach { quizAction(QuizAction.DeleteByUid(it.uid)) }
 
+                // reset session preferences
+                sharedAction(SharedAction.ResetGameSessionPrefs)
+
                 // back home we go
                 sharedAction(SharedAction.Navigate(MainDestination.Home, navController))
             }
@@ -193,7 +200,7 @@ fun PostGame(
 @Composable
 fun TrophyCard(modifier: Modifier = Modifier, achievement: String) {
     val context = LocalContext.current
-    val iconRes = achievementIcon(achievement, context)
+    val (iconRes, descriptionRes) = achievementIcon(achievement, context)
 
     val scale by animateFloatAsState(
         targetValue = 1f,
@@ -239,7 +246,10 @@ fun TrophyCard(modifier: Modifier = Modifier, achievement: String) {
 
             Spacer(modifier = Modifier.width(12.dp))
 
-            TextButton(text = achievement)
+            Column {
+                TextButton(text = achievement)
+                TextSmol(text = stringResource(id = descriptionRes))
+            }
         }
     }
 }

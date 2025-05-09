@@ -55,7 +55,8 @@ object QuizRepository {
                         it.uid = it.generateUid()
                         it.mark = it.generateMark()
                         if (it.question != null) it.question = Utils.decodeHtml(it.question!!)
-                        if (it.correctAnswer != null) it.correctAnswer = Utils.decodeHtml(it.correctAnswer!!)
+                        if (it.correctAnswer != null) it.correctAnswer =
+                            Utils.decodeHtml(it.correctAnswer!!)
                         if (it.incorrectAnswers != null) {
                             it.incorrectAnswers!!.fastMap { Utils.decodeHtml(it) }
                         }
@@ -109,7 +110,16 @@ object QuizRepository {
 
     suspend fun getByUid(uid: String, onSuccess: (Quiz) -> Unit, onError: (Throwable) -> Unit) {
         runWithTimeout(
-            block = { onSuccess(App.db.quizDao().getByUid(uid)) },
+            block = {
+                val data = App.db.quizDao().getByUid(uid)
+
+                if (data == null) {
+                    onError(Exception("Quiz with uid $uid was not found"))
+                    return@runWithTimeout
+                }
+
+                onSuccess(data)
+            },
             onFinish = {},
             onTimeout = onError
         )
@@ -173,7 +183,16 @@ object QuizRepository {
 
     suspend fun deleteByUid(uid: String, onSuccess: () -> Unit, onError: (Throwable) -> Unit) {
         runWithTimeout(
-            block = { App.db.quizDao().deleteByUid(uid) },
+            block = {
+                getByUid(
+                    uid = uid,
+                    onSuccess = {
+                        App.db.quizDao().deleteByUid(it.uid)
+                        onSuccess()
+                    },
+                    onError = onError
+                )
+            },
             onFinish = onSuccess,
             onTimeout = onError
         )
@@ -189,7 +208,16 @@ object QuizRepository {
 
     suspend fun updateExpired(uid: String, onSuccess: () -> Unit, onError: (Throwable) -> Unit) {
         runWithTimeout(
-            block = { App.db.quizDao().updateExpired(uid) },
+            block = {
+                getByUid(
+                    uid = uid,
+                    onSuccess = {
+                        App.db.quizDao().updateExpired(it.uid)
+                        onSuccess()
+                    },
+                    onError = onError
+                )
+            },
             onFinish = onSuccess,
             onTimeout = onError
         )

@@ -5,6 +5,7 @@ import com.example.quiz_game.App.Companion.ioScope
 import com.example.quiz_game.App.Companion.userPrefs
 import com.example.quiz_game.data.category.CategoryRepository
 import com.example.quiz_game.data.quiz.QuizRepository
+import com.example.quiz_game.data.session.SessionRepository
 import com.example.quiz_game.other.Constants
 import com.example.quiz_game.other.Utils
 import com.example.quiz_game.other.Utils.runWithTimeout
@@ -62,4 +63,5 @@ object Repository {
 
     val quizRepository by lazy { QuizRepository }
     val categoryRepository by lazy { CategoryRepository }
+    val sessionRepository by lazy { SessionRepository }
 }

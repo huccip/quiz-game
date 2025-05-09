@@ -8,14 +8,17 @@ import com.example.quiz_game.data.category.CategoryDao
 import com.example.quiz_game.data.quiz.IncorrectAnswersConverter
 import com.example.quiz_game.data.quiz.Quiz
 import com.example.quiz_game.data.quiz.QuizDao
+import com.example.quiz_game.data.session.Session
+import com.example.quiz_game.data.session.SessionDao
 
 @TypeConverters(IncorrectAnswersConverter::class)
 @Database(
-    entities = [Quiz::class, Category::class],
+    entities = [Quiz::class, Category::class, Session::class],
     version = 1,
     exportSchema = false
 )
 abstract class Database : RoomDatabase() {
     abstract fun quizDao(): QuizDao
     abstract fun categoryDao(): CategoryDao
+    abstract fun sessionDao(): SessionDao
 }

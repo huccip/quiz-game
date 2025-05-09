@@ -85,31 +85,30 @@ class SharedViewModel : ViewModel() {
                 }
 
                 is SharedAction.UpdateScore -> {
-                    state.value = state.value.copy(
-                        executing = true
-                    )
+                    state.value = state.value.copy(executing = true)
 
-                    App.userPrefs.edit {
-                        putInt("score", App.userPrefs.getInt("score", 0) + action.mark)
-                        Log.i(TAG, "onAction: ${App.userPrefs.getInt("score", 0)} - ${action.mark}")
+                    App.sessionPrefs.edit {
+                        putInt("score", App.sessionPrefs.getInt("score", 0) + action.mark)
+
+                        commit()
+
                         state.value = state.value.copy(executing = false)
                     }
                 }
 
                 is SharedAction.UpdateTrophies -> {
-                    state.value = state.value.copy(
-                        executing = true
-                    )
+                    state.value = state.value.copy(executing = true)
 
                     App.userPrefs.edit {
                         putStringSet(
                             "achievements",
                             App.userPrefs.getStringSet("achievements", mutableSetOf())?.apply {
-                                if (App.userPrefs.getInt("score", 0) >= App.userPrefs.getInt("high_score", 0)) {
+                                if (App.sessionPrefs.getInt("score", 0) >= App.userPrefs.getInt("high_score", 0)) {
                                     add(action.context.getString(R.string.achievements_new_record))
                                     App.userPrefs.edit {
-                                        putInt("high_score", App.userPrefs.getInt("score", 0))
-                                        putInt("score", 0)
+                                        putInt("high_score", App.sessionPrefs.getInt("score", 0))
+
+                                        commit()
                                     }
                                 }
 
@@ -125,6 +124,19 @@ class SharedViewModel : ViewModel() {
                                 )
                             }
                         )
+
+                        commit()
+
+                        state.value = state.value.copy(executing = false)
+                    }
+                }
+
+                is SharedAction.ResetGameSessionPrefs -> {
+                    state.value = state.value.copy(executing = true)
+
+                    App.sessionPrefs.edit {
+                        clear()
+                        commit()
 
                         state.value = state.value.copy(executing = false)
                     }
@@ -153,4 +165,5 @@ sealed interface SharedAction {
 
     data class UpdateScore(val mark: Int) : SharedAction
     data class UpdateTrophies(val context: Context, val incorrectlyAnswered: Int) : SharedAction
+    data object ResetGameSessionPrefs : SharedAction
 }

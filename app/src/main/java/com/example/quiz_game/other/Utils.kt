@@ -104,34 +104,34 @@ object Utils {
         return sdf.format(dateObject)
     }
 
-    fun achievementIcon(achievement: String, context: Context): Int {
+    fun achievementIcon(achievement: String, context: Context): Pair<Int, Int> {
         return when (achievement) {
             context.getString(R.string.achievements_no_mistakes) -> {
-                R.drawable.ic_no_mistake
+                R.drawable.ic_no_mistake to R.string.achievements_detailed_no_mistakes
             }
 
             context.getString(R.string.achievements_new_record) -> {
-                R.drawable.ic_new_record
+                R.drawable.ic_new_record to R.string.achievements_detailed_new_record
             }
 
             context.getString(R.string.achievements_one_mistake) -> {
-                R.drawable.ic_one_mistake
+                R.drawable.ic_one_mistake to R.string.achievements_detailed_one_mistake
             }
 
             context.getString(R.string.achievements_two_mistakes) -> {
-                R.drawable.ic_two_mistake
+                R.drawable.ic_two_mistake to R.string.achievements_detailed_two_mistakes
             }
 
             context.getString(R.string.achievements_ten_mistakes) -> {
-                R.drawable.ic_ten_mistake
+                R.drawable.ic_ten_mistake to R.string.achievements_detailed_ten_mistakes
             }
 
             context.getString(R.string.achievements_twenty_mistakes) -> {
-                R.drawable.ic_twenty_mistakes
+                R.drawable.ic_twenty_mistakes to R.string.achievements_detailed_twenty_mistakes
             }
 
             else -> {
-                R.drawable.ic_launcher_foreground
+                R.drawable.ic_launcher_foreground to R.string.achievements_empty
             }
         }
     }

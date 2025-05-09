@@ -17,7 +17,7 @@ interface QuizDao {
     fun getByCategory(category: String): List<Quiz>
 
     @Query("SELECT * FROM quizzes WHERE uid = :uid")
-    fun getByUid(uid: String): Quiz
+    fun getByUid(uid: String): Quiz?
 
     @Query("DELETE FROM quizzes WHERE uid = :uid")
     fun deleteByUid(uid: String)

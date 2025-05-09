@@ -78,7 +78,16 @@ object CategoryRepository {
 
     suspend fun getByUid(uid: String, onSuccess: (Category) -> Unit, onError: (Throwable) -> Unit) {
         runWithTimeout(
-            block = { onSuccess(App.db.categoryDao().getByUid(uid)) },
+            block = {
+                val data = App.db.categoryDao().getByUid(uid)
+
+                if (data == null) {
+                    onError(Exception("Category with id $uid was not found"))
+                    return@runWithTimeout
+                }
+
+                onSuccess(data)
+            },
             onFinish = {},
             onTimeout = onError
         )
@@ -86,7 +95,16 @@ object CategoryRepository {
 
     suspend fun getById(id: Int, onSuccess: (Category) -> Unit, onError: (Throwable) -> Unit) {
         runWithTimeout(
-            block = { onSuccess(App.db.categoryDao().getById(id)) },
+            block = {
+                val data = App.db.categoryDao().getById(id)
+
+                if (data == null) {
+                    onError(Exception("Category with id $id was not found"))
+                    return@runWithTimeout
+                }
+
+                onSuccess(data)
+            },
             onFinish = {},
             onTimeout = onError
         )
@@ -98,7 +116,16 @@ object CategoryRepository {
         onError: (Throwable) -> Unit
     ) {
         runWithTimeout(
-            block = { onSuccess(App.db.categoryDao().getByName(name)) },
+            block = {
+                val data = App.db.categoryDao().getByName(name)
+
+                if (data == null) {
+                    onError(Exception("Category with name $name was not found"))
+                    return@runWithTimeout
+                }
+
+                onSuccess(data)
+            },
             onFinish = {},
             onTimeout = onError
         )

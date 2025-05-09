@@ -22,6 +22,7 @@ class OnboardViewModel : ViewModel() {
                         putInt("avatar_drawable", action.avatarDrawable)
                         putInt("avatar_string", action.avatarString)
                         putBoolean("onboarded", true)
+
                         commit()
 
                         state.value = state.value.copy(executing = false)
@@ -33,6 +34,7 @@ class OnboardViewModel : ViewModel() {
 
                     App.userPrefs.edit {
                         putBoolean("guided", true)
+
                         commit()
 
                         state.value = state.value.copy(executing = false)

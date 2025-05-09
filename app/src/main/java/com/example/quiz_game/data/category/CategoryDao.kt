@@ -14,13 +14,13 @@ interface CategoryDao {
     fun get(): List<Category>
 
     @Query("SELECT * FROM categories WHERE id = :id")
-    fun getById(id: Int): Category
+    fun getById(id: Int): Category?
 
     @Query("SELECT * FROM categories WHERE name = :name")
-    fun getByName(name: String): Category
+    fun getByName(name: String): Category?
 
     @Query("SELECT * FROM categories WHERE uid = :uid")
-    fun getByUid(uid: String): Category
+    fun getByUid(uid: String): Category?
 
     @Query("DELETE FROM categories")
     fun truncate()

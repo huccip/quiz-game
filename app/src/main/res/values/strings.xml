@@ -45,5 +45,12 @@
     <string name="achievements_twenty_mistakes">Yeah… Better luck next time</string>
     <string name="achievements_empty" />
 
+    <string name="achievements_detailed_new_record">You’ve smashed your previous best! This card unlocks when you set a new personal high score.</string>
+    <string name="achievements_detailed_no_mistakes">A flawless victory! This card is awarded for navigating the entire challenge without a single misstep.</string>
+    <string name="achievements_detailed_one_mistake">Just one hiccup, but perfection was in reach. Earned for completing the game with only one mistake.</string>
+    <string name="achievements_detailed_two_mistakes">A near-perfect run—twice tripped, but still standing strong. This card shows your resilience with just two errors.</string>
+    <string name="achievements_detailed_ten_mistakes">Everyone stumbles now and then. This achievement reflects your persistence, even after ten mistakes.</string>
+    <string name="achievements_detailed_twenty_mistakes">We’ve all had rough days. This badge is a reminder that falling twenty times is just twenty chances to get back up.</string>
+
     <string name="postgame_button_navigate_home">Restart</string>
 </resources>
