@@ -2,9 +2,6 @@ package com.example.quiz_game.ui.viewmodel
 
 import android.content.Context
 import android.content.Intent
-import android.os.Handler
-import android.os.Looper
-import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.core.content.edit
 import androidx.lifecycle.ViewModel
@@ -14,6 +11,7 @@ import com.example.quiz_game.App
 import com.example.quiz_game.AppDestination
 import com.example.quiz_game.R
 import com.example.quiz_game.data.Repository
+import com.example.quiz_game.data.session.Session
 import com.example.quiz_game.ui.activity.main.MainActivity
 import com.google.mlkit.nl.translate.Translator
 import kotlinx.coroutines.delay
@@ -50,99 +48,41 @@ class SharedViewModel : ViewModel() {
                     )
                 }
 
-                is SharedAction.PrepareTranslator -> {
-                    state.value = state.value.copy(executing = true)
-
-                    delay(100L)
+                is SharedAction.PrepareTranslator -> execute {
                     Repository.prepareTranslator(
-                        onSuccess = {
-                            state.value = state.value.copy(
-                                executing = false,
-                                translator = it
-                            )
-                        },
-                        onError = {
-                            state.value = state.value.copy(
-                                executing = false,
-                                errors = state.value.errors.apply { add(it) }
-                            )
-                        }
+                        onSuccess = { updateStateOnSuccess(translator = it) },
+                        onError = { updateStateOnError(it) }
                     )
                 }
 
-                is SharedAction.Restart -> {
-                    state.value = state.value.copy(executing = true)
-
-                    Handler(Looper.getMainLooper()).postDelayed({
-                        state.value = state.value.copy(executing = false)
-
-                        val intent = Intent(action.context, MainActivity::class.java)
-                        intent.flags =
-                            Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-                        action.context.startActivity(intent)
-                        Runtime.getRuntime().exit(0)
-                    }, 500)
-                }
-
-                is SharedAction.UpdateScore -> {
-                    state.value = state.value.copy(executing = true)
-
-                    App.sessionPrefs.edit {
-                        putInt("score", App.sessionPrefs.getInt("score", 0) + action.mark)
-
-                        commit()
-
-                        state.value = state.value.copy(executing = false)
-                    }
-                }
-
-                is SharedAction.UpdateTrophies -> {
-                    state.value = state.value.copy(executing = true)
-
-                    App.userPrefs.edit {
-                        putStringSet(
-                            "achievements",
-                            App.userPrefs.getStringSet("achievements", mutableSetOf())?.apply {
-                                if (App.sessionPrefs.getInt("score", 0) >= App.userPrefs.getInt("high_score", 0)) {
-                                    add(action.context.getString(R.string.achievements_new_record))
-                                    App.userPrefs.edit {
-                                        putInt("high_score", App.sessionPrefs.getInt("score", 0))
-
-                                        commit()
-                                    }
-                                }
-
-                                add(
-                                    when (action.incorrectlyAnswered) {
-                                        0 -> action.context.getString(R.string.achievements_no_mistakes)
-                                        1 -> action.context.getString(R.string.achievements_one_mistake)
-                                        2 -> action.context.getString(R.string.achievements_two_mistakes)
-                                        10 -> action.context.getString(R.string.achievements_ten_mistakes)
-                                        20 -> action.context.getString(R.string.achievements_ten_mistakes)
-                                        else -> action.context.getString(R.string.achievements_empty)
-                                    }
-                                )
-                            }
-                        )
-
-                        commit()
-
-                        state.value = state.value.copy(executing = false)
-                    }
-                }
-
-                is SharedAction.ResetGameSessionPrefs -> {
-                    state.value = state.value.copy(executing = true)
-
-                    App.sessionPrefs.edit {
-                        clear()
-                        commit()
-
-                        state.value = state.value.copy(executing = false)
-                    }
+                is SharedAction.Restart -> execute {
+                    val intent = Intent(action.context, MainActivity::class.java)
+                    intent.flags =
+                        Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+                    action.context.startActivity(intent)
+                    Runtime.getRuntime().exit(0)
                 }
             }
         }
+    }
+
+    private suspend fun execute(block: suspend () -> Unit) {
+        state.value = state.value.copy(executing = true)
+
+        delay(500L)
+        block()
+    }
+
+    private fun updateStateOnSuccess(translator: Translator? = null) {
+        translator?.let { state.value = state.value.copy(translator = translator) }
+        state.value = state.value.copy(executing = false)
+    }
+
+    private fun updateStateOnError(throwable: Throwable) {
+        state.value = state.value.copy(
+            errors = state.value.errors.apply { add(throwable) },
+            executing = false
+        )
     }
 }
 
@@ -162,8 +102,4 @@ sealed interface SharedAction {
 
     data object PrepareTranslator : SharedAction
     data class Restart(val context: Context) : SharedAction
-
-    data class UpdateScore(val mark: Int) : SharedAction
-    data class UpdateTrophies(val context: Context, val incorrectlyAnswered: Int) : SharedAction
-    data object ResetGameSessionPrefs : SharedAction
 }

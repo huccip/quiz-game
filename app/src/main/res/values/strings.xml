@@ -9,11 +9,12 @@
     <string name="onboard_avatar_hint">Pick your hero legend and let\'s begin the grind 🔥</string>
     <string name="onboard_button_letsgo">Let\'s go!</string>
 
-    <string name="home_button_primary">Start</string>
-    <string name="home_button_secondary">Browse all categories</string>
+    <string name="home_button_start">Start</string>
+    <string name="home_button_resume">Resume</string>
+    <string name="home_button_browse">Browse all categories</string>
 
     <string name="loading_title">Hold on, loading your </string>
-    <string-array name="loading_subjects">
+    <string-array name="home_loading_subjects">
         <item>quiz list</item>
         <item>trivia</item>
         <item>fun times</item>
@@ -24,8 +25,7 @@
         <item>GG, EZ!</item>
         <item>achievements</item>
     </string-array>
-
-    <string name="loading_quizzes_by_category">Quizzes</string>
+    <string name="game_loading_subject">Quizzes</string>
 
     <string name="home_title">Let\'s Go!</string>
     <string name="home_subtitle">One of the buttons should be enough to get you started</string>
@@ -51,6 +51,32 @@
     <string name="achievements_detailed_two_mistakes">A near-perfect run—twice tripped, but still standing strong. This card shows your resilience with just two errors.</string>
     <string name="achievements_detailed_ten_mistakes">Everyone stumbles now and then. This achievement reflects your persistence, even after ten mistakes.</string>
     <string name="achievements_detailed_twenty_mistakes">We’ve all had rough days. This badge is a reminder that falling twenty times is just twenty chances to get back up.</string>
+
+    <string name="achievement_timelapse_quick_thinker">Quick Thinker</string>
+    <string name="achievement_timelapse_detailed_quick_thinker">Completed a quiz in under 1 minute! Speed and smarts combined!</string>
+
+    <string name="achievement_timelapse_casual_cruiser">Casual Cruiser</string>
+    <string name="achievement_timelapse_detailed_casual_cruiser">Spent over 5 minutes in a single quiz session. You\'re in no rush—smart and steady!</string>
+
+    <string name="achievement_timelapse_steady_strategist">Steady Strategist</string>
+    <string name="achievement_timelapse_detailed_steady_strategist">Played a quiz session lasting over 10 minutes. That\'s some deep thinking!</string>
+
+    <string name="achievement_timelapse_brain_marathoner">Brain Marathoner</string>
+    <string name="achievement_timelapse_detailed_brain_marathoner">Stayed active in one quiz for over 20 minutes. Your brain must be sweating!</string>
+
+    <string name="achievement_timelapse_quiz_zen_master">Quiz Zen Master</string>
+    <string name="achievement_timelapse_detailed_quiz_zen_master">You calmly solved quizzes for over 30 minutes in one go. Mental peace meets performance.</string>
+
+    <string name="achievement_timelapse_time_bender">Time Bender</string>
+    <string name="achievement_timelapse_detailed_time_bender">Over 45 minutes in a quiz session? Are you warping time or just that immersed?</string>
+
+    <string name="achievement_timelapse_eternal_quizzer">Eternal Quizzer</string>
+    <string name="achievement_timelapse_detailed_eternal_quizzer">An hour has passed and you\'re still going strong. This is quiz dedication at its finest!</string>
+
+    <string name="dialog_discard_session_confirm_button">Yes. Start new session</string>
+    <string name="dialog_discard_session_dissmiss_button">No</string>
+    <string name="dialog_discard_session_title">Caution</string>
+    <string name="dialog_discard_session_text">Are you sure you want to start a new session? Previous session will be discarded</string>
 
     <string name="postgame_button_navigate_home">Restart</string>
 </resources>

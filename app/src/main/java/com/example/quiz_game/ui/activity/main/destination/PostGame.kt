@@ -41,9 +41,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.util.fastFilter
-import androidx.compose.ui.util.fastForEach
-import androidx.compose.ui.util.fastSumBy
+import androidx.compose.ui.util.fastMap
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.example.quiz_game.App
@@ -57,6 +55,8 @@ import com.example.quiz_game.ui.shared.TextFancy
 import com.example.quiz_game.ui.shared.TextSmol
 import com.example.quiz_game.ui.viewmodel.QuizAction
 import com.example.quiz_game.ui.viewmodel.QuizState
+import com.example.quiz_game.ui.viewmodel.SessionAction
+import com.example.quiz_game.ui.viewmodel.SessionState
 import com.example.quiz_game.ui.viewmodel.SharedAction
 import kotlin.random.Random
 
@@ -68,32 +68,22 @@ import kotlin.random.Random
 fun PostGame(
     modifier: Modifier = Modifier,
     sharedAction: (SharedAction) -> Unit = {},
-    categoryName: String? = null,
     quizAction: (QuizAction) -> Unit = {},
     quizState: QuizState = QuizState(),
+    sessionState: SessionState = SessionState(),
+    sessionAction: (SessionAction) -> Unit = {},
     navController: NavController = rememberNavController()
 ) {
-    LaunchedEffect(Unit) {
-        categoryName?.let {
-            quizAction(QuizAction.GetByCategory(it))
-        } ?: quizAction(QuizAction.GetAll)
-    }
-
-    val maximumScore = remember(quizState) {
-        quizState.quizzes
-            .filter { it.expired }
-            .fastSumBy { it.mark ?: 0 }
-    }
-
-    val sessionScore = App.sessionPrefs.getInt("score", 0)
-    val achievements = App.userPrefs.getStringSet("achievements", emptySet())
-    val username = App.userPrefs.getString("nickname", null)
-
     val sweepAngle = remember { Animatable(0f) }
 
-    LaunchedEffect(maximumScore, sessionScore) {
-        val target = if (maximumScore > 0) {
-            (sessionScore.toFloat() / maximumScore.toFloat()) * 360f
+    val score = sessionState.session.score ?: -1
+    val maxScore = sessionState.session.maxScore ?: -1
+    val achievements = sessionState.session.achievements ?: emptyList()
+    val nickname = App.userPrefs.getString("nickname", null) ?: "Player #0000"
+
+    LaunchedEffect(sessionState) {
+        val target = if (maxScore > 0) {
+            (score.toFloat() / maxScore.toFloat()) * 360f
         } else {
             0f
         }
@@ -115,13 +105,10 @@ fun PostGame(
         ) {
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
                 TextFancy(
-                    text = username ?: "Undefined",
+                    text = nickname,
                     color = MaterialTheme.colorScheme.primary
                 )
-                categoryName?.let {
-                    TextBig(text = "in $it")
-                }
-                TextSmol(text = "$sessionScore / $maximumScore")
+                TextSmol(text = "$score / $maxScore")
             }
 
             Canvas(
@@ -154,21 +141,19 @@ fun PostGame(
         HorizontalDivider(color = Color.Gray, thickness = 2.dp)
         Spacer(modifier = Modifier.height(16.dp))
 
-        achievements?.let {
-            Column {
-                it.forEach { achievement ->
-                    AnimatedVisibility(
-                        visible = true,
-                        enter = scaleIn(
-                            animationSpec = spring(
-                                Spring.DampingRatioLowBouncy,
-                                stiffness = Spring.StiffnessMedium
-                            ), initialScale = 0f
-                        )
-                    ) {
-                        TrophyCard(achievement = achievement)
-                        Spacer(modifier = Modifier.height(8.dp))
-                    }
+        Column {
+            achievements.forEach { achievement ->
+                AnimatedVisibility(
+                    visible = true,
+                    enter = scaleIn(
+                        animationSpec = spring(
+                            Spring.DampingRatioLowBouncy,
+                            stiffness = Spring.StiffnessMedium
+                        ), initialScale = 0f
+                    )
+                ) {
+                    TrophyCard(achievement = achievement)
+                    Spacer(modifier = Modifier.height(8.dp))
                 }
             }
         }
@@ -179,18 +164,7 @@ fun PostGame(
 
         ButtonPrimary(
             modifier = Modifier.fillMaxWidth(),
-            onClick = {
-                // delete expired quizzes
-                quizState.quizzes
-                    .fastFilter { it.expired }
-                    .fastForEach { quizAction(QuizAction.DeleteByUid(it.uid)) }
-
-                // reset session preferences
-                sharedAction(SharedAction.ResetGameSessionPrefs)
-
-                // back home we go
-                sharedAction(SharedAction.Navigate(MainDestination.Home, navController))
-            }
+            onClick = { sharedAction(SharedAction.Navigate(MainDestination.Home, navController)) }
         ) {
             TextButton(text = stringResource(R.string.postgame_button_navigate_home))
         }
@@ -198,9 +172,8 @@ fun PostGame(
 }
 
 @Composable
-fun TrophyCard(modifier: Modifier = Modifier, achievement: String) {
-    val context = LocalContext.current
-    val (iconRes, descriptionRes) = achievementIcon(achievement, context)
+fun TrophyCard(modifier: Modifier = Modifier, achievement: Int) {
+    val (iconRes, descriptionRes) = achievementIcon(achievement)
 
     val scale by animateFloatAsState(
         targetValue = 1f,
@@ -237,7 +210,7 @@ fun TrophyCard(modifier: Modifier = Modifier, achievement: String) {
         ) {
             Image(
                 painter = painterResource(id = iconRes),
-                contentDescription = achievement,
+                contentDescription = stringResource(descriptionRes),
                 modifier = Modifier
                     .size(40.dp)
                     .clip(CircleShape)
@@ -247,8 +220,8 @@ fun TrophyCard(modifier: Modifier = Modifier, achievement: String) {
             Spacer(modifier = Modifier.width(12.dp))
 
             Column {
-                TextButton(text = achievement)
-                TextSmol(text = stringResource(id = descriptionRes))
+                TextButton(text = stringResource(achievement))
+                TextSmol(text = stringResource(descriptionRes))
             }
         }
     }

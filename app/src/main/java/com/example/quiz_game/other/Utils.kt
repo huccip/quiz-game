@@ -104,30 +104,59 @@ object Utils {
         return sdf.format(dateObject)
     }
 
-    fun achievementIcon(achievement: String, context: Context): Pair<Int, Int> {
+    fun achievementIcon(achievement: Int): Pair<Int, Int> {
         return when (achievement) {
-            context.getString(R.string.achievements_no_mistakes) -> {
+            R.string.achievements_no_mistakes -> {
                 R.drawable.ic_no_mistake to R.string.achievements_detailed_no_mistakes
             }
 
-            context.getString(R.string.achievements_new_record) -> {
+            R.string.achievements_new_record -> {
                 R.drawable.ic_new_record to R.string.achievements_detailed_new_record
             }
 
-            context.getString(R.string.achievements_one_mistake) -> {
+            R.string.achievements_one_mistake -> {
                 R.drawable.ic_one_mistake to R.string.achievements_detailed_one_mistake
             }
 
-            context.getString(R.string.achievements_two_mistakes) -> {
+            R.string.achievements_two_mistakes -> {
                 R.drawable.ic_two_mistake to R.string.achievements_detailed_two_mistakes
             }
 
-            context.getString(R.string.achievements_ten_mistakes) -> {
+            R.string.achievements_ten_mistakes -> {
                 R.drawable.ic_ten_mistake to R.string.achievements_detailed_ten_mistakes
             }
 
-            context.getString(R.string.achievements_twenty_mistakes) -> {
+            R.string.achievements_twenty_mistakes -> {
                 R.drawable.ic_twenty_mistakes to R.string.achievements_detailed_twenty_mistakes
+            }
+
+            // TODO: find corresponding icons
+            R.string.achievement_timelapse_quick_thinker -> {
+                R.drawable.ic_arrow_north_east to R.string.achievement_timelapse_detailed_quick_thinker
+            }
+
+            R.string.achievement_timelapse_casual_cruiser -> {
+                R.drawable.ic_arrow_north_east to R.string.achievement_timelapse_detailed_casual_cruiser
+            }
+
+            R.string.achievement_timelapse_steady_strategist -> {
+                R.drawable.ic_arrow_north_east to R.string.achievement_timelapse_detailed_steady_strategist
+            }
+
+            R.string.achievement_timelapse_brain_marathoner -> {
+                R.drawable.ic_arrow_north_east to R.string.achievement_timelapse_detailed_brain_marathoner
+            }
+
+            R.string.achievement_timelapse_quiz_zen_master -> {
+                R.drawable.ic_arrow_north_east to R.string.achievement_timelapse_detailed_quiz_zen_master
+            }
+
+            R.string.achievement_timelapse_time_bender -> {
+                R.drawable.ic_arrow_north_east to R.string.achievement_timelapse_detailed_time_bender
+            }
+
+            R.string.achievement_timelapse_eternal_quizzer -> {
+                R.drawable.ic_arrow_north_east to R.string.achievement_timelapse_detailed_eternal_quizzer
             }
 
             else -> {

@@ -14,11 +14,13 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
+import com.example.quiz_game.other.Constants
 import com.example.quiz_game.other.scaleDownOnPress
 import com.example.quiz_game.ui.activity.main.MainDestination
 import com.example.quiz_game.ui.viewmodel.CategoryAction
 import com.example.quiz_game.ui.viewmodel.CategoryState
 import com.example.quiz_game.ui.viewmodel.QuizAction
+import com.example.quiz_game.ui.viewmodel.QuizState
 import com.example.quiz_game.ui.viewmodel.SharedAction
 import com.example.quiz_game.ui.viewmodel.SharedState
 
@@ -27,6 +29,7 @@ fun Browse(
     modifier: Modifier = Modifier,
     categoryState: CategoryState = CategoryState(),
     sharedState: SharedState = SharedState(),
+    quizState: QuizState = QuizState(),
     categoryAction: (CategoryAction) -> Unit = {},
     quizAction: (QuizAction) -> Unit = {},
     sharedAction: (SharedAction) -> Unit = {},
@@ -56,7 +59,17 @@ fun Browse(
                         onClick = {
                             category.name?.let {
                                 quizAction(QuizAction.GetByCategory(it))
-                                sharedAction(SharedAction.Navigate(MainDestination.Game(it), navController))
+                                sharedAction(
+                                    SharedAction.Navigate(
+                                        MainDestination.Game(
+                                            quizzesUids = quizState.quizzes
+                                                .filter { quiz -> quiz.category == it }
+                                                .take(Constants.DEFAULT_QUIZ_SESSION_AMOUNT)
+                                                .map { it.uid }
+                                        ),
+                                        navController
+                                    )
+                                )
                             }
                         }
                     )

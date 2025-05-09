@@ -44,7 +44,7 @@ class QuizViewModel : ViewModel() {
                 is QuizAction.DeleteByUid -> execute {
                     Repository.quizRepository.deleteByUid(
                         uid = action.uid,
-                        onSuccess = {  updateStateOnSuccess() },
+                        onSuccess = { updateStateOnSuccess() },
                         onError = { updateStateOnError(it) }
                     )
                 }
@@ -52,7 +52,7 @@ class QuizViewModel : ViewModel() {
                 is QuizAction.UpdateExpired -> execute {
                     Repository.quizRepository.updateExpired(
                         uid = action.uid,
-                        onSuccess = { updateStateOnSuccess() },
+                        onSuccess = { onAction(QuizAction.GetAll) },
                         onError = { updateStateOnError(it) }
                     )
                 }

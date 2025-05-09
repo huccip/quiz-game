@@ -22,9 +22,6 @@ interface SessionDao {
     @Query("DELETE FROM sessions WHERE uid = :uid")
     fun deleteByUid(uid: String)
 
-    @Query("UPDATE sessions SET categoryName = :categoryName WHERE uid = :uid")
-    fun updateCategoryName(uid: String, categoryName: String)
-
     @Query("UPDATE sessions SET quizzesUids = :quizzesUids WHERE uid = :uid")
     fun updateQuizzesUids(uid: String, quizzesUids: List<String>)
 
@@ -37,6 +34,9 @@ interface SessionDao {
     @Query("UPDATE sessions SET achievements = :achievements WHERE uid = :uid")
     fun updateAchievements(uid: String, achievements: List<String>)
 
-    @Query("UPDATE sessions SET startedAt = :startedAt WHERE uid = :uid")
+    @Query("UPDATE sessions SET initiatedAt = :startedAt WHERE uid = :uid")
     fun updateStartedAt(uid: String, startedAt: Long)
+
+    @Query("UPDATE sessions SET expiredAt = :finishedAt WHERE uid = :uid")
+    fun updateFinishedAt(uid: String, finishedAt: Long)
 }

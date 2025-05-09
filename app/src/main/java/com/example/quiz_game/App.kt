@@ -14,8 +14,6 @@ import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
 import java.util.Locale
 
-// TODO: replace sessionPrefs with actual db table "sessions", keep userPrefs as SharedPreferences for now
-
 class App : Application() {
     private val TAG = "test1234 App"
 
@@ -24,7 +22,6 @@ class App : Application() {
         lateinit var instance: App
         lateinit var db: Database
         lateinit var userPrefs: SharedPreferences
-        lateinit var sessionPrefs: SharedPreferences
     }
 
     override fun onCreate() {
@@ -40,7 +37,6 @@ class App : Application() {
             .build()
 
         userPrefs = getSharedPreferences("user-preferences", MODE_PRIVATE)
-        sessionPrefs = getSharedPreferences("session-preferences", MODE_PRIVATE)
         if (!userPrefs.contains("lastKnownLanguage")) {
             userPrefs.edit {
                 putString(

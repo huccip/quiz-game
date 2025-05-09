@@ -19,6 +19,7 @@ object CategoryRepository {
                     body?.let {
                         insert(
                             *(it.triviaCategories.fastMap {
+                                if (it.name != null) it.name = Utils.decodeHtml(it.name!!)
                                 it.uid = it.generateUid()
                                 it
                             }).toTypedArray(),
@@ -42,12 +43,7 @@ object CategoryRepository {
         onError: (Throwable) -> Unit
     ) {
         runWithTimeout(
-            block = {
-                App.db.categoryDao().insert(*category.map {
-                    if (it.name != null) it.name = Utils.decodeHtml(it.name!!)
-                    it
-                }.toTypedArray())
-            },
+            block = { App.db.categoryDao().insert(*category) },
             onFinish = onSuccess,
             onTimeout = onError
         )

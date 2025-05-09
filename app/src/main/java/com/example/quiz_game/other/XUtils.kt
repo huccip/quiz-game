@@ -1,7 +1,5 @@
 package com.example.quiz_game.other
 
-import android.content.Context
-import android.content.res.Configuration
 import androidx.compose.animation.core.EaseOutExpo
 import androidx.compose.animation.core.FiniteAnimationSpec
 import androidx.compose.animation.core.Spring
@@ -16,7 +14,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.scale
-import java.util.Locale
 
 fun Modifier.scaleDownOnPress(
     scaleRatio: Float = .6f,
@@ -57,6 +54,25 @@ fun Modifier.alphaOutOnPress(
     )
 
     return@composed this.alpha(alpha)
+}
+
+fun Modifier.bounceOnPress(
+    interactionSource: InteractionSource = MutableInteractionSource()
+) = composed {
+    val isPressed by interactionSource.collectIsPressedAsState()
+
+    val animationSpec = spring<Float>(
+        dampingRatio = Spring.DampingRatioHighBouncy,
+        stiffness = Spring.StiffnessLow
+    )
+
+    val scale by animateFloatAsState(
+        targetValue = if (isPressed) 1.1f else 1f,
+        animationSpec = animationSpec,
+        label = "bounceOnPress"
+    )
+
+    return@composed this.scale(scale)
 }
 
 infix fun <A, B, C> Pair<A, B>.too(c: C): Triple<A, B, C> = Triple(this.first, this.second, c)

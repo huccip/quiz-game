@@ -13,9 +13,9 @@ object SessionRepository {
             block = {
                 App.db.sessionDao().insert(
                     *session.map {
-                        it.uid = it.generateUid()
-                        it.finishedAt = System.currentTimeMillis()
+                        it.expiredAt = System.currentTimeMillis()
                         it.nickname = App.userPrefs.getString("nickname", null)
+                        it.uid = it.generateUid()
                         it
                     }.toTypedArray()
                 )
@@ -31,7 +31,7 @@ object SessionRepository {
                 val data = App.db.sessionDao().get()
 
                 if (data.isEmpty()) {
-                    onError(Exception("No data found"))
+                    onError(Exception("No sessions found"))
                     return@runWithTimeout
                 }
 
@@ -64,8 +64,13 @@ object SessionRepository {
             block = {
                 getByUid(
                     uid = uid,
-                    onSuccess = {
-                        App.db.sessionDao().deleteByUid(it.uid)
+                    onSuccess = { session ->
+                        if (session.expiredAt == null) {
+                            onError(Exception("Session with uid ${session.uid} has not finished yet"))
+                            return@getByUid
+                        }
+
+                        App.db.sessionDao().deleteByUid(session.uid)
                         onSuccess()
                     },
                     onError = onError
@@ -79,29 +84,6 @@ object SessionRepository {
     suspend fun truncate(onSuccess: () -> Unit, onError: (Throwable) -> Unit) {
         runWithTimeout(
             block = { App.db.sessionDao().truncate() },
-            onFinish = onSuccess,
-            onTimeout = onError
-        )
-    }
-
-    suspend fun updateCategoryName(
-        uid: String,
-        categoryName: String,
-        onSuccess: () -> Unit,
-        onError: (Throwable) -> Unit
-    ) {
-        runWithTimeout(
-            block = {
-                getByUid(
-                    uid = uid,
-                    onSuccess = {
-                        App.db.sessionDao().updateCategoryName(it.uid, categoryName)
-                        onSuccess()
-                    },
-                    onError = onError
-                )
-
-            },
             onFinish = onSuccess,
             onTimeout = onError
         )
@@ -207,6 +189,28 @@ object SessionRepository {
                     uid = uid,
                     onSuccess = {
                         App.db.sessionDao().updateStartedAt(it.uid, startedAt)
+                        onSuccess()
+                    },
+                    onError = onError
+                )
+            },
+            onFinish = onSuccess,
+            onTimeout = onError
+        )
+    }
+
+    suspend fun updateFinishedAt(
+        uid: String,
+        finishedAt: Long,
+        onSuccess: () -> Unit,
+        onError: (Throwable) -> Unit
+    ) {
+        runWithTimeout(
+            block = {
+                getByUid(
+                    uid = uid,
+                    onSuccess = {
+                        App.db.sessionDao().updateFinishedAt(it.uid, finishedAt)
                         onSuccess()
                     },
                     onError = onError

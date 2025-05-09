@@ -19,7 +19,6 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Card
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -31,91 +30,83 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
+import com.example.quiz_game.R
 import com.example.quiz_game.data.quiz.Quiz
 import com.example.quiz_game.other.Constants
 import com.example.quiz_game.ui.activity.main.MainDestination
 import com.example.quiz_game.ui.shared.ButtonGameChoices
 import com.example.quiz_game.ui.shared.ButtonPrimary
+import com.example.quiz_game.ui.shared.LoadingInfiniteLine
 import com.example.quiz_game.ui.shared.TextBig
 import com.example.quiz_game.ui.shared.TextButton
 import com.example.quiz_game.ui.shared.TextFancy
 import com.example.quiz_game.ui.shared.TextSmol
 import com.example.quiz_game.ui.viewmodel.QuizAction
 import com.example.quiz_game.ui.viewmodel.QuizState
+import com.example.quiz_game.ui.viewmodel.SessionAction
+import com.example.quiz_game.ui.viewmodel.SessionState
 import com.example.quiz_game.ui.viewmodel.SharedAction
 import kotlinx.coroutines.delay
 
 private const val TAG = "test1234 Game"
 
+// TODO: update this screen
+
 @Composable
 fun Game(
     modifier: Modifier = Modifier,
-    categoryName: String? = null,
+    quizzesUids: List<String> = emptyList(),
     quizState: QuizState = QuizState(),
     quizAction: (QuizAction) -> Unit = {},
     sharedAction: (SharedAction) -> Unit = {},
+    sessionState: SessionState = SessionState(),
+    sessionAction: (SessionAction) -> Unit = {},
     navController: NavController = rememberNavController(),
 ) {
-    val context = LocalContext.current
-
-    val quizzes = (categoryName?.let { category ->
-        quizState.quizzes.filter { it.category == category }
-    } ?: quizState.quizzes)
-        .take(Constants.DEFAULT_QUIZ_SESSION_AMOUNT)
-        .filter { !it.expired }
-
-    if (quizzes.isEmpty()) {
-        Text("No quizzes found for this category.")
-        return
-    }
-
-    var quizIndex by rememberSaveable { mutableIntStateOf(0) }
-    var incorrectlyAnswered by rememberSaveable { mutableIntStateOf(0) }
-    val quiz = quizzes[quizIndex]
-    val choices = remember(quiz.uid) {
-        buildList {
-            quiz.correctAnswer?.let { add(it) }
-            quiz.incorrectAnswers?.let { addAll(it) }
-        }.shuffled()
-    }
-
-    QuizCard(
-        quiz = quiz,
-        choices = choices,
-        correctChoice = quiz.correctAnswer,
-        onAnswered = { answer, mark ->
-            quiz.incorrectAnswers?.let { incorrects ->
-                if (incorrects.contains(answer)) incorrectlyAnswered += 1
-            }
-
-            // update this session's score
-            sharedAction(SharedAction.UpdateScore(mark))
-
-            // update quiz expiration
-            quizAction(QuizAction.UpdateExpired(quiz.uid))
-
-            if (quizIndex >= quizzes.lastIndex) {
-                // update achievements
-                sharedAction(
-                    SharedAction.UpdateTrophies(
-                        context,
-                        incorrectlyAnswered
-                    )
-                )
-
-                // end session
-                sharedAction(SharedAction.Navigate(MainDestination.PostGame, navController))
-
-                return@QuizCard
-            }
-
-            quizIndex += 1
-        }
-    )
+//    if (sessionState.executing) {
+//        LoadingInfiniteLine(subject = arrayOf(stringResource(R.string.game_loading_subject)))
+//    } else {
+//        QuizCard(
+//            quiz = quiz,
+//            choices = choices,
+//            correctChoice = correctAnswer,
+//            onAnswered = { answer, mark ->
+//                if (answer != correctAnswer) {
+//                    incorrectlyAnswered += 1
+//                }
+//
+//                sessionAction(SessionAction.UpdateScore(sessionState.session.uid, mark))
+//                quizAction(QuizAction.UpdateExpired(quiz.uid))
+//
+//                if (quizIndex >= lastIndex) {
+//                    sessionAction(
+//                        SessionAction.UpdateTrophies(
+//                            sessionState.session.uid,
+//                            incorrectlyAnswered
+//                        )
+//                    )
+//                    sessionAction(SessionAction.EndSession(sessionState.session.uid))
+//
+//                    quizState.quizzes
+//                        .filter { quizzesUids.contains(it.uid) && it.expired }
+//                        .forEach { quizAction(QuizAction.DeleteByUid(it.uid)) }
+//
+//                    sharedAction(
+//                        SharedAction.Navigate(
+//                            MainDestination.PostGame,
+//                            navController
+//                        )
+//                    )
+//                } else {
+//                    quizIndex += 1
+//                }
+//            }
+//        )
+//    }
 }
 
 @Composable

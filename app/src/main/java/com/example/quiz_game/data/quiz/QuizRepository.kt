@@ -52,7 +52,6 @@ object QuizRepository {
             block = {
                 App.db.quizDao()
                     .insert(*(quiz.map {
-                        it.uid = it.generateUid()
                         it.mark = it.generateMark()
                         if (it.question != null) it.question = Utils.decodeHtml(it.question!!)
                         if (it.correctAnswer != null) it.correctAnswer =
@@ -60,6 +59,7 @@ object QuizRepository {
                         if (it.incorrectAnswers != null) {
                             it.incorrectAnswers!!.fastMap { Utils.decodeHtml(it) }
                         }
+                        it.uid = it.generateUid()
                         it
                     }).toTypedArray())
             },
@@ -186,8 +186,13 @@ object QuizRepository {
             block = {
                 getByUid(
                     uid = uid,
-                    onSuccess = {
-                        App.db.quizDao().deleteByUid(it.uid)
+                    onSuccess = { quiz ->
+                        if (!quiz.expired) {
+                            onError(Exception("Quiz with uid ${quiz.uid} has not expired yet"))
+                            return@getByUid
+                        }
+
+                        App.db.quizDao().deleteByUid(quiz.uid)
                         onSuccess()
                     },
                     onError = onError
