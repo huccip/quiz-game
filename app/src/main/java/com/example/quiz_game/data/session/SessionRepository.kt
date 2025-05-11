@@ -1,26 +1,33 @@
 package com.example.quiz_game.data.session
 
+import android.util.Log
 import com.example.quiz_game.App
 import com.example.quiz_game.other.Utils.runWithTimeout
+import kotlinx.coroutines.launch
 
 object SessionRepository {
+
+    private const val TAG = "test1234 SessionRepository"
+
     suspend fun insert(
         vararg session: Session,
-        onSuccess: () -> Unit,
+        onSuccess: (ArrayList<Session>) -> Unit,
         onError: (Throwable) -> Unit
     ) {
+        val sessions = arrayListOf<Session>()
         runWithTimeout(
             block = {
-                App.db.sessionDao().insert(
-                    *session.map {
-                        it.expiredAt = System.currentTimeMillis()
-                        it.nickname = App.userPrefs.getString("nickname", null)
-                        it.uid = it.generateUid()
-                        it
-                    }.toTypedArray()
-                )
+                App.db.sessionDao().insert(*session.map {
+                    it.createdAt = System.currentTimeMillis()
+                    it.score = 0
+                    it.nickname = App.userPrefs.getString("nickname", null)
+                    it.uid = it.generateUid()
+
+                    sessions.add(it)
+                    it
+                }.toTypedArray())
             },
-            onFinish = onSuccess,
+            onFinish = { onSuccess(sessions) },
             onTimeout = onError
         )
     }
@@ -71,7 +78,6 @@ object SessionRepository {
                         }
 
                         App.db.sessionDao().deleteByUid(session.uid)
-                        onSuccess()
                     },
                     onError = onError
                 )
@@ -89,32 +95,10 @@ object SessionRepository {
         )
     }
 
-    suspend fun updateQuizzesUids(
-        uid: String,
-        quizzesUids: List<String>,
-        onSuccess: () -> Unit,
-        onError: (Throwable) -> Unit
-    ) {
-        runWithTimeout(
-            block = {
-                getByUid(
-                    uid = uid,
-                    onSuccess = {
-                        App.db.sessionDao().updateQuizzesUids(it.uid, quizzesUids)
-                        onSuccess()
-                    },
-                    onError = onError
-                )
-            },
-            onFinish = onSuccess,
-            onTimeout = onError
-        )
-    }
-
     suspend fun updateScore(
         uid: String,
         score: Int,
-        onSuccess: () -> Unit,
+        onSuccess: (Session) -> Unit,
         onError: (Throwable) -> Unit
     ) {
         runWithTimeout(
@@ -123,34 +107,17 @@ object SessionRepository {
                     uid = uid,
                     onSuccess = {
                         App.db.sessionDao().updateScore(it.uid, score)
-                        onSuccess()
                     },
                     onError = onError
                 )
             },
-            onFinish = onSuccess,
-            onTimeout = onError
-        )
-    }
-
-    suspend fun updateMaxScore(
-        uid: String,
-        maxScore: Int,
-        onSuccess: () -> Unit,
-        onError: (Throwable) -> Unit
-    ) {
-        runWithTimeout(
-            block = {
+            onFinish = {
                 getByUid(
                     uid = uid,
-                    onSuccess = {
-                        App.db.sessionDao().updateMaxScore(it.uid, maxScore)
-                        onSuccess()
-                    },
+                    onSuccess = onSuccess,
                     onError = onError
                 )
             },
-            onFinish = onSuccess,
             onTimeout = onError
         )
     }
@@ -158,7 +125,7 @@ object SessionRepository {
     suspend fun updateAchievements(
         uid: String,
         achievements: List<String>,
-        onSuccess: () -> Unit,
+        onSuccess: (Session) -> Unit,
         onError: (Throwable) -> Unit
     ) {
         runWithTimeout(
@@ -167,20 +134,25 @@ object SessionRepository {
                     uid = uid,
                     onSuccess = {
                         App.db.sessionDao().updateAchievements(it.uid, achievements)
-                        onSuccess()
                     },
                     onError = onError
                 )
             },
-            onFinish = onSuccess,
+            onFinish = {
+                getByUid(
+                    uid = uid,
+                    onSuccess = onSuccess,
+                    onError = onError
+                )
+            },
             onTimeout = onError
         )
     }
 
-    suspend fun updateStartedAt(
+    suspend fun updateCreatedAt(
         uid: String,
-        startedAt: Long,
-        onSuccess: () -> Unit,
+        createdAt: Long,
+        onSuccess: (Session) -> Unit,
         onError: (Throwable) -> Unit
     ) {
         runWithTimeout(
@@ -188,35 +160,43 @@ object SessionRepository {
                 getByUid(
                     uid = uid,
                     onSuccess = {
-                        App.db.sessionDao().updateStartedAt(it.uid, startedAt)
-                        onSuccess()
+                        App.db.sessionDao().updateCreatedAt(it.uid, createdAt)
                     },
                     onError = onError
                 )
             },
-            onFinish = onSuccess,
+            onFinish = {
+                getByUid(
+                    uid = uid,
+                    onSuccess = onSuccess,
+                    onError = onError
+                )
+            },
             onTimeout = onError
         )
     }
 
-    suspend fun updateFinishedAt(
+    suspend fun updateExpiredAt(
         uid: String,
-        finishedAt: Long,
-        onSuccess: () -> Unit,
+        expiredAt: Long,
+        onSuccess: (Session) -> Unit,
         onError: (Throwable) -> Unit
     ) {
         runWithTimeout(
             block = {
                 getByUid(
                     uid = uid,
-                    onSuccess = {
-                        App.db.sessionDao().updateFinishedAt(it.uid, finishedAt)
-                        onSuccess()
-                    },
+                    onSuccess = { App.db.sessionDao().updateExpiredAt(it.uid, expiredAt) },
                     onError = onError
                 )
             },
-            onFinish = onSuccess,
+            onFinish = {
+                getByUid(
+                    uid = uid,
+                    onSuccess = onSuccess,
+                    onError = onError
+                )
+            },
             onTimeout = onError
         )
     }

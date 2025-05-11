@@ -16,12 +16,12 @@ data class Session(
     var score: Int? = null,
     var maxScore: Int? = null,
     var achievements: List<Int>? = null,
-    var initiatedAt: Long? = null,
+    var createdAt: Long? = null,
     var expiredAt: Long? = null, // this will be our indicator in case the user quit halfway through the session, will be brought back from where he has left
 ) {
     fun generateUid(): String =
         Base64.encodeToString(
-            ((nickname + initiatedAt + quizzesUids?.fastJoinToString("") + maxScore) +
+            ((nickname + createdAt + quizzesUids?.fastJoinToString("") + maxScore) +
                     (UUID.randomUUID().mostSignificantBits))
                 .split("")
                 .shuffled()
@@ -32,8 +32,8 @@ data class Session(
 
     @get:Ignore
     val timelapse by lazy {
-        if (initiatedAt == null || expiredAt == null) return@lazy null
-        return@lazy expiredAt!! - initiatedAt!!
+        if (createdAt == null || expiredAt == null) return@lazy null
+        return@lazy expiredAt!! - createdAt!!
     }
     fun timelapse(): String? {
         if (timelapse == null) return "Undefined"

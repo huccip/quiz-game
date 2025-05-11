@@ -15,7 +15,7 @@ import androidx.compose.ui.Modifier
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.example.quiz_game.other.Constants
-import com.example.quiz_game.other.scaleDownOnPress
+import com.example.quiz_game.ui.shared.effect.scaleDownOnPress
 import com.example.quiz_game.ui.activity.main.MainDestination
 import com.example.quiz_game.ui.viewmodel.CategoryAction
 import com.example.quiz_game.ui.viewmodel.CategoryState

@@ -1,6 +1,5 @@
 package com.example.quiz_game.other
 
-import android.content.Context
 import android.content.res.Configuration
 import android.text.Html
 import android.util.Log
@@ -28,7 +27,7 @@ object Utils {
     suspend fun runWithTimeout(
         block: suspend () -> Unit,
         timeout: Minutes = 2,
-        onFinish: () -> Unit,
+        onFinish: suspend () -> Unit,
         onTimeout: (Throwable) -> Unit
     ) {
         try {

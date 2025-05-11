@@ -19,6 +19,9 @@ interface QuizDao {
     @Query("SELECT * FROM quizzes WHERE uid = :uid")
     fun getByUid(uid: String): Quiz?
 
+    @Query("SELECT * FROM quizzes WHERE uid IN (:uids)")
+    fun getBySession(uids: List<String>): List<Quiz>
+
     @Query("DELETE FROM quizzes WHERE uid = :uid")
     fun deleteByUid(uid: String)
 

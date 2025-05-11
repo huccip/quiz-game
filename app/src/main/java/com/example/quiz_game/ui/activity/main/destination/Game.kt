@@ -8,9 +8,11 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -38,13 +40,13 @@ import com.example.quiz_game.R
 import com.example.quiz_game.data.quiz.Quiz
 import com.example.quiz_game.other.Constants
 import com.example.quiz_game.ui.activity.main.MainDestination
-import com.example.quiz_game.ui.shared.ButtonGameChoices
-import com.example.quiz_game.ui.shared.ButtonPrimary
-import com.example.quiz_game.ui.shared.LoadingInfiniteLine
-import com.example.quiz_game.ui.shared.TextBig
-import com.example.quiz_game.ui.shared.TextButton
-import com.example.quiz_game.ui.shared.TextFancy
-import com.example.quiz_game.ui.shared.TextSmol
+import com.example.quiz_game.ui.shared.component.ButtonGameChoices
+import com.example.quiz_game.ui.shared.component.ButtonPrimary
+import com.example.quiz_game.ui.shared.component.LoadingInfiniteLine
+import com.example.quiz_game.ui.shared.component.TextBig
+import com.example.quiz_game.ui.shared.component.TextButton
+import com.example.quiz_game.ui.shared.component.TextFancy
+import com.example.quiz_game.ui.shared.component.TextSmol
 import com.example.quiz_game.ui.viewmodel.QuizAction
 import com.example.quiz_game.ui.viewmodel.QuizState
 import com.example.quiz_game.ui.viewmodel.SessionAction
@@ -67,46 +69,88 @@ fun Game(
     sessionAction: (SessionAction) -> Unit = {},
     navController: NavController = rememberNavController(),
 ) {
-//    if (sessionState.executing) {
-//        LoadingInfiniteLine(subject = arrayOf(stringResource(R.string.game_loading_subject)))
-//    } else {
-//        QuizCard(
-//            quiz = quiz,
-//            choices = choices,
-//            correctChoice = correctAnswer,
-//            onAnswered = { answer, mark ->
-//                if (answer != correctAnswer) {
-//                    incorrectlyAnswered += 1
-//                }
-//
-//                sessionAction(SessionAction.UpdateScore(sessionState.session.uid, mark))
-//                quizAction(QuizAction.UpdateExpired(quiz.uid))
-//
-//                if (quizIndex >= lastIndex) {
-//                    sessionAction(
-//                        SessionAction.UpdateTrophies(
-//                            sessionState.session.uid,
-//                            incorrectlyAnswered
-//                        )
-//                    )
-//                    sessionAction(SessionAction.EndSession(sessionState.session.uid))
-//
-//                    quizState.quizzes
-//                        .filter { quizzesUids.contains(it.uid) && it.expired }
-//                        .forEach { quizAction(QuizAction.DeleteByUid(it.uid)) }
-//
-//                    sharedAction(
-//                        SharedAction.Navigate(
-//                            MainDestination.PostGame,
-//                            navController
-//                        )
-//                    )
-//                } else {
-//                    quizIndex += 1
-//                }
-//            }
-//        )
-//    }
+    val session = sessionState.session
+    val sessionQuizzes = quizState.sessionQuizzes
+
+    LaunchedEffect(Unit) {
+        if (session.uid.isEmpty() || session.expiredAt != null) {
+            sessionAction(
+                SessionAction.InitiateSession(
+                    quizzesUids = quizzesUids,
+                    maxScore = quizState.quizzes
+                        .filter { quizzesUids.contains(it.uid) }
+                        .sumOf { it.mark ?: 0 }
+                )
+            )
+        }
+    }
+
+    LaunchedEffect(session.quizzesUids) {
+        if (!session.quizzesUids.isNullOrEmpty()) {
+            quizAction(QuizAction.GetBySession(session.quizzesUids!!))
+        }
+    }
+
+    var quizIndex by rememberSaveable(session.uid) { mutableIntStateOf(0) }
+    var incorrectlyAnswered by rememberSaveable(session.uid) { mutableIntStateOf(0) }
+
+    val quiz = sessionQuizzes.getOrNull(quizIndex)
+
+    Box(modifier = modifier.fillMaxSize()) {
+        when {
+            sessionState.executing || quizState.executing -> {
+                LoadingInfiniteLine(subject = arrayOf(stringResource(R.string.game_loading_subject)))
+            }
+
+            sessionQuizzes.isEmpty() -> {
+                TextSmol(text = "No available quizzes")
+            }
+
+            quiz != null -> {
+                val choices = remember(quiz.uid) {
+                    buildList {
+                        add(quiz.correctAnswer ?: "")
+                        addAll(quiz.incorrectAnswers.orEmpty())
+                        shuffle()
+                    }
+                }
+
+                QuizCard(
+                    quiz = quiz,
+                    choices = choices,
+                    correctChoice = quiz.correctAnswer,
+                    onAnswered = { answer, mark ->
+                        if (answer != quiz.correctAnswer) {
+                            incorrectlyAnswered += 1
+                        }
+
+                        sessionAction(SessionAction.UpdateScore(session.uid, mark))
+                        quizAction(QuizAction.UpdateExpired(quiz.uid))
+
+                        if (quizIndex >= sessionQuizzes.lastIndex) {
+                            sessionAction(
+                                SessionAction.UpdateTrophies(
+                                    session.uid,
+                                    incorrectlyAnswered
+                                )
+                            )
+                            sessionAction(SessionAction.EndSession(session.uid))
+
+                            quizState.quizzes
+                                .filter { quizzesUids.contains(it.uid) && it.expired }
+                                .forEach { quizAction(QuizAction.DeleteByUid(it.uid)) }
+
+                            sharedAction(
+                                SharedAction.Navigate(MainDestination.PostGame, navController)
+                            )
+                        } else {
+                            quizIndex += 1
+                        }
+                    }
+                )
+            }
+        }
+    }
 }
 
 @Composable

@@ -26,7 +26,7 @@ import androidx.media3.ui.PlayerView
 import com.example.quiz_game.App
 import com.example.quiz_game.R
 import com.example.quiz_game.ui.activity.main.MainActivity
-import com.example.quiz_game.ui.shared.ButtonPrimary
+import com.example.quiz_game.ui.shared.component.ButtonPrimary
 import com.example.quiz_game.ui.viewmodel.OnboardAction
 import com.example.quiz_game.ui.viewmodel.SharedAction
 

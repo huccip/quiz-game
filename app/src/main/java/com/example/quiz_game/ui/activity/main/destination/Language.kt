@@ -17,8 +17,8 @@ import androidx.core.content.edit
 import com.example.quiz_game.App
 import com.example.quiz_game.other.Constants
 import com.example.quiz_game.other.Utils
-import com.example.quiz_game.ui.shared.IconButton
-import com.example.quiz_game.ui.shared.TextBerySmol
+import com.example.quiz_game.ui.shared.component.IconButton
+import com.example.quiz_game.ui.shared.component.TextBerySmol
 import com.example.quiz_game.ui.viewmodel.SharedAction
 import com.google.mlkit.nl.translate.TranslateLanguage
 import java.util.Locale

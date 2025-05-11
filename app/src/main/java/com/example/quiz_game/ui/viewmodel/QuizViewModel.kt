@@ -41,6 +41,14 @@ class QuizViewModel : ViewModel() {
                     )
                 }
 
+                is QuizAction.GetBySession -> execute {
+                    Repository.quizRepository.getBySession(
+                        uids = action.uids,
+                        onSuccess = { updateStateOnSuccess(sessionList = it) },
+                        onError = { updateStateOnError(it) }
+                    )
+                }
+
                 is QuizAction.DeleteByUid -> execute {
                     Repository.quizRepository.deleteByUid(
                         uid = action.uid,
@@ -74,10 +82,11 @@ class QuizViewModel : ViewModel() {
         )
     }
 
-    private fun updateStateOnSuccess(data: Quiz? = null, list: List<Quiz>? = null) {
+    private fun updateStateOnSuccess(data: Quiz? = null, list: List<Quiz>? = null, sessionList: List<Quiz>? = null) {
         state.value = state.value.copy(executing = false)
         data?.let { state.value = state.value.copy(quiz = data) }
         list?.let { state.value = state.value.copy(quizzes = list) }
+        sessionList?.let { state.value = state.value.copy(sessionQuizzes = sessionList) }
     }
 }
 
@@ -85,6 +94,7 @@ data class QuizState(
     var executing: Boolean = false,
     var errors: ArrayList<Throwable> = arrayListOf(),
     var quizzes: List<Quiz> = emptyList(),
+    var sessionQuizzes: List<Quiz> = emptyList(),
     var quiz: Quiz = Quiz()
 )
 
@@ -92,6 +102,7 @@ sealed interface QuizAction {
     data object GetAll : QuizAction
     data class GetByCategory(val category: String) : QuizAction
     data class GetByUid(val uid: String) : QuizAction
+    data class GetBySession(val uids: List<String>) : QuizAction
     data class DeleteByUid(val uid: String) : QuizAction
     data class UpdateExpired(val uid: String) : QuizAction
 }

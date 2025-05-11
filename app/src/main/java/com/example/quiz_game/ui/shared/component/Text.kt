@@ -1,4 +1,4 @@
-package com.example.quiz_game.ui.shared
+package com.example.quiz_game.ui.shared.component
 
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text

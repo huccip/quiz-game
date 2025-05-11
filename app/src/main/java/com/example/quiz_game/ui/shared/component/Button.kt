@@ -1,4 +1,4 @@
-package com.example.quiz_game.ui.shared
+package com.example.quiz_game.ui.shared.component
 
 import androidx.annotation.DrawableRes
 import androidx.compose.foundation.BorderStroke
@@ -18,7 +18,6 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.Icon
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.ListItemDefaults
 import androidx.compose.material3.MaterialTheme
@@ -37,9 +36,9 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.quiz_game.R
-import com.example.quiz_game.other.alphaOutOnPress
-import com.example.quiz_game.other.bounceOnPress
-import com.example.quiz_game.other.scaleDownOnPress
+import com.example.quiz_game.ui.shared.effect.alphaOutOnPress
+import com.example.quiz_game.ui.shared.effect.bounceOnPress
+import com.example.quiz_game.ui.shared.effect.scaleDownOnPress
 import com.example.quiz_game.ui.activity.main.destination.AnsweredState
 
 @OptIn(ExperimentalFoundationApi::class)

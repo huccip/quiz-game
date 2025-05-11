@@ -1,6 +1,5 @@
 package com.example.quiz_game.ui.viewmodel
 
-import android.util.Log
 import androidx.compose.ui.util.fastFirstOrNull
 import androidx.core.content.edit
 import androidx.lifecycle.ViewModel
@@ -31,7 +30,8 @@ class SessionViewModel : ViewModel() {
                         onSuccess = {
                             updateStateOnSuccess(
                                 list = it,
-                                data = it.fastFirstOrNull { it.expiredAt != null })
+                                data = it.fastFirstOrNull { it.expiredAt == null }
+                            )
                         },
                         onError = { updateStateOnError(it) }
                     )
@@ -46,26 +46,23 @@ class SessionViewModel : ViewModel() {
                 }
 
                 is SessionAction.InitiateSession -> execute {
-                    Log.i(TAG, "onAction: ${action.quizzesUids}")
                     Repository.sessionRepository.insert(
                         session = arrayOf(
                             Session(
                                 quizzesUids = action.quizzesUids,
                                 maxScore = action.maxScore,
-                                score = 0,
-                                initiatedAt = System.currentTimeMillis()
                             )
                         ),
-                        onSuccess = { onAction(SessionAction.GetAll) },
+                        onSuccess = { updateStateOnSuccess(data = it.fastFirstOrNull { it.expiredAt == null }) },
                         onError = { updateStateOnError(it) }
                     )
                 }
 
                 is SessionAction.EndSession -> execute {
-                    Repository.sessionRepository.updateFinishedAt(
+                    Repository.sessionRepository.updateExpiredAt(
                         uid = action.uid,
-                        finishedAt = System.currentTimeMillis(),
-                        onSuccess = { onAction(SessionAction.GetAll) },
+                        expiredAt = System.currentTimeMillis(),
+                        onSuccess = { updateStateOnSuccess(data = it) },
                         onError = { updateStateOnError(it) }
                     )
                 }

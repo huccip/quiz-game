@@ -15,6 +15,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.quiz_game.AppDestination
+import com.example.quiz_game.BaseActivity
 import com.example.quiz_game.ui.activity.onboard.destination.Form
 import com.example.quiz_game.ui.activity.onboard.destination.Guide
 import com.example.quiz_game.ui.theme.QuizgameTheme
@@ -22,7 +23,7 @@ import com.example.quiz_game.ui.viewmodel.OnboardViewModel
 import com.example.quiz_game.ui.viewmodel.SharedViewModel
 import kotlinx.serialization.Serializable
 
-class OnboardActivity : ComponentActivity() {
+class OnboardActivity : BaseActivity() {
 
     val onboardViewModel by viewModels<OnboardViewModel>()
     val sharedViewModel by viewModels<SharedViewModel>()

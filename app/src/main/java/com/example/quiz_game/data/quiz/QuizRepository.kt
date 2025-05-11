@@ -1,5 +1,6 @@
 package com.example.quiz_game.data.quiz
 
+import android.util.Log
 import androidx.compose.ui.util.fastMap
 import com.example.quiz_game.App
 import com.example.quiz_game.data.Repository
@@ -10,6 +11,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 object QuizRepository {
+    private const val TAG = "test1234 QuizRepository"
     private suspend fun getRemote(
         amount: Int,
         category: Int? = null,
@@ -177,6 +179,26 @@ object QuizRepository {
                 )
             },
             onFinish = {},
+            onTimeout = onError
+        )
+    }
+
+    suspend fun getBySession(
+        uids: List<String>,
+        onSuccess: (List<Quiz>) -> Unit,
+        onError: (Throwable) -> Unit
+    ) {
+        var data = emptyList<Quiz>()
+        runWithTimeout(
+            block = { data = App.db.quizDao().getBySession(uids) },
+            onFinish = {
+                if (data.isEmpty()) {
+                    onError(Exception("One or more quizzes in uids $uids were not found"))
+                    return@runWithTimeout
+                }
+
+                onSuccess(data)
+            },
             onTimeout = onError
         )
     }

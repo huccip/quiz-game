@@ -34,9 +34,9 @@ interface SessionDao {
     @Query("UPDATE sessions SET achievements = :achievements WHERE uid = :uid")
     fun updateAchievements(uid: String, achievements: List<String>)
 
-    @Query("UPDATE sessions SET initiatedAt = :startedAt WHERE uid = :uid")
-    fun updateStartedAt(uid: String, startedAt: Long)
+    @Query("UPDATE sessions SET createdAt = :startedAt WHERE uid = :uid")
+    fun updateCreatedAt(uid: String, startedAt: Long)
 
     @Query("UPDATE sessions SET expiredAt = :finishedAt WHERE uid = :uid")
-    fun updateFinishedAt(uid: String, finishedAt: Long)
+    fun updateExpiredAt(uid: String, finishedAt: Long)
 }
