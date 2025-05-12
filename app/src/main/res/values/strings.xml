@@ -4,7 +4,9 @@
     <string name="onboard_welcome">Hey you,<br />Are you ready for an awesome journey?</string>
 
     <string name="onboard_name_label">Nickname</string>
-    <string name="onboard_name_hint">What should I call you bud</string>
+    <string name="onboard_name_placeholder">What should we call you</string>
+    <string name="textfield_placeholder_default">Type here…</string>
+    <string name="textfield_label_default" />
     <string name="onboard_avatar_label">Avatar</string>
     <string name="onboard_avatar_hint">Pick your hero legend and let\'s begin the grind 🔥</string>
     <string name="onboard_button_letsgo">Let\'s go!</string>

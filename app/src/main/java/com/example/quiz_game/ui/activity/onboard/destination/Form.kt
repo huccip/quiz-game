@@ -1,30 +1,25 @@
 package com.example.quiz_game.ui.activity.onboard.destination
 
+import android.util.Log
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
-import com.example.quiz_game.App
-import com.example.quiz_game.R
-import com.example.quiz_game.ui.activity.main.MainActivity
-import com.example.quiz_game.ui.activity.onboard.OnboardDestination
 import com.example.quiz_game.ui.shared.component.ButtonPrimary
 import com.example.quiz_game.ui.shared.component.TextButton
+import com.example.quiz_game.ui.shared.component.TextFieldPrimary
 import com.example.quiz_game.ui.viewmodel.OnboardAction
 import com.example.quiz_game.ui.viewmodel.SharedAction
+
+private const val TAG = "test1234 Form"
 
 @Composable
 fun Form(
@@ -33,41 +28,41 @@ fun Form(
     onboardAction: (OnboardAction) -> Unit = {},
     navController: NavController = rememberNavController(),
 ) {
-    val context = LocalContext.current
-    var nickname by rememberSaveable {
-        mutableStateOf("")
+    var buttonEnabled by rememberSaveable {
+        mutableStateOf(true)
     }
-    var avatarDrawable by rememberSaveable {
-        mutableIntStateOf(R.drawable.ic_launcher_foreground)
-    }
-    var avatarString by rememberSaveable {
-        mutableIntStateOf(R.string.app_name)
-    }
-    LaunchedEffect(Unit) {
-        if (App.userPrefs.contains("onboarded") && App.userPrefs.getBoolean("onboarded", true)) {
-            sharedAction(SharedAction.StartActivity(context, MainActivity::class.java))
-        }
+    var textfieldEnabled by rememberSaveable {
+        mutableStateOf(true)
     }
 
     Column(
-        verticalArrangement = Arrangement.spacedBy(8.dp),
-        horizontalAlignment = Alignment.CenterHorizontally
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
-        TextField(
-            value = nickname,
-            onValueChange = { nickname = it }
-        )
-
-        ButtonPrimary(
-            onClick = {
-                onboardAction(OnboardAction.Submit(nickname, avatarDrawable, avatarString))
-                sharedAction(SharedAction.Navigate(OnboardDestination.Guide, navController))
+        TextFieldPrimary(
+            modifier = modifier,
+            enabled = textfieldEnabled,
+            isLast = true,
+            regex = arrayOf(
+                Regex("^.{0,20}$") to "Nickname must be less than 20 characters",
+                Regex("^.{3,}$") to "Nickname must be at least 3 characters",
+                Regex("^[a-zA-Z0-9]+$") to "Nickname can only contain letters and numbers"
+            ),
+            onDone = { nickname ->
+                textfieldEnabled = false
+                Log.d(TAG, "Form: $nickname")
             },
-            content = {
-                TextButton(
-                    text = stringResource(R.string.onboard_button_letsgo)
-                )
+            onValid = {
+                buttonEnabled = it
             }
         )
+        ButtonPrimary(
+            onClick = {
+                textfieldEnabled = false
+            },
+            enabled = buttonEnabled,
+        ) {
+            TextButton(text = "submit")
+        }
     }
 }

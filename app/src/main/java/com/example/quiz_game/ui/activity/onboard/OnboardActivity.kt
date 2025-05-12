@@ -1,7 +1,6 @@
 package com.example.quiz_game.ui.activity.onboard
 
 import android.os.Bundle
-import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
@@ -18,6 +17,7 @@ import com.example.quiz_game.AppDestination
 import com.example.quiz_game.BaseActivity
 import com.example.quiz_game.ui.activity.onboard.destination.Form
 import com.example.quiz_game.ui.activity.onboard.destination.Guide
+import com.example.quiz_game.ui.activity.onboard.destination.Language
 import com.example.quiz_game.ui.theme.QuizgameTheme
 import com.example.quiz_game.ui.viewmodel.OnboardViewModel
 import com.example.quiz_game.ui.viewmodel.SharedViewModel
@@ -61,6 +61,13 @@ class OnboardActivity : BaseActivity() {
                                     onboardAction = onboardViewModel::onAction
                                 )
                             }
+
+                            composable<OnboardDestination.Language> {
+                                Language(
+                                    sharedAction = sharedViewModel::onAction,
+                                    onboardAction = onboardViewModel::onAction
+                                )
+                            }
                         }
                     }
                 }
@@ -75,4 +82,7 @@ sealed interface OnboardDestination : AppDestination {
 
     @Serializable
     data object Guide : OnboardDestination
+
+    @Serializable
+    data object Language : OnboardDestination
 }

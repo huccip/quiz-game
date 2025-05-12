@@ -1,4 +1,4 @@
-package com.example.quiz_game.ui.activity.main.destination
+package com.example.quiz_game.ui.activity.onboard.destination
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
@@ -19,6 +19,7 @@ import com.example.quiz_game.other.Constants
 import com.example.quiz_game.other.Utils
 import com.example.quiz_game.ui.shared.component.IconButton
 import com.example.quiz_game.ui.shared.component.TextBerySmol
+import com.example.quiz_game.ui.viewmodel.OnboardAction
 import com.example.quiz_game.ui.viewmodel.SharedAction
 import com.google.mlkit.nl.translate.TranslateLanguage
 import java.util.Locale
@@ -28,6 +29,7 @@ private const val TAG = "test1234 Language"
 @Composable
 fun Language(
     modifier: Modifier = Modifier,
+    onboardAction: (OnboardAction) -> Unit = {},
     sharedAction: (SharedAction) -> Unit = {},
 ) {
 

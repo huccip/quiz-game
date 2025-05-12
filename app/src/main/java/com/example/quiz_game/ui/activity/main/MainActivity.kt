@@ -25,7 +25,7 @@ import com.example.quiz_game.ui.activity.main.MainDestination.Home
 import com.example.quiz_game.ui.activity.main.destination.Browse
 import com.example.quiz_game.ui.activity.main.destination.Game
 import com.example.quiz_game.ui.activity.main.destination.Home
-import com.example.quiz_game.ui.activity.main.destination.Language
+import com.example.quiz_game.ui.activity.onboard.destination.Language
 import com.example.quiz_game.ui.activity.main.destination.PostGame
 import com.example.quiz_game.ui.theme.QuizgameTheme
 import com.example.quiz_game.ui.viewmodel.CategoryAction
