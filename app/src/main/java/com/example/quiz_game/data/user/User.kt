@@ -10,23 +10,12 @@ import androidx.room.PrimaryKey
 import androidx.room.Relation
 import java.util.UUID
 
-@Entity(tableName = "users")
 data class User(
-    @PrimaryKey(autoGenerate = false)
-    var uid: String = "",
     var nickname: String? = null,
     var coins: Int = 0, // global earned score translates to coins
+    var createdAt: Long? = null,
 ) {
     fun hasSufficientCoins(storePrice: Int): Boolean = (coins >= storePrice)
-
-    fun generateUid(): String = Base64.encodeToString(
-        (nickname + coins + UUID.randomUUID().mostSignificantBits)
-            .split("")
-            .shuffled()
-            .fastJoinToString("")
-            .toByteArray(),
-        Base64.CRLF
-    )
 }
 
 @Entity(tableName = "collectibles")
@@ -38,6 +27,7 @@ data class Collectible(
     var description: String? = null,
     var type: CollectibleType? = null,
     var tradeValue: Int? = null, // can be sold for some coins
+    var acquiredAt: Long? = null,
 ) {
     fun generateUid(): String = Base64.encodeToString(
         (symbol + name + description + type + tradeValue + UUID.randomUUID().mostSignificantBits)

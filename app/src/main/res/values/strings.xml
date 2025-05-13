@@ -7,6 +7,9 @@
     <string name="onboard_name_placeholder">What should we call you</string>
     <string name="textfield_placeholder_default">Type here…</string>
     <string name="textfield_label_default" />
+    <string name="onboard_name_textfield_max_characters">"Nickname must be less than 20 characters"</string>
+    <string name="onboard_name_textfield_min_characters">"Nickname must be at least 3 characters"</string>
+    <string name="onboard_name_textfield_unallowed_characters">"Nickname can only contain letters and numbers"</string>
     <string name="onboard_avatar_label">Avatar</string>
     <string name="onboard_avatar_hint">Pick your hero legend and let\'s begin the grind 🔥</string>
     <string name="onboard_button_letsgo">Let\'s go!</string>

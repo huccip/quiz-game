@@ -10,9 +10,12 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
+import com.example.quiz_game.R
+import com.example.quiz_game.ui.activity.onboard.OnboardDestination
 import com.example.quiz_game.ui.shared.component.ButtonPrimary
 import com.example.quiz_game.ui.shared.component.TextButton
 import com.example.quiz_game.ui.shared.component.TextFieldPrimary
@@ -35,6 +38,12 @@ fun Form(
         mutableStateOf(true)
     }
 
+    val onSubmit: () -> Unit = {
+        textfieldEnabled = false
+        sharedAction(SharedAction.Navigate(OnboardDestination.Guide, navController))
+        //onboardAction(OnboardAction.Submit())
+    }
+
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(16.dp)
@@ -42,15 +51,16 @@ fun Form(
         TextFieldPrimary(
             modifier = modifier,
             enabled = textfieldEnabled,
+            placeholder = R.string.onboard_name_placeholder,
+            label = R.string.onboard_name_label,
             isLast = true,
             regex = arrayOf(
-                Regex("^.{0,20}$") to "Nickname must be less than 20 characters",
-                Regex("^.{3,}$") to "Nickname must be at least 3 characters",
-                Regex("^[a-zA-Z0-9]+$") to "Nickname can only contain letters and numbers"
+                Regex("^.{0,20}$") to stringResource(R.string.onboard_name_textfield_max_characters),
+                Regex("^.{3,}$") to stringResource(R.string.onboard_name_textfield_min_characters),
+                Regex("^[a-zA-Z0-9]+$") to stringResource(R.string.onboard_name_textfield_unallowed_characters)
             ),
             onDone = { nickname ->
                 textfieldEnabled = false
-                Log.d(TAG, "Form: $nickname")
             },
             onValid = {
                 buttonEnabled = it
@@ -58,11 +68,11 @@ fun Form(
         )
         ButtonPrimary(
             onClick = {
-                textfieldEnabled = false
             },
             enabled = buttonEnabled,
+            trailingIcon = R.drawable.ic_arrow_forward
         ) {
-            TextButton(text = "submit")
+            TextButton(text = "Next: Guide")
         }
     }
 }

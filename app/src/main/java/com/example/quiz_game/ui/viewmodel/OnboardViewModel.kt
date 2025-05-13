@@ -16,17 +16,6 @@ class OnboardViewModel : ViewModel() {
             when (action) {
                 is OnboardAction.Submit -> {
                     state.value = state.value.copy(executing = true)
-
-                    App.userPrefs.edit {
-                        putString("nickname", action.nickname)
-                        putInt("avatar_drawable", action.avatarDrawable)
-                        putInt("avatar_string", action.avatarString)
-                        putBoolean("onboarded", true)
-
-                        commit()
-
-                        state.value = state.value.copy(executing = false)
-                    }
                 }
 
                 OnboardAction.Done -> {
@@ -50,11 +39,7 @@ data class OnboardState(
 )
 
 sealed interface OnboardAction {
-    data class Submit(
-        val nickname: String,
-        val avatarDrawable: Int,
-        val avatarString: Int,
-    ) : OnboardAction
+    data class Submit(val username: String) : OnboardAction
 
     data object Done : OnboardAction
 }

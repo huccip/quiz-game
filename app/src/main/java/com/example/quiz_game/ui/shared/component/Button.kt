@@ -36,10 +36,10 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.quiz_game.R
+import com.example.quiz_game.ui.activity.main.destination.AnsweredState
 import com.example.quiz_game.ui.shared.effect.alphaOutOnPress
 import com.example.quiz_game.ui.shared.effect.bounceOnPress
 import com.example.quiz_game.ui.shared.effect.scaleDownOnPress
-import com.example.quiz_game.ui.activity.main.destination.AnsweredState
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
@@ -47,7 +47,8 @@ fun ButtonFancy(
     modifier: Modifier = Modifier,
     onClick: () -> Unit = {},
     enabled: Boolean = true,
-    @DrawableRes icon: Int? = null,
+    @DrawableRes leadingIcon: Int? = null,
+    @DrawableRes trailingIcon: Int? = null,
     content: @Composable () -> Unit = {}
 ) {
     val interactionSource = remember { MutableInteractionSource() }
@@ -75,11 +76,9 @@ fun ButtonFancy(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.Center
         ) {
-            icon?.let {
-                IconButton(painter = painterResource(it), color = MaterialTheme.colorScheme.error)
-                Spacer(modifier = Modifier.width(6.dp))
-            }
+            leadingIcon?.let { IconButton(painter = painterResource(it)) }
             content()
+            trailingIcon?.let { IconButton(painter = painterResource(it)) }
         }
     }
 }
@@ -89,6 +88,8 @@ fun ButtonPrimary(
     modifier: Modifier = Modifier,
     onClick: () -> Unit = {},
     enabled: Boolean = true,
+    @DrawableRes leadingIcon: Int? = null,
+    @DrawableRes trailingIcon: Int? = null,
     content: @Composable () -> Unit = {}
 ) {
     val interactionSource = remember { MutableInteractionSource() }
@@ -118,9 +119,11 @@ fun ButtonPrimary(
             Row(
                 modifier = Modifier.height(IntrinsicSize.Min),
                 verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(4.dp),
+                horizontalArrangement = Arrangement.spacedBy(12.dp),
                 content = {
+                    leadingIcon?.let { IconButton(painter = painterResource(it)) }
                     content()
+                    trailingIcon?.let { IconButton(painter = painterResource(it)) }
                 }
             )
         }
@@ -132,7 +135,8 @@ fun ButtonSecondary(
     modifier: Modifier = Modifier,
     onClick: () -> Unit = {},
     enabled: Boolean = true,
-    @DrawableRes icon: Int? = null,
+    @DrawableRes leadingIcon: Int? = null,
+    @DrawableRes trailingIcon: Int? = null,
     content: @Composable () -> Unit = {}
 ) {
 
@@ -154,13 +158,12 @@ fun ButtonSecondary(
         Row(
             modifier = Modifier.height(IntrinsicSize.Min),
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(4.dp),
+            horizontalArrangement = Arrangement.spacedBy(12.dp),
             content = {
-                icon?.let {
-                    IconButton(painter = painterResource(it), color = MaterialTheme.colorScheme.error)
-                    Spacer(modifier = Modifier.width(6.dp))
-                }
+                leadingIcon?.let { IconButton(painter = painterResource(it)) }
                 content()
+
+                trailingIcon?.let { IconButton(painter = painterResource(it)) }
             }
         )
     }
@@ -193,7 +196,7 @@ fun ButtonDanger(
     ) {
         Row(
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.Center
+            horizontalArrangement = Arrangement.spacedBy(12.dp)
         ) {
             icon?.let {
                 IconButton(painter = painterResource(it), color = MaterialTheme.colorScheme.error)
