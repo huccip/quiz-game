@@ -91,6 +91,7 @@ dependencies {
     implementation(libs.androidx.media3.common)
 
     implementation("androidx.datastore:datastore:1.1.6")
+    implementation("androidx.datastore:datastore-core:1.1.6")
     implementation("com.google.protobuf:protobuf-javalite:3.21.11")
     implementation("com.google.protobuf:protobuf-kotlin-lite:3.21.11")
 }

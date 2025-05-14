@@ -91,7 +91,6 @@ fun Guide(
         ButtonPrimary(
             enabled = videoEnded,
             onClick = {
-                onboardAction(OnboardAction.Done)
                 sharedAction(SharedAction.StartActivity(context, MainActivity::class.java))
             }
         ) {

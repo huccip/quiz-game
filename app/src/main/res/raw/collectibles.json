@@ -1,0 +1,92 @@
+[
+  {
+    "uid": "trophy-001",
+    "symbol": "🏆",
+    "name": "Quiz Master",
+    "description": "Awarded to players who achieve a perfect score in 10 consecutive quizzes",
+    "type": "TROPHY",
+    "tradeValue": 500,
+    "price": 1000
+  },
+  {
+    "uid": "trophy-002",
+    "symbol": "⭐",
+    "name": "Rising Star",
+    "description": "Earned by new players who reach 1000 points in their first week",
+    "type": "TROPHY",
+    "tradeValue": 200,
+    "price": 400
+  },
+  {
+    "uid": "trophy-003",
+    "symbol": "🧠",
+    "name": "Knowledge Titan",
+    "description": "Awarded to players who excel in all knowledge categories",
+    "type": "TROPHY",
+    "tradeValue": 800,
+    "price": 1500
+  },
+  {
+    "uid": "trophy-004",
+    "symbol": "🔥",
+    "name": "Streak Master",
+    "description": "Maintained a 30-day login streak without missing a day",
+    "type": "TROPHY",
+    "tradeValue": 300,
+    "price": 600
+  },
+  {
+    "uid": "utility-001",
+    "symbol": "⏱️",
+    "name": "Time Extender",
+    "description": "Adds 15 extra seconds to any timed quiz",
+    "type": "UTILITY",
+    "tradeValue": 50,
+    "price": 100
+  },
+  {
+    "uid": "utility-002",
+    "symbol": "🔄",
+    "name": "Question Skipper",
+    "description": "Skip a difficult question without penalty",
+    "type": "UTILITY",
+    "tradeValue": 75,
+    "price": 150
+  },
+  {
+    "uid": "utility-003",
+    "symbol": "👥",
+    "name": "Audience Help",
+    "description": "Shows how other players answered this question",
+    "type": "UTILITY",
+    "tradeValue": 100,
+    "price": 200
+  },
+  {
+    "uid": "utility-004",
+    "symbol": "🎲",
+    "name": "Second Chance",
+    "description": "Allows you to retry a question after getting it wrong",
+    "type": "UTILITY",
+    "tradeValue": 125,
+    "price": 250
+  },
+  {
+    "uid": "trophy-005",
+    "symbol": "👑",
+    "name": "Quiz Champion",
+    "description": "Awarded to the top player on the seasonal leaderboard",
+    "type": "TROPHY",
+    "tradeValue": 1000,
+    "price": 2000
+  },
+  {
+    "uid": "utility-005",
+    "symbol": "🔍",
+    "name": "Hint Revealer",
+    "description": "Reveals a helpful hint for the current question",
+    "type": "UTILITY",
+    "tradeValue": 60,
+    "price": 120
+  }
+]
