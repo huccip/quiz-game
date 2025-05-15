@@ -1,6 +1,7 @@
 package com.example.quiz_game.ui.shared.component
 
 import androidx.annotation.StringRes
+import androidx.collection.emptyScatterSet
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
@@ -28,10 +29,10 @@ fun TextFieldPrimary(
     onNext: (String) -> Unit = {},
     vararg regex: Pair<Regex, String>? = emptyArray<Pair<Regex, String>>(),
     isLast: Boolean = false,
-    onValid: (Boolean) -> Unit = {}
+    onValid: (Boolean, String) -> Unit = { isValid, value -> }
 ) {
     var errors by rememberSaveable {
-        mutableStateOf(emptyList<String>())
+        mutableStateOf(emptySet<String>())
     }
 
     var value by rememberSaveable {
@@ -39,22 +40,23 @@ fun TextFieldPrimary(
     }
 
     val onValidate: (String) -> Unit = { newValue ->
-        var newErrors = mutableListOf<String>()
-
+        var isValid = true
         regex.filter { it != null }.onEach {
             val (regex, description) = it!!
 
-            onValid(newValue.matches(regex))
-
             if (newValue.matches(regex)) {
-                value = newValue
-                newErrors.remove(description)
+                errors = errors.minusElement(description)
             } else {
-                newErrors.add(description)
+                isValid = false
+                errors = errors.plusElement(description)
             }
         }
 
-        errors = newErrors
+        onValid(isValid, newValue)
+
+        if (isValid) {
+            value = newValue
+        }
     }
 
     LaunchedEffect(value) {

@@ -1,6 +1,5 @@
 package com.example.quiz_game.ui.activity.onboard.destination
 
-import android.util.Log
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.runtime.Composable
@@ -31,44 +30,44 @@ fun Form(
     onboardAction: (OnboardAction) -> Unit = {},
     navController: NavController = rememberNavController(),
 ) {
-    var buttonEnabled by rememberSaveable {
-        mutableStateOf(true)
-    }
-    var textfieldEnabled by rememberSaveable {
-        mutableStateOf(true)
+    var textfieldEnabled by rememberSaveable { mutableStateOf(true) }
+    var usernameState by rememberSaveable { mutableStateOf("") }
+    var buttonEnabled by rememberSaveable { mutableStateOf(true) }
+
+    val onSubmit: (String) -> Unit = { username ->
+        textfieldEnabled = false
+        buttonEnabled = false
+        //sharedAction(SharedAction.Navigate(OnboardDestination.Guide, navController))
+        onboardAction(OnboardAction.Submit(username))
     }
 
-    val onSubmit: () -> Unit = {
-        textfieldEnabled = false
-        sharedAction(SharedAction.Navigate(OnboardDestination.Guide, navController))
-        //onboardAction(OnboardAction.Submit())
-    }
+    val validationRules = arrayOf(
+        Regex("^.{0,20}$") to stringResource(R.string.onboard_name_textfield_max_characters),
+        Regex("^.{3,}$") to stringResource(R.string.onboard_name_textfield_min_characters),
+        Regex("^[a-zA-Z0-9]+$") to stringResource(R.string.onboard_name_textfield_unallowed_characters)
+    )
 
     Column(
+        modifier = modifier,
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
         TextFieldPrimary(
-            modifier = modifier,
+            modifier = Modifier,
             enabled = textfieldEnabled,
             placeholder = R.string.onboard_name_placeholder,
             label = R.string.onboard_name_label,
             isLast = true,
-            regex = arrayOf(
-                Regex("^.{0,20}$") to stringResource(R.string.onboard_name_textfield_max_characters),
-                Regex("^.{3,}$") to stringResource(R.string.onboard_name_textfield_min_characters),
-                Regex("^[a-zA-Z0-9]+$") to stringResource(R.string.onboard_name_textfield_unallowed_characters)
-            ),
-            onDone = { nickname ->
-                textfieldEnabled = false
-            },
-            onValid = {
-                buttonEnabled = it
+            regex = validationRules,
+            onDone = { username -> onSubmit(username) },
+            onValid = { isValid, username ->
+                buttonEnabled = isValid
+                usernameState = username
             }
         )
+
         ButtonPrimary(
-            onClick = {
-            },
+            onClick = { onSubmit(usernameState) },
             enabled = buttonEnabled,
             trailingIcon = R.drawable.ic_arrow_forward
         ) {

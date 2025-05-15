@@ -6,6 +6,7 @@ import android.content.SharedPreferences
 import androidx.core.content.edit
 import androidx.room.Room
 import com.example.quiz_game.data.Database
+import com.example.quiz_game.data.user.User
 import com.example.quiz_game.other.LocaleHelper
 import com.example.quiz_game.other.Utils
 import kotlinx.coroutines.CoroutineScope
@@ -36,20 +37,20 @@ class App : Application() {
             )
             .build()
 
-        userPrefs = getSharedPreferences("user-preferences", MODE_PRIVATE)
-        if (!userPrefs.contains("lastKnownLanguage")) {
+        userPrefs = getSharedPreferences(User.KEY_USER, MODE_PRIVATE)
+        if (!userPrefs.contains(User.KEY_LAST_KNOWN_LANGUAGE)) {
             userPrefs.edit {
                 putString(
-                    "lastKnownLanguage",
+                    User.KEY_LAST_KNOWN_LANGUAGE,
                     if (Utils.supportedLanguage(Locale.getDefault().language)) Locale.getDefault().language else "en"
                 )
                 commit()
             }
         }
-        if (!userPrefs.contains("selectedLanguage")) {
+        if (!userPrefs.contains(User.KEY_SELECTED_LANGUAGE)) {
             userPrefs.edit {
                 putString(
-                    "selectedLanguage",
+                    User.KEY_SELECTED_LANGUAGE,
                     if (Utils.supportedLanguage(Locale.getDefault().language)) Locale.getDefault().language else "en"
                 )
                 commit()
@@ -63,8 +64,8 @@ class App : Application() {
     }
 
     override fun attachBaseContext(base: Context?) {
-        val prefs = base?.getSharedPreferences("user-preferences", MODE_PRIVATE)
-        val lang = prefs?.getString("selectedLanguage", "en") ?: "en"
+        val prefs = base?.getSharedPreferences(User.KEY_USER, MODE_PRIVATE)
+        val lang = prefs?.getString(User.KEY_SELECTED_LANGUAGE, "en") ?: "en"
         val newBase = LocaleHelper.wrap(base!!, lang)
         super.attachBaseContext(newBase)
     }
