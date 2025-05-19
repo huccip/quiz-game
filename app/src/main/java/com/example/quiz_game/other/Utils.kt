@@ -5,6 +5,7 @@ import android.text.Html
 import android.util.Log
 import com.example.quiz_game.App
 import com.example.quiz_game.R
+import com.example.quiz_game.data.collectible.Collectible
 import com.google.mlkit.common.model.DownloadConditions
 import com.google.mlkit.nl.translate.Translation
 import com.google.mlkit.nl.translate.Translator
@@ -13,6 +14,8 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.TimeoutCancellationException
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.withTimeout
+import kotlinx.serialization.json.Json
+import java.io.InputStream
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -39,6 +42,19 @@ object Utils {
             }
         } catch (e: TimeoutCancellationException) {
             onTimeout(e)
+        }
+    }
+
+    suspend inline fun <reified T> readJsonRaw(
+        inputStream: InputStream,
+        onFinish: suspend (T) -> Unit,
+        onError: (Throwable) -> Unit
+    ) {
+        return try {
+            val jsonString = inputStream.bufferedReader().use { it.readText() }
+            onFinish(Json.decodeFromString(jsonString))
+        } catch (e: Exception) {
+            onError(e)
         }
     }
 

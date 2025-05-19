@@ -4,6 +4,8 @@ import androidx.core.content.edit
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.quiz_game.App
+import com.example.quiz_game.data.user.User
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 
@@ -14,47 +16,45 @@ class OnboardViewModel : ViewModel() {
     fun onAction(action: OnboardAction) {
         viewModelScope.launch {
             when (action) {
-                is OnboardAction.Submit -> {
-                    state.value = state.value.copy(executing = true)
-
+                is OnboardAction.Submit -> execute {
                     App.userPrefs.edit {
-                        putString("nickname", action.nickname)
-                        putInt("avatar_drawable", action.avatarDrawable)
-                        putInt("avatar_string", action.avatarString)
-                        putBoolean("onboarded", true)
-
+                        putString(User.KEY_USERNAME, action.username)
                         commit()
 
-                        state.value = state.value.copy(executing = false)
+                        updateStateOnSuccess()
+                        return@execute
                     }
-                }
 
-                OnboardAction.Done -> {
-                    state.value = state.value.copy(executing = true)
-
-                    App.userPrefs.edit {
-                        putBoolean("guided", true)
-
-                        commit()
-
-                        state.value = state.value.copy(executing = false)
-                    }
+                    updateStateOnError(Exception("username was not written in shared prefs"))
                 }
             }
         }
+    }
+
+    private suspend fun execute(block: suspend () -> Unit) {
+        state.value.copy(executing = true)
+
+        delay(500)
+        block()
+    }
+
+    private fun updateStateOnSuccess() {
+        state.value = state.value.copy(executing = false, errors = arrayListOf())
+    }
+
+    private fun updateStateOnError(e: Throwable) {
+        state.value = state.value.copy(
+            executing = false,
+            errors = state.value.errors.apply { add(e) }
+        )
     }
 }
 
 data class OnboardState(
     val executing: Boolean = false,
+    val errors: ArrayList<Throwable> = arrayListOf()
 )
 
 sealed interface OnboardAction {
-    data class Submit(
-        val nickname: String,
-        val avatarDrawable: Int,
-        val avatarString: Int,
-    ) : OnboardAction
-
-    data object Done : OnboardAction
+    data class Submit(val username: String) : OnboardAction
 }

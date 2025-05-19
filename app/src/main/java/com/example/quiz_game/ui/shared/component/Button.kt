@@ -25,6 +25,7 @@ import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.material3.contentColorFor
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -36,10 +37,10 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.quiz_game.R
+import com.example.quiz_game.ui.activity.main.destination.AnsweredState
 import com.example.quiz_game.ui.shared.effect.alphaOutOnPress
 import com.example.quiz_game.ui.shared.effect.bounceOnPress
 import com.example.quiz_game.ui.shared.effect.scaleDownOnPress
-import com.example.quiz_game.ui.activity.main.destination.AnsweredState
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
@@ -47,7 +48,6 @@ fun ButtonFancy(
     modifier: Modifier = Modifier,
     onClick: () -> Unit = {},
     enabled: Boolean = true,
-    @DrawableRes icon: Int? = null,
     content: @Composable () -> Unit = {}
 ) {
     val interactionSource = remember { MutableInteractionSource() }
@@ -75,10 +75,6 @@ fun ButtonFancy(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.Center
         ) {
-            icon?.let {
-                IconButton(painter = painterResource(it), color = MaterialTheme.colorScheme.error)
-                Spacer(modifier = Modifier.width(6.dp))
-            }
             content()
         }
     }
@@ -89,13 +85,14 @@ fun ButtonPrimary(
     modifier: Modifier = Modifier,
     onClick: () -> Unit = {},
     enabled: Boolean = true,
+    color: Color = MaterialTheme.colorScheme.onSurface,
     content: @Composable () -> Unit = {}
 ) {
     val interactionSource = remember { MutableInteractionSource() }
 
     OutlinedCard(
         shape = RoundedCornerShape(8.dp),
-        border = BorderStroke(1.dp, MaterialTheme.colorScheme.onSurface),
+        border = BorderStroke(1.dp, color),
         modifier = modifier.scaleDownOnPress(.8f, interactionSource),
     ) {
         Button(
@@ -103,11 +100,11 @@ fun ButtonPrimary(
             enabled = enabled,
             shape = RoundedCornerShape(6.dp),
             colors = ButtonDefaults.buttonColors(
-                containerColor = MaterialTheme.colorScheme.onSurface,
-                contentColor = MaterialTheme.colorScheme.surface
+                containerColor = color,
+                contentColor = contentColorFor(color)
             ),
             elevation = ButtonDefaults.buttonElevation(
-                defaultElevation = 6.dp,
+                defaultElevation = 0.dp,
                 pressedElevation = 0.dp,
                 focusedElevation = 0.dp,
                 hoveredElevation = 0.dp,
@@ -118,7 +115,7 @@ fun ButtonPrimary(
             Row(
                 modifier = Modifier.height(IntrinsicSize.Min),
                 verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(4.dp),
+                horizontalArrangement = Arrangement.spacedBy(12.dp),
                 content = {
                     content()
                 }
@@ -132,7 +129,6 @@ fun ButtonSecondary(
     modifier: Modifier = Modifier,
     onClick: () -> Unit = {},
     enabled: Boolean = true,
-    @DrawableRes icon: Int? = null,
     content: @Composable () -> Unit = {}
 ) {
 
@@ -154,13 +150,10 @@ fun ButtonSecondary(
         Row(
             modifier = Modifier.height(IntrinsicSize.Min),
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(4.dp),
+            horizontalArrangement = Arrangement.spacedBy(12.dp),
             content = {
-                icon?.let {
-                    IconButton(painter = painterResource(it), color = MaterialTheme.colorScheme.error)
-                    Spacer(modifier = Modifier.width(6.dp))
-                }
                 content()
+
             }
         )
     }
@@ -193,10 +186,10 @@ fun ButtonDanger(
     ) {
         Row(
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.Center
+            horizontalArrangement = Arrangement.spacedBy(12.dp)
         ) {
             icon?.let {
-                IconButton(painter = painterResource(it), color = MaterialTheme.colorScheme.error)
+                IconButton(painter = painterResource(it))
                 Spacer(modifier = Modifier.width(6.dp))
             }
             content()
