@@ -25,6 +25,7 @@ import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.material3.contentColorFor
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -47,8 +48,6 @@ fun ButtonFancy(
     modifier: Modifier = Modifier,
     onClick: () -> Unit = {},
     enabled: Boolean = true,
-    @DrawableRes leadingIcon: Int? = null,
-    @DrawableRes trailingIcon: Int? = null,
     content: @Composable () -> Unit = {}
 ) {
     val interactionSource = remember { MutableInteractionSource() }
@@ -76,9 +75,7 @@ fun ButtonFancy(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.Center
         ) {
-            leadingIcon?.let { IconButton(painter = painterResource(it)) }
             content()
-            trailingIcon?.let { IconButton(painter = painterResource(it)) }
         }
     }
 }
@@ -88,15 +85,14 @@ fun ButtonPrimary(
     modifier: Modifier = Modifier,
     onClick: () -> Unit = {},
     enabled: Boolean = true,
-    @DrawableRes leadingIcon: Int? = null,
-    @DrawableRes trailingIcon: Int? = null,
+    color: Color = MaterialTheme.colorScheme.onSurface,
     content: @Composable () -> Unit = {}
 ) {
     val interactionSource = remember { MutableInteractionSource() }
 
     OutlinedCard(
         shape = RoundedCornerShape(8.dp),
-        border = BorderStroke(1.dp, MaterialTheme.colorScheme.onSurface),
+        border = BorderStroke(1.dp, color),
         modifier = modifier.scaleDownOnPress(.8f, interactionSource),
     ) {
         Button(
@@ -104,11 +100,11 @@ fun ButtonPrimary(
             enabled = enabled,
             shape = RoundedCornerShape(6.dp),
             colors = ButtonDefaults.buttonColors(
-                containerColor = MaterialTheme.colorScheme.onSurface,
-                contentColor = MaterialTheme.colorScheme.surface
+                containerColor = color,
+                contentColor = contentColorFor(color)
             ),
             elevation = ButtonDefaults.buttonElevation(
-                defaultElevation = 6.dp,
+                defaultElevation = 0.dp,
                 pressedElevation = 0.dp,
                 focusedElevation = 0.dp,
                 hoveredElevation = 0.dp,
@@ -121,9 +117,7 @@ fun ButtonPrimary(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(12.dp),
                 content = {
-                    leadingIcon?.let { IconButton(painter = painterResource(it)) }
                     content()
-                    trailingIcon?.let { IconButton(painter = painterResource(it)) }
                 }
             )
         }
@@ -135,8 +129,6 @@ fun ButtonSecondary(
     modifier: Modifier = Modifier,
     onClick: () -> Unit = {},
     enabled: Boolean = true,
-    @DrawableRes leadingIcon: Int? = null,
-    @DrawableRes trailingIcon: Int? = null,
     content: @Composable () -> Unit = {}
 ) {
 
@@ -160,10 +152,8 @@ fun ButtonSecondary(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(12.dp),
             content = {
-                leadingIcon?.let { IconButton(painter = painterResource(it)) }
                 content()
 
-                trailingIcon?.let { IconButton(painter = painterResource(it)) }
             }
         )
     }
@@ -199,7 +189,7 @@ fun ButtonDanger(
             horizontalArrangement = Arrangement.spacedBy(12.dp)
         ) {
             icon?.let {
-                IconButton(painter = painterResource(it), color = MaterialTheme.colorScheme.error)
+                IconButton(painter = painterResource(it))
                 Spacer(modifier = Modifier.width(6.dp))
             }
             content()

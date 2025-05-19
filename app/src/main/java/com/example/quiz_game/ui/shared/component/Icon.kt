@@ -21,7 +21,6 @@ fun IconButton(
     model: Any? = null,
     contentDescription: String? = null,
     style: TextStyle = LocalTextStyle.current,
-    color: Color = MaterialTheme.colorScheme.onSurface
 ) {
     val iconSize = with(LocalDensity.current) { style.fontSize.toDp() }
 
@@ -29,7 +28,6 @@ fun IconButton(
         Icon(
             painter = it,
             contentDescription = contentDescription,
-            tint = color,
             modifier = modifier.size(iconSize)
         )
     }
@@ -38,7 +36,6 @@ fun IconButton(
         Icon(
             imageVector = it,
             contentDescription = contentDescription,
-            tint = color,
             modifier = modifier.size(iconSize)
         )
     }

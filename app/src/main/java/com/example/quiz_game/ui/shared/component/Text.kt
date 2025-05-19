@@ -7,6 +7,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import com.example.quiz_game.R
@@ -16,7 +17,8 @@ fun TextFancy(
     modifier: Modifier = Modifier,
     text: String,
     color: Color = MaterialTheme.colorScheme.onSurface,
-    textAlign: TextAlign = TextAlign.Start
+    textAlign: TextAlign = TextAlign.Start,
+    fontWeight: FontWeight = FontWeight.Normal,
 ) {
     Text(
         modifier = modifier,
@@ -24,6 +26,7 @@ fun TextFancy(
         text = text,
         color = color,
         style = MaterialTheme.typography.headlineMedium,
+        fontWeight = fontWeight,
         fontFamily = FontFamily(Font(R.font.fancy))
     )
 }

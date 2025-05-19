@@ -1,15 +1,17 @@
 <resources>
     <string name="app_name">quiz-game</string>
 
-    <string name="onboard_welcome">Hey you,<br />Are you ready for an awesome journey?</string>
-
-    <string name="onboard_name_label">Nickname</string>
-    <string name="onboard_name_placeholder">What should we call you</string>
     <string name="textfield_placeholder_default">Type here…</string>
     <string name="textfield_label_default" />
-    <string name="onboard_name_textfield_max_characters">"Nickname must be less than 20 characters"</string>
-    <string name="onboard_name_textfield_min_characters">"Nickname must be at least 3 characters"</string>
-    <string name="onboard_name_textfield_unallowed_characters">"Nickname can only contain letters and numbers"</string>
+
+    <string name="onboard_form_greet">Hey %s,</string>
+    <string name="onboard_form_question">Are you ready for an unforgettable adventure?</string>
+    <string name="onboard_form_submit">Yes, I am ready</string>
+    <string name="onboard_name_label">Nickname</string>
+    <string name="onboard_name_placeholder">What should we call you</string>
+    <string name="onboard_name_textfield_max_characters">Nickname must be less than 10 characters</string>
+    <string name="onboard_name_textfield_min_characters">Nickname must be at least 4 characters</string>
+    <string name="onboard_name_textfield_unallowed_characters">Nickname can only contain letters and numbers</string>
     <string name="onboard_avatar_label">Avatar</string>
     <string name="onboard_avatar_hint">Pick your hero legend and let\'s begin the grind 🔥</string>
     <string name="onboard_button_letsgo">Let\'s go!</string>
@@ -84,4 +86,80 @@
     <string name="dialog_discard_session_text">Are you sure you want to start a new session? Previous session will be discarded</string>
 
     <string name="postgame_button_navigate_home">Restart</string>
+
+    <!-- Guide Screen -->
+    <string name="guide_welcome_title">Welcome to Quiz Game!</string>
+    <string name="guide_welcome_subtitle">Let\'s learn how to play and have fun!</string>
+    
+    <string name="guide_how_to_play">How to Play</string>
+    <string name="guide_tutorial_title">How to Play Quiz Game</string>
+    
+    <string name="guide_step_1_title">Choose a Category</string>
+    <string name="guide_step_1_desc">Tap on a fun category that interests you!</string>
+    
+    <string name="guide_step_2_title">Answer Questions</string>
+    <string name="guide_step_2_desc">Read each question carefully and select the correct answer before time runs out!</string>
+    
+    <string name="guide_step_3_title">Earn Points</string>
+    <string name="guide_step_3_desc">Get points for correct answers. The faster you answer, the more points you get!</string>
+    
+    <string name="guide_step_4_title">Win Trophies</string>
+    <string name="guide_step_4_desc">Collect trophies for completing quizzes with high scores!</string>
+    
+    <string name="guide_utility_cards">Utility Cards</string>
+    
+    <string name="guide_utility_time_booster">Time Booster</string>
+    <string name="guide_utility_time_booster_desc">Gives you extra time to answer questions</string>
+    
+    <string name="guide_utility_hint_card">Hint Card</string>
+    <string name="guide_utility_hint_card_desc">Removes one wrong answer from choices</string>
+    
+    <string name="guide_utility_double_points">Double Points</string>
+    <string name="guide_utility_double_points_desc">Doubles the points you earn for a correct answer</string>
+    
+    <string name="guide_utility_second_chance">Second Chance</string>
+    <string name="guide_utility_second_chance_desc">Allows you to retry a question if you get it wrong</string>
+    
+    <string name="guide_coins_shop">Coins &amp; Shop</string>
+    
+    <string name="guide_earn_coins">Earn coins by:</string>
+    <string name="guide_earn_coins_1">Answering questions correctly</string>
+    <string name="guide_earn_coins_2">Completing quizzes</string>
+    <string name="guide_earn_coins_3">Earning trophies</string>
+    <string name="guide_earn_coins_4">Daily login rewards</string>
+    
+    <string name="guide_use_coins">Use coins to:</string>
+    <string name="guide_use_coins_1">Buy utility cards in the shop</string>
+    <string name="guide_use_coins_2">Unlock special categories</string>
+    <string name="guide_use_coins_3">Trade for trophies</string>
+    
+    <string name="guide_trading_title">Trading Cards for Coins</string>
+    <string name="guide_trading_desc">If you have extra utility cards, you can trade them for coins in the shop! Just tap on the card in your inventory and select \'Trade\'.</string>
+    
+    <string name="guide_faq">Frequently Asked Questions</string>
+    
+    <string name="guide_faq_1_q">How do I change the language?</string>
+    <string name="guide_faq_1_a">You can change the language by going to Settings and selecting your preferred language from the list.</string>
+    
+    <string name="guide_faq_2_q">What happens if I run out of time?</string>
+    <string name="guide_faq_2_a">If you run out of time before answering a question, it will be marked as incorrect and you\'ll move to the next question.</string>
+    
+    <string name="guide_faq_3_q">Can I play without internet?</string>
+    <string name="guide_faq_3_a">Yes! Some quizzes are available offline. Look for the offline symbol next to the quiz category.</string>
+    
+    <string name="guide_faq_4_q">How do I earn trophies?</string>
+    <string name="guide_faq_4_a">Trophies are earned by completing quizzes with high scores. The more questions you answer correctly, the better trophy you\'ll receive!</string>
+    
+    <string name="guide_faq_5_q">Can I create my own quizzes?</string>
+    <string name="guide_faq_5_a">Not yet, but we\'re working on adding this feature in a future update!</string>
+    
+    <string name="guide_start_button">Let\'s Start Playing!</string>
+    <string name="guide_explore_message">Please explore all sections before continuing</string>
+    
+    <!-- Section names for tracking -->
+    <string name="guide_section_welcome">welcome</string>
+    <string name="guide_section_how_to_play">howToPlay</string>
+    <string name="guide_section_utilities">utilities</string>
+    <string name="guide_section_coins">coins</string>
+    <string name="guide_section_faq">faq</string>
 </resources>

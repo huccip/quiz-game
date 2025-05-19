@@ -37,9 +37,9 @@ fun DialogYesOrNo(
         dismissButton = {
             ButtonSecondary(
                 onClick = onDismiss,
-                leadingIcon = buttonConfirmIcon,
             ) {
                 Text(stringResource(buttonDismissText))
+                buttonDismissIcon?.let { IconButton(painter = painterResource(it)) }
             }
         },
         title = { TextBig(text = stringResource(title)) },
