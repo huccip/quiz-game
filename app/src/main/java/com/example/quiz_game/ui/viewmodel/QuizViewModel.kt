@@ -5,9 +5,13 @@ import androidx.lifecycle.viewModelScope
 import com.example.quiz_game.data.Repository
 import com.example.quiz_game.data.quiz.Quiz
 import com.example.quiz_game.other.Constants
+import com.google.mlkit.nl.translate.Translator
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.tasks.await
 
 class QuizViewModel : ViewModel() {
     var state = MutableStateFlow(QuizState())
@@ -42,11 +46,43 @@ class QuizViewModel : ViewModel() {
                 }
 
                 is QuizAction.GetBySession -> execute {
-                    Repository.quizRepository.getBySession(
-                        uids = action.uids,
-                        onSuccess = { updateStateOnSuccess(sessionList = it) },
-                        onError = { updateStateOnError(it) }
-                    )
+                    val translatedQuizzes = action.uids.map { uid ->
+                        viewModelScope.async(Dispatchers.IO) {
+                            var fetchedQuiz: Quiz? = null
+                            Repository.quizRepository.getByUid(
+                                uid = uid,
+                                onSuccess = { quiz -> fetchedQuiz = quiz },
+                                onError = { e ->
+                                    updateStateOnError(e)
+                                    null
+                                }
+                            )
+                            fetchedQuiz?.let { quiz ->
+                                action.translator?.let { translator ->
+                                    try {
+                                        val translatedQuestion =
+                                            translator.translate(quiz.question ?: "").await()
+                                        val translatedCorrectAnswer =
+                                            translator.translate(quiz.correctAnswer ?: "").await()
+                                        val translatedIncorrectAnswers =
+                                            quiz.incorrectAnswers?.map { answer ->
+                                                translator.translate(answer).await()
+                                            }
+                                        quiz.copy(
+                                            question = translatedQuestion,
+                                            correctAnswer = translatedCorrectAnswer,
+                                            incorrectAnswers = translatedIncorrectAnswers
+                                        )
+                                    } catch (e: Exception) {
+                                        updateStateOnError(e)
+                                        quiz
+                                    }
+                                } ?: quiz
+                            }
+                        }
+                    }.mapNotNull { deferred -> deferred.await() }
+
+                    updateStateOnSuccess(sessionList = translatedQuizzes)
                 }
 
                 is QuizAction.DeleteByUid -> execute {
@@ -82,7 +118,11 @@ class QuizViewModel : ViewModel() {
         )
     }
 
-    private fun updateStateOnSuccess(data: Quiz? = null, list: List<Quiz>? = null, sessionList: List<Quiz>? = null) {
+    private fun updateStateOnSuccess(
+        data: Quiz? = null,
+        list: List<Quiz>? = null,
+        sessionList: List<Quiz>? = null
+    ) {
         state.value = state.value.copy(executing = false)
         data?.let { state.value = state.value.copy(quiz = data) }
         list?.let { state.value = state.value.copy(quizzes = list) }
@@ -102,7 +142,7 @@ sealed interface QuizAction {
     data object GetAll : QuizAction
     data class GetByCategory(val category: String) : QuizAction
     data class GetByUid(val uid: String) : QuizAction
-    data class GetBySession(val uids: List<String>) : QuizAction
+    data class GetBySession(val uids: List<String>, val translator: Translator?) : QuizAction
     data class DeleteByUid(val uid: String) : QuizAction
     data class UpdateExpired(val uid: String) : QuizAction
 }

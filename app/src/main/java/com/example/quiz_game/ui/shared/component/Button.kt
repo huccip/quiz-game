@@ -153,7 +153,6 @@ fun ButtonSecondary(
             horizontalArrangement = Arrangement.spacedBy(12.dp),
             content = {
                 content()
-
             }
         )
     }

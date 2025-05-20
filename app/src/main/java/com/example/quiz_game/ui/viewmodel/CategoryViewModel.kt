@@ -9,6 +9,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
+import android.util.Log
 
 private const val TAG = "test1234 CategoryViewModel"
 
@@ -26,10 +27,13 @@ class CategoryViewModel() : ViewModel() {
                                 val categories = arrayListOf<Category>()
 
                                 action.translator?.let { translator ->
+                                    Log.d(TAG, "Translator is available.")
                                     it.forEach { category ->
                                         category.name?.let { name ->
+                                            Log.d(TAG, "Original name: $name")
                                             val translatedName =
                                                 translator.translate(name).await()
+                                            Log.d(TAG, "Translated name: $translatedName")
                                             categories.add(category.copy(name = translatedName))
                                         }
                                     }

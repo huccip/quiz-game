@@ -46,6 +46,7 @@ class SessionViewModel : ViewModel() {
                 }
 
                 is SessionAction.InitiateSession -> execute {
+
                     Repository.sessionRepository.insert(
                         session = arrayOf(
                             Session(
@@ -53,7 +54,9 @@ class SessionViewModel : ViewModel() {
                                 maxScore = action.maxScore,
                             )
                         ),
-                        onSuccess = { updateStateOnSuccess(data = it.fastFirstOrNull { it.expiredAt == null }) },
+                        onSuccess = { session ->
+                            updateStateOnSuccess(data = session.fastFirstOrNull { it.expiredAt == null })
+                        },
                         onError = { updateStateOnError(it) }
                     )
                 }
@@ -155,7 +158,7 @@ data class SessionState(
 sealed interface SessionAction {
     data class InitiateSession(
         val quizzesUids: List<String>,
-        val maxScore: Int
+        val maxScore: Int,
     ) : SessionAction
 
     data object GetAll : SessionAction

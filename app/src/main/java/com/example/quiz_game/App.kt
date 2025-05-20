@@ -3,9 +3,12 @@ package com.example.quiz_game
 import android.app.Application
 import android.content.Context
 import android.content.SharedPreferences
+import android.util.Log
 import androidx.core.content.edit
 import androidx.room.Room
 import com.example.quiz_game.data.Database
+import com.example.quiz_game.data.Repository.getUser
+import com.example.quiz_game.data.Repository.saveUser
 import com.example.quiz_game.data.user.User
 import com.example.quiz_game.other.LocaleHelper
 import com.example.quiz_game.other.Utils
@@ -13,10 +16,12 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
+import kotlinx.serialization.json.Json
 import java.util.Locale
 
+private const val TAG = "test1234 App"
+
 class App : Application() {
-    private val TAG = "test1234 App"
 
     companion object {
         val ioScope by lazy { CoroutineScope(Dispatchers.IO + SupervisorJob()) }
@@ -37,39 +42,13 @@ class App : Application() {
             )
             .build()
 
-        userPrefs = getSharedPreferences(User.KEY_USER, MODE_PRIVATE)
-        if (!userPrefs.contains(User.KEY_LAST_KNOWN_LANGUAGE)) {
-            userPrefs.edit {
-                putString(
-                    User.KEY_LAST_KNOWN_LANGUAGE,
-                    if (Utils.supportedLanguage(Locale.getDefault().language)) Locale.getDefault().language else "en"
-                )
-                commit()
-            }
-        }
-        if (!userPrefs.contains(User.KEY_SELECTED_LANGUAGE)) {
-            userPrefs.edit {
-                putString(
-                    User.KEY_SELECTED_LANGUAGE,
-                    if (Utils.supportedLanguage(Locale.getDefault().language)) Locale.getDefault().language else "en"
-                )
-                commit()
-            }
-        }
+        userPrefs = getSharedPreferences("app_prefs", MODE_PRIVATE)
     }
 
     override fun onTerminate() {
         super.onTerminate()
         ioScope.cancel("The application was terminated and the ioScope is cancelled")
     }
-
-    override fun attachBaseContext(base: Context?) {
-        val prefs = base?.getSharedPreferences(User.KEY_USER, MODE_PRIVATE)
-        val lang = prefs?.getString(User.KEY_SELECTED_LANGUAGE, "en") ?: "en"
-        val newBase = LocaleHelper.wrap(base!!, lang)
-        super.attachBaseContext(newBase)
-    }
-
 }
 
 interface AppDestination

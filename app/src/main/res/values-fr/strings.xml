@@ -1,0 +1,168 @@
+<resources>
+    <string name="app_name">Jeu de Quiz</string>
+
+    <string name="textfield_placeholder_default">Tapez ici…</string>
+    <string name="textfield_label_default" />
+
+    <string name="onboard_form_loading_subject">Configuration de votre langue</string>
+    <string name="onboard_form_greet">Bonjour %s,</string>
+    <string name="onboard_form_question">Êtes-vous prêt pour une aventure inoubliable ?</string>
+    <string name="onboard_form_submit">Oui, je suis prêt</string>
+    <string name="onboard_name_label">Surnom</string>
+    <string name="onboard_name_placeholder">Comment devrions-nous vous appeler ?</string>
+    <string name="onboard_name_textfield_max_characters">Le surnom doit comporter moins de 10 caractères</string>
+    <string name="onboard_name_textfield_min_characters">Le surnom doit comporter au moins 4 caractères</string>
+    <string name="onboard_name_textfield_unallowed_characters">Le surnom ne peut contenir que des lettres et des chiffres</string>
+    <string name="onboard_avatar_label">Avatar</string>
+    <string name="onboard_avatar_hint">Choisissez votre légende de héros et commençons à grinder 🔥</string>
+    <string name="onboard_button_letsgo">C\'est parti !</string>
+
+    <string name="onboard_language_next_button">Formulaire</string>
+
+    <string name="home_button_start">Démarrer</string>
+    <string name="home_button_resume">Reprendre</string>
+    <string name="home_button_browse">Parcourir toutes les catégories</string>
+
+    <string name="loading_title">Attendez, chargement de </string>
+    <string-array name="home_loading_subjects">
+        <item>la liste des quiz</item>
+        <item>des anecdotes</item>
+        <item>des bons moments</item>
+        <item>du parcours d\'apprentissage</item>
+        <item>du monde intelligent</item>
+        <item>du sac à dos de connaissances</item>
+        <item>de l\'examen surprise 😈</item>
+        <item>GG, EZ !</item>
+        <item>des succès</item>
+    </string-array>
+    <string name="game_loading_subject">des quiz</string>
+
+    <string name="home_title">C\'est parti !</string>
+    <string name="home_subtitle">L\'un des boutons devrait suffire pour commencer</string>
+
+    <string name="avatar_wind">Windy</string>
+    <string name="avatar_fire">Garçon de Feu</string>
+    <string name="avatar_rock">Le Rocher</string>
+    <string name="avatar_water">Fille d\'Eau</string>
+
+    <string name="guide_button_finish">Compris !</string>
+
+    <string name="achievements_new_record">Nouveau record !!</string>
+    <string name="achievements_no_mistakes">Le Malin</string>
+    <string name="achievements_one_mistake">Les gens font des erreurs, c\'est normal</string>
+    <string name="achievements_two_mistakes">Trompe-moi une fois, honte à toi, trompe-moi deux fois, honte à moi</string>
+    <string name="achievements_ten_mistakes">N\'abandonne pas maintenant, tu peux le faire</string>
+    <string name="achievements_twenty_mistakes">Oui… plus de chance la prochaine fois</string>
+    <string name="achievements_empty" />
+
+    <string name="achievements_detailed_new_record">Vous avez battu votre précédent record ! Cette carte est déverrouillée lorsque vous établissez un nouveau record personnel.</string>
+    <string name="achievements_detailed_no_mistakes">Une victoire sans faute ! Cette carte est décernée pour avoir relevé l\'intégralité du défi sans une seule erreur.</string>
+    <string name="achievements_detailed_one_mistake">Juste un faux pas, mais la perfection était à portée de main. Obtenu pour avoir terminé le jeu avec une seule erreur.</string>
+    <string name="achievements_detailed_two_mistakes">Une manche presque parfaite – vous avez trébuché deux fois, mais vous êtes toujours aussi fort. Cette carte témoigne de votre résilience avec seulement deux erreurs.</string>
+    <string name="achievements_detailed_ten_mistakes">Tout le monde trébuche de temps en temps. Cette réussite reflète votre persévérance, même après dix erreurs.</string>
+    <string name="achievements_detailed_twenty_mistakes">Nous avons tous eu des jours difficiles. Ce badge est un rappel que tomber vingt fois, c\'est juste vingt occasions de se relever.</string>
+
+    <string name="achievement_timelapse_quick_thinker">Penseur Rapide</string>
+    <string name="achievement_timelapse_detailed_quick_thinker">Quiz terminé en moins d\'une minute ! Vitesse et intelligence combinées !</string>
+
+    <string name="achievement_timelapse_casual_cruiser">Croiseur Occasionnel</string>
+    <string name="achievement_timelapse_detailed_casual_cruiser">Plus de 5 minutes passées dans une seule session de quiz. Pas pressé – intelligent et constant !</string>
+
+    <string name="achievement_timelapse_steady_strategist">Stratège Constant</string>
+    <string name="achievement_timelapse_detailed_steady_strategist">Session de quiz jouée pendant plus de 10 minutes. C\'est de la réflexion approfondie !</string>
+
+    <string name="achievement_timelapse_brain_marathoner">Marathonien du Cerveau</string>
+    <string name="achievement_timelapse_detailed_brain_marathoner">Resté actif dans un seul quiz pendant plus de 20 minutes. Votre cerveau doit transpirer !</string>
+
+    <string name="achievement_timelapse_quiz_zen_master">Maître Zen du Quiz</string>
+    <string name="achievement_timelapse_detailed_quiz_zen_master">Résolution de quiz en toute sérénité pendant plus de 30 minutes d\'affilée. La paix mentale rencontre la performance.</string>
+
+    <string name="achievement_timelapse_time_bender">Plieur de Temps</string>
+    <string name="achievement_timelapse_detailed_time_bender">Plus de 45 minutes dans une session de quiz ? Pliez-vous le temps ou êtes-vous simplement aussi absorbé ?</string>
+
+    <string name="achievement_timelapse_eternal_quizzer">Quizzeur Éternel</string>
+    <string name="achievement_timelapse_detailed_eternal_quizzer">Une heure s\'est écoulée et vous êtes toujours aussi fort. C\'est le dévouement au quiz à son meilleur !</string>
+
+    <string name="dialog_discard_session_confirm_button">Oui. Démarrer une nouvelle session</string>
+    <string name="dialog_discard_session_dissmiss_button">Non</string>
+    <string name="dialog_discard_session_title">Avertissement</string>
+    <string name="dialog_discard_session_text">Êtes-vous sûr de vouloir démarrer une nouvelle session ? La session précédente sera abandonnée</string>
+
+    <string name="postgame_button_navigate_home">Rejouer</string>
+
+    <!-- Guide Screen -->
+    <string name="guide_welcome_title">Bienvenue dans le Jeu de Quiz !</string>
+    <string name="guide_welcome_subtitle">Apprenons à jouer et amusons-nous !</string>
+    
+    <string name="guide_how_to_play">Comment jouer</string>
+    <string name="guide_tutorial_title">Comment jouer au Jeu de Quiz</string>
+    
+    <string name="guide_step_1_title">Choisissez une catégorie</string>
+    <string name="guide_step_1_desc">Appuyez sur une catégorie amusante qui vous intéresse !</string>
+    
+    <string name="guide_step_2_title">Répondez aux questions</string>
+    <string name="guide_step_2_desc">Lisez attentivement chaque question et choisissez la bonne réponse avant la fin du temps imparti !</string>
+    
+    <string name="guide_step_3_title">Gagnez des points</string>
+    <string name="guide_step_3_desc">Obtenez des points pour les bonnes réponses. Plus vous répondez vite, plus vous obtenez de points !</string>
+    
+    <string name="guide_step_4_title">Gagnez des trophées</string>
+    <string name="guide_step_4_desc">Collectionnez des trophées en terminant des quiz avec des scores élevés !</string>
+    
+    <string name="guide_utility_cards">Cartes utilitaires</string>
+    
+    <string name="guide_utility_time_booster">Booster de temps</string>
+    <string name="guide_utility_time_booster_desc">Vous donne du temps supplémentaire pour répondre aux questions</string>
+    
+    <string name="guide_utility_hint_card">Carte indice</string>
+    <string name="guide_utility_hint_card_desc">Supprime une mauvaise réponse des options</string>
+    
+    <string name="guide_utility_double_points">Points doublés</string>
+    <string name="guide_utility_double_points_desc">Double les points que vous gagnez pour une bonne réponse</string>
+    
+    <string name="guide_utility_second_chance">Deuxième chance</string>
+    <string name="guide_utility_second_chance_desc">Vous permet de réessayer une question si vous vous trompez</string>
+    
+    <string name="guide_coins_shop">Pièces et boutique</string>
+    
+    <string name="guide_earn_coins">Gagnez des pièces en :</string>
+    <string name="guide_earn_coins_1">Répondant correctement aux questions</string>
+    <string name="guide_earn_coins_2">Terminant des quiz</string>
+    <string name="guide_earn_coins_3">Gagnant des trophées</string>
+    <string name="guide_earn_coins_4">Bonus de connexion quotidiens</string>
+    
+    <string name="guide_use_coins">Utilisez les pièces pour :</string>
+    <string name="guide_use_coins_1">Acheter des cartes utilitaires dans la boutique</string>
+    <string name="guide_use_coins_2">Débloquer des catégories spéciales</string>
+    <string name="guide_use_coins_3">Échanger contre des récompenses</string>
+    
+    <string name="guide_trading_title">Échanger des cartes contre des pièces</string>
+    <string name="guide_trading_desc">Si vous avez des cartes utilitaires supplémentaires, vous pouvez les échanger contre des pièces dans la boutique ! Appuyez simplement sur la carte dans votre inventaire et sélectionnez \'Échanger\'.</string>
+    
+    <string name="guide_faq">FAQ</string>
+    
+    <string name="guide_faq_1_q">Comment changer la langue ?</string>
+    <string name="guide_faq_1_a">Vous pouvez changer la langue en allant dans les paramètres et en sélectionnant votre langue préférée dans la liste.</string>
+    
+    <string name="guide_faq_2_q">Que se passe-t-il si le temps est écoulé ?</string>
+    <string name="guide_faq_2_a">Si le temps est écoulé avant que vous ne répondiez à une question, elle sera comptée comme fausse et vous passerez à la question suivante.</string>
+    
+    <string name="guide_faq_3_q">Puis-je jouer hors ligne ?</string>
+    <string name="guide_faq_3_a">Oui ! Certains quiz sont disponibles hors ligne. Recherchez l\'icône hors ligne à côté d\'une catégorie de quiz.</string>
+    
+    <string name="guide_faq_4_q">Comment gagner des trophées ?</string>
+    <string name="guide_faq_4_a">Les trophées sont gagnés en terminant des quiz avec des scores élevés. Plus vous répondez correctement à de questions, meilleur sera le trophée !</string>
+    
+    <string name="guide_faq_5_q">Puis-je créer mes propres quiz ?</string>
+    <string name="guide_faq_5_a">Pas encore, mais nous travaillons à l\'ajout de cette fonctionnalité dans une future mise à jour !</string>
+    
+    <string name="guide_start_button">Commençons à jouer !</string>
+    <string name="guide_explore_message">Veuillez explorer toutes les sections avant de continuer</string>
+    
+    <!-- Section names for tracking -->
+    <string name="guide_section_welcome">Bienvenue</string>
+    <string name="guide_section_how_to_play">Comment jouer</string>
+    <string name="guide_section_utilities">Utilitaires</string>
+    <string name="guide_section_coins">Pièces</string>
+    <string name="guide_section_faq">FAQ</string>
+</resources>

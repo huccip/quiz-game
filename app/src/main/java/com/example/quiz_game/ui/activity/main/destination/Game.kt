@@ -52,11 +52,10 @@ import com.example.quiz_game.ui.viewmodel.QuizState
 import com.example.quiz_game.ui.viewmodel.SessionAction
 import com.example.quiz_game.ui.viewmodel.SessionState
 import com.example.quiz_game.ui.viewmodel.SharedAction
+import com.example.quiz_game.ui.viewmodel.SharedState
 import kotlinx.coroutines.delay
 
 private const val TAG = "test1234 Game"
-
-// TODO: update this screen
 
 @Composable
 fun Game(
@@ -65,6 +64,7 @@ fun Game(
     quizState: QuizState = QuizState(),
     quizAction: (QuizAction) -> Unit = {},
     sharedAction: (SharedAction) -> Unit = {},
+    sharedState: SharedState = SharedState(),
     sessionState: SessionState = SessionState(),
     sessionAction: (SessionAction) -> Unit = {},
     navController: NavController = rememberNavController(),
@@ -87,7 +87,7 @@ fun Game(
 
     LaunchedEffect(session.quizzesUids) {
         if (!session.quizzesUids.isNullOrEmpty()) {
-            quizAction(QuizAction.GetBySession(session.quizzesUids!!))
+            quizAction(QuizAction.GetBySession(session.quizzesUids!!, sharedState.translator))
         }
     }
 

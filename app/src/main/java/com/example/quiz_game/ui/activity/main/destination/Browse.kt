@@ -10,6 +10,7 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavController
@@ -42,9 +43,7 @@ fun Browse(
             ListItem(
                 headlineContent = {
                     Column {
-                        Text(
-                            category.name ?: "Undefined"
-                        )
+                        Text(text = category.name ?: "Undefined")
                         HorizontalDivider()
                     }
                 },

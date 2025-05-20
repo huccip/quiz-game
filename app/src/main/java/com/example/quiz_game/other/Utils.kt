@@ -102,16 +102,7 @@ object Utils {
         }/$type/$size.png"
     }
 
-    fun updateAppLocale(language: String) {
-        val locale = Locale(language)
-        Locale.setDefault(locale)
-
-        val resources = App.instance.baseContext.resources
-        val config = Configuration(resources.configuration)
-        config.setLocale(locale)
-
-        resources.updateConfiguration(config, resources.displayMetrics) // ✅ force update
-    }
+    
 
     fun stringDateFormat(date: Long): String {
         val sdf = SimpleDateFormat("dd/MM/yyyy HH:mm:ss", Locale.getDefault())

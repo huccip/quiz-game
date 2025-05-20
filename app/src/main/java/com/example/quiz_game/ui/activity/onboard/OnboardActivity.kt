@@ -8,8 +8,10 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
@@ -34,6 +36,8 @@ class OnboardActivity : BaseActivity() {
         setContent {
 
             val navController = rememberNavController()
+            val sharedState by sharedViewModel.state.collectAsStateWithLifecycle()
+            val onboardState by onboardViewModel.state.collectAsStateWithLifecycle()
 
             QuizgameTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
@@ -45,27 +49,34 @@ class OnboardActivity : BaseActivity() {
                     ) {
                         NavHost(
                             navController = navController,
-                            startDestination = OnboardDestination.Form
+                            startDestination = OnboardDestination.Language
                         ) {
                             composable<OnboardDestination.Form> {
                                 Form(
                                     sharedAction = sharedViewModel::onAction,
                                     onboardAction = onboardViewModel::onAction,
-                                    navController = navController
+                                    navController = navController,
+                                    sharedState = sharedState,
+                                    onboardState = onboardState
                                 )
                             }
 
                             composable<OnboardDestination.Guide> {
                                 Guide(
                                     sharedAction = sharedViewModel::onAction,
-                                    onboardAction = onboardViewModel::onAction
+                                    onboardAction = onboardViewModel::onAction,
+                                    navController = navController,
+                                    onboardState = onboardState
                                 )
                             }
 
                             composable<OnboardDestination.Language> {
                                 Language(
                                     sharedAction = sharedViewModel::onAction,
-                                    onboardAction = onboardViewModel::onAction
+                                    onboardAction = onboardViewModel::onAction,
+                                    sharedState = sharedState,
+                                    onboardState = onboardState,
+                                    navController = navController
                                 )
                             }
                         }

@@ -1,18 +1,15 @@
 package com.example.quiz_game.ui.viewmodel
 
+import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import androidx.activity.ComponentActivity
-import androidx.core.content.edit
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.NavController
-import com.example.quiz_game.App
 import com.example.quiz_game.AppDestination
-import com.example.quiz_game.R
 import com.example.quiz_game.data.Repository
-import com.example.quiz_game.data.session.Session
-import com.example.quiz_game.ui.activity.main.MainActivity
+import com.example.quiz_game.ui.activity.onboard.OnboardActivity
 import com.google.mlkit.nl.translate.Translator
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -56,11 +53,12 @@ class SharedViewModel : ViewModel() {
                 }
 
                 is SharedAction.Restart -> execute {
-                    val intent = Intent(action.context, MainActivity::class.java)
-                    intent.flags =
-                        Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+                    val currentActivity = action.context as? Activity
+                    val intent = Intent(action.context, OnboardActivity::class.java)
+                    intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NO_ANIMATION)
                     action.context.startActivity(intent)
-                    Runtime.getRuntime().exit(0)
+                    currentActivity?.overridePendingTransition(0, 0)
+                    currentActivity?.finish()
                 }
             }
         }

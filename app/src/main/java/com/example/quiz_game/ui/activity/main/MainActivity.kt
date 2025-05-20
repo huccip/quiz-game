@@ -27,6 +27,7 @@ import com.example.quiz_game.ui.activity.main.destination.Game
 import com.example.quiz_game.ui.activity.main.destination.Home
 import com.example.quiz_game.ui.activity.onboard.destination.Language
 import com.example.quiz_game.ui.activity.main.destination.PostGame
+import com.example.quiz_game.ui.activity.main.destination.Store
 import com.example.quiz_game.ui.theme.QuizgameTheme
 import com.example.quiz_game.ui.viewmodel.CategoryAction
 import com.example.quiz_game.ui.viewmodel.CategoryViewModel
@@ -96,6 +97,7 @@ class MainActivity : BaseActivity() {
                                     quizzesUids = it.toRoute<MainDestination.Game>().quizzesUids,
                                     sharedAction = sharedViewModel::onAction,
                                     quizAction = quizViewModel::onAction,
+                                    sharedState = sharedState,
                                     sessionState = sessionState,
                                     sessionAction = sessionViewModel::onAction,
                                     navController = navController
@@ -113,10 +115,8 @@ class MainActivity : BaseActivity() {
                                 )
                             }
 
-                            composable<MainDestination.Language> {
-                                Language(
-                                    sharedAction = sharedViewModel::onAction
-                                )
+                            composable<MainDestination.Store> {
+                                Store()
                             }
 
                             composable<MainDestination.PostGame> {
@@ -156,8 +156,8 @@ sealed interface MainDestination : AppDestination {
     data object Browse : MainDestination
 
     @Serializable
-    data object Language : MainDestination
+    data object PostGame : MainDestination
 
     @Serializable
-    data object PostGame : MainDestination
+    data object Store : MainDestination
 }

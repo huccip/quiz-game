@@ -21,6 +21,7 @@ import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.example.quiz_game.App
 import com.example.quiz_game.R
+import com.example.quiz_game.data.Repository
 import com.example.quiz_game.other.Constants
 import com.example.quiz_game.other.Utils
 import com.example.quiz_game.ui.activity.main.MainDestination
@@ -59,25 +60,20 @@ fun Home(
     LaunchedEffect(sharedState) {
         translated =
             sharedState.translator?.translate(
-                Locale.forLanguageTag(
-                    App.userPrefs.getString(
-                        "selectedLanguage",
-                        null
-                    )
-                ).displayLanguage
+                Locale.forLanguageTag(Repository.getUser()?.language ?: "en").displayLanguage
             )?.await()
                 ?: "English"
 
         Constants.SUPPORTED_LANGUAGES.map {
             it.first
-        }.indexOf(App.userPrefs.getString("selectedLanguage", null)).apply {
+        }.indexOf(Repository.getUser()?.language).apply {
             selectedCountryCode = if (this == -1) {
                 "us"
             } else {
                 Constants.SUPPORTED_LANGUAGES[
                     Constants.SUPPORTED_LANGUAGES.map {
                         it.first
-                    }.indexOf(App.userPrefs.getString("selectedLanguage", null))
+                    }.indexOf(Repository.getUser()?.language)
                 ].third
             }
         }
@@ -183,26 +179,6 @@ fun Home(
                 )
                 IconButton(
                     painter = painterResource(R.drawable.ic_arrow_north_east)
-                )
-            }
-
-            ButtonSecondary(
-                onClick = {
-                    sharedAction(
-                        SharedAction.Navigate(
-                            MainDestination.Language,
-                            navController
-                        )
-                    )
-                }
-            ) {
-                IconButton(
-                    model = Utils.countryFlag(
-                        countryCode = selectedCountryCode
-                    )
-                )
-                TextButton(
-                    text = translated,
                 )
             }
         }
