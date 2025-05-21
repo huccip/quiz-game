@@ -1,10 +1,16 @@
 package com.example.quiz_game.ui.shared.component
 
+import androidx.annotation.DrawableRes
+import androidx.annotation.StringRes
 import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.Text
@@ -19,13 +25,14 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.quiz_game.R
 import com.example.quiz_game.ui.shared.effect.scaleDownOnPress
 
 @Composable
-fun CardWithCheckbox(
+fun CardSelectable(
     modifier: Modifier = Modifier,
     selected: Boolean = false,
     onSelect: () -> Unit,
@@ -61,12 +68,61 @@ fun CardWithCheckbox(
     }
 }
 
+@Composable
+fun CardButton(
+    modifier: Modifier = Modifier,
+    onClick: () -> Unit,
+    @StringRes buttonText: Int,
+    @StringRes contextualText: Int,
+    vararg subjectText: String,
+    @DrawableRes contextualIcon: Int? = null,
+    @DrawableRes buttonIcon: Int? = null,
+) {
+    OutlinedCard {
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            modifier = modifier
+                .fillMaxWidth()
+                .padding(15.dp)
+        ) {
+            ButtonPrimary(
+                onClick = onClick,
+                modifier = Modifier.fillMaxWidth(),
+                content = {
+                    contextualIcon?.let {
+                        Icon(
+                            painter = painterResource(it),
+                            contentDescription = stringResource(contextualText)
+                        )
+                    }
+                    Spacer(Modifier.height(10.dp))
+                    TextBig(text = stringResource(contextualText))
+                    subjectText.onEach {
+                        Spacer(Modifier.height(5.dp))
+                        TextSmol(text = "- $it")
+                    }
+
+                    Spacer(Modifier.height(15.dp))
+
+                    ButtonPrimary(
+                        onClick = onClick,
+                        content = {
+                            TextButton(text = stringResource(buttonText))
+                            buttonIcon?.let { IconButton(painter = painterResource(it)) }
+                        }
+                    )
+                }
+            )
+        }
+    }
+}
+
 @Preview(showBackground = true)
 @Composable
 private fun CardWithCheckboxPrev() {
     var checked by rememberSaveable { mutableStateOf(false) }
     Preview {
-        CardWithCheckbox(
+        CardSelectable(
             content = { modifier ->
                 Text("English", modifier = modifier)
 

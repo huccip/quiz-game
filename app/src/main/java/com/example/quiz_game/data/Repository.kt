@@ -24,7 +24,7 @@ object Repository {
     private const val TAG = "test1234 Repository"
 
     suspend fun prepareTranslator(
-        onSuccess: (Translator?) -> Unit,
+        onSuccess: (Translator) -> Unit,
         onError: (Throwable) -> Unit,
     ) {
         runWithTimeout(
@@ -57,7 +57,7 @@ object Repository {
                     return@runWithTimeout
                 }
 
-                onSuccess(null)
+                onError(IllegalStateException("Translator could not be prepared for the unsupported language."))
             },
             onFinish = {},
             onTimeout = onError

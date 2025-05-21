@@ -31,7 +31,7 @@ import com.example.quiz_game.R
 import com.example.quiz_game.other.Constants
 import com.example.quiz_game.ui.activity.onboard.OnboardDestination
 import com.example.quiz_game.ui.shared.component.ButtonSecondary
-import com.example.quiz_game.ui.shared.component.CardWithCheckbox
+import com.example.quiz_game.ui.shared.component.CardSelectable
 import com.example.quiz_game.ui.shared.component.IconButton
 import com.example.quiz_game.ui.shared.component.LoadingInfiniteLine
 import com.example.quiz_game.ui.shared.component.TextBerySmol
@@ -88,7 +88,7 @@ fun Language(
             }
             items(items = Constants.SUPPORTED_LANGUAGES, key = { it.hashCode() }) {
                 val (language, country, countryCode) = it
-                CardWithCheckbox(
+                CardSelectable(
                     selected = selectedLanguage == language,
                     onSelect = {
                         selectedLanguage = language

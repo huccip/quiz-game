@@ -93,8 +93,8 @@ class MainActivity : BaseActivity() {
 
                             composable<MainDestination.Game> {
                                 Game(
-                                    quizState = quizState,
                                     quizzesUids = it.toRoute<MainDestination.Game>().quizzesUids,
+                                    quizState = quizState,
                                     sharedAction = sharedViewModel::onAction,
                                     quizAction = quizViewModel::onAction,
                                     sharedState = sharedState,

@@ -26,6 +26,7 @@ import com.example.quiz_game.ui.activity.onboard.OnboardDestination
 import com.example.quiz_game.ui.shared.animation.Orientation
 import com.example.quiz_game.ui.shared.animation.shake
 import com.example.quiz_game.ui.shared.component.ButtonPrimary
+import com.example.quiz_game.ui.shared.component.CardButton
 import com.example.quiz_game.ui.shared.component.IconButton
 import com.example.quiz_game.ui.shared.component.LoadingInfiniteLine
 import com.example.quiz_game.ui.shared.component.TextButton
@@ -78,6 +79,22 @@ fun Form(
 
     if (sharedState.executing) {
         LoadingInfiniteLine(subject = arrayOf(stringResource(R.string.onboard_form_loading_subject)))
+    } else if (sharedState.translator == null || sharedState.errors.isNotEmpty()) {
+        val errorMessages = sharedState.errors.mapNotNull { it.localizedMessage }
+        val subjects = mutableListOf<String>()
+        if (sharedState.translator == null) {
+            subjects.add(stringResource(R.string.onboard_form_error_translator))
+        }
+        subjects.addAll(errorMessages)
+
+        CardButton(
+            onClick = { sharedAction(SharedAction.Navigate(OnboardDestination.Language, navController)) },
+            buttonText = R.string.onboard_form_error_button,
+            contextualText = R.string.generic_error_message,
+            subjectText = subjects.toTypedArray(),
+            contextualIcon = R.drawable.ic_frown,
+            buttonIcon = R.drawable.ic_retry
+        )
     } else {
         Column(modifier = modifier) {
             TextFancy(
@@ -96,7 +113,9 @@ fun Form(
             Spacer(Modifier.height(25.dp))
 
             TextFieldPrimary(
-                modifier = Modifier.fillMaxWidth().shake(!buttonEnabled, Orientation.Horizontal),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .shake(!buttonEnabled, Orientation.Horizontal),
                 enabled = textfieldEnabled,
                 placeholder = R.string.onboard_name_placeholder,
                 label = R.string.onboard_name_label,

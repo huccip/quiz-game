@@ -187,7 +187,6 @@ fun QuizCard(
                 delay(1000L)
                 timer -= 1
             } else {
-                // same logic as if clicked "confirm"
                 enabled = false
                 answeredState = AnsweredState.LOCKED
             }
@@ -294,11 +293,13 @@ fun QuizCard(
                 enabled = answeredState == AnsweredState.PICKED
             ) {
                 TextButton(
-                    text = when (answeredState) {
-                        AnsweredState.IDLE -> "Waiting..."
-                        AnsweredState.PICKED -> "Confirm answer"
-                        AnsweredState.LOCKED -> "Next question"
-                    }
+                    text = stringResource(
+                        when (answeredState) {
+                            AnsweredState.IDLE -> R.string.main_game_answer_state_idle
+                            AnsweredState.PICKED -> R.string.main_game_answer_state_picked
+                            AnsweredState.LOCKED -> R.string.main_game_answer_state_locked
+                        }
+                    )
                 )
             }
         }

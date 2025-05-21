@@ -8,6 +8,9 @@
     <string name="onboard_form_greet">Hey %s,</string>
     <string name="onboard_form_question">Are you ready for an unforgettable adventure?</string>
     <string name="onboard_form_submit">Yes, I am ready</string>
+    <string name="onboard_form_error_translator">There was an error setting up your language</string>
+    <string name="onboard_form_error_button">Retry</string>
+
     <string name="onboard_name_label">Nickname</string>
     <string name="onboard_name_placeholder">What should we call you</string>
     <string name="onboard_name_textfield_max_characters">Nickname must be less than 10 characters</string>
@@ -18,6 +21,10 @@
     <string name="onboard_button_letsgo">Let\'s go!</string>
 
     <string name="onboard_language_next_button">Form</string>
+
+    <string name="main_game_answer_state_idle">Waiting…</string>
+    <string name="main_game_answer_state_picked">Confirm answer</string>
+    <string name="main_game_answer_state_locked">Next question</string>
 
     <string name="home_button_start">Start</string>
     <string name="home_button_resume">Resume</string>
@@ -165,4 +172,6 @@
     <string name="guide_section_utilities">utilities</string>
     <string name="guide_section_coins">coins</string>
     <string name="guide_section_faq">faq</string>
+
+    <string name="generic_error_message">Something went wrong</string>
 </resources>

@@ -9,6 +9,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -20,6 +21,7 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.example.quiz_game.App
+import com.example.quiz_game.AppDestination
 import com.example.quiz_game.R
 import com.example.quiz_game.data.Repository
 import com.example.quiz_game.other.Constants
@@ -53,36 +55,17 @@ fun Home(
     sessionAction: (SessionAction) -> Unit = {},
     navController: NavController = rememberNavController()
 ) {
-    var translated by remember { mutableStateOf("Undefined") }
-    var selectedCountryCode by remember { mutableStateOf("Undefined") }
-    var confirmationDialog by remember { mutableStateOf(false) }
-
-    LaunchedEffect(sharedState) {
-        translated =
-            sharedState.translator?.translate(
-                Locale.forLanguageTag(Repository.getUser()?.language ?: "en").displayLanguage
-            )?.await()
-                ?: "English"
-
-        Constants.SUPPORTED_LANGUAGES.map {
-            it.first
-        }.indexOf(Repository.getUser()?.language).apply {
-            selectedCountryCode = if (this == -1) {
-                "us"
-            } else {
-                Constants.SUPPORTED_LANGUAGES[
-                    Constants.SUPPORTED_LANGUAGES.map {
-                        it.first
-                    }.indexOf(Repository.getUser()?.language)
-                ].third
-            }
-        }
+    var confirmationTrigger by rememberSaveable { mutableStateOf(false) }
+    var confirmationDestination: MainDestination? by rememberSaveable { mutableStateOf(null) }
+    var openConfirmationDialog: (MainDestination) -> Unit = {
+        confirmationTrigger = true
+        confirmationDestination = it
     }
 
     if (sharedState.executing || quizState.executing || categoryState.executing) {
         LoadingInfiniteLine(subject = stringArrayResource(R.array.home_loading_subjects))
     } else {
-        if (confirmationDialog) {
+        if (confirmationTrigger) {
             DialogYesOrNo(
                 modifier = Modifier.fillMaxWidth(),
                 title = R.string.dialog_discard_session_title,
@@ -94,18 +77,22 @@ fun Home(
                     sessionAction(SessionAction.EndSession(sessionState.session.uid))
                     sharedAction(
                         SharedAction.Navigate(
-                            MainDestination.Game(
-                                quizzesUids = quizState.quizzes.take(
-                                    Constants.DEFAULT_QUIZ_SESSION_AMOUNT
-                                ).map { it.uid }
-                            ),
+                            if (confirmationDestination == MainDestination.Game) {
+                                MainDestination.Game(
+                                    quizzesUids = quizState.quizzes.take(
+                                        Constants.DEFAULT_QUIZ_SESSION_AMOUNT
+                                    ).map { it.uid }
+                                )
+                            } else {
+                                MainDestination.Browse
+                            },
                             navController
                         )
                     )
 
-                    confirmationDialog = false
+                    confirmationTrigger = false
                 },
-                onDismiss = { confirmationDialog = false }
+                onDismiss = { confirmationTrigger = false }
             )
         }
 
@@ -132,7 +119,7 @@ fun Home(
                             return@ButtonPrimary
                         }
 
-                        confirmationDialog = true
+                        openConfirmationDialog
                     }
                 ) {
                     TextButton(text = stringResource(R.string.home_button_start))
@@ -170,7 +157,7 @@ fun Home(
                         return@ButtonSecondary
                     }
 
-                    confirmationDialog = true
+                    openConfirmationDialog
                 }
             ) {
                 TextButton(

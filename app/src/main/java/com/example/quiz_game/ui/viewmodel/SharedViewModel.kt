@@ -71,9 +71,8 @@ class SharedViewModel : ViewModel() {
         block()
     }
 
-    private fun updateStateOnSuccess(translator: Translator? = null) {
-        translator?.let { state.value = state.value.copy(translator = translator) }
-        state.value = state.value.copy(executing = false)
+    private fun updateStateOnSuccess(translator: Translator) {
+        state.value = state.value.copy(translator = translator, executing = false, errors = arrayListOf())
     }
 
     private fun updateStateOnError(throwable: Throwable) {
