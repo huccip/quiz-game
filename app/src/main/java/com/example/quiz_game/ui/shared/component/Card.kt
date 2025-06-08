@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -40,7 +41,7 @@ fun CardSelectable(
 ) {
     var interactionSource = remember { MutableInteractionSource() }
     OutlinedCard(
-        onClick = { onSelect() }, // Changed to use onClick directly
+        onClick = { onSelect() },
         colors = CardDefaults.outlinedCardColors(
             containerColor = if (selected) MaterialTheme.colorScheme.primaryContainer else Color.Transparent,
             contentColor = contentColorFor(
@@ -117,6 +118,31 @@ fun CardButton(
     }
 }
 
+@Composable
+fun CardClickable(
+    modifier: Modifier = Modifier,
+    onClick: () -> Unit,
+    color: Color = MaterialTheme.colorScheme.surface,
+    content: @Composable () -> Unit
+) {
+    var interactionSource = remember { MutableInteractionSource() }
+
+    Card(
+        modifier = modifier.scaleDownOnPress(
+            scaleRatio = .9f,
+            interactionSource = interactionSource
+        ),
+        onClick = onClick,
+        interactionSource = interactionSource,
+        colors = CardDefaults.cardColors(
+            containerColor = color,
+            contentColor = contentColorFor(color)
+        )
+    ) {
+        content()
+    }
+}
+
 @Preview(showBackground = true)
 @Composable
 private fun CardWithCheckboxPrev() {
@@ -133,7 +159,7 @@ private fun CardWithCheckboxPrev() {
                 }
             },
             onSelect = {
-                checked = !checked // Simulate click toggling a state for preview
+                checked = !checked
             },
             selected = checked
         )

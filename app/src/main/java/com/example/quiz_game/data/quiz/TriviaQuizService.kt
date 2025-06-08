@@ -4,7 +4,7 @@ import retrofit2.Response
 import retrofit2.http.GET
 import retrofit2.http.Query
 
-const val ENDPOINT = "api.php"
+private const val ENDPOINT = "api.php"
 
 interface TriviaQuizService {
     @GET(ENDPOINT)

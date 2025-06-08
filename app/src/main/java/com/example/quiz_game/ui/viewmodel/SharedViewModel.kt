@@ -14,6 +14,7 @@ import com.google.mlkit.nl.translate.Translator
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
+import androidx.core.net.toUri
 
 class SharedViewModel : ViewModel() {
 
@@ -60,6 +61,11 @@ class SharedViewModel : ViewModel() {
                     currentActivity?.overridePendingTransition(0, 0)
                     currentActivity?.finish()
                 }
+
+                is SharedAction.Deeplink -> execute {
+                    val intent = Intent(Intent.ACTION_VIEW, action.url.toUri())
+                    action.context.startActivity(intent)
+                }
             }
         }
     }
@@ -72,7 +78,8 @@ class SharedViewModel : ViewModel() {
     }
 
     private fun updateStateOnSuccess(translator: Translator) {
-        state.value = state.value.copy(translator = translator, executing = false, errors = arrayListOf())
+        state.value =
+            state.value.copy(translator = translator, executing = false, errors = arrayListOf())
     }
 
     private fun updateStateOnError(throwable: Throwable) {
@@ -99,4 +106,6 @@ sealed interface SharedAction {
 
     data object PrepareTranslator : SharedAction
     data class Restart(val context: Context) : SharedAction
+
+    data class Deeplink(val context: Context, val url: String) : SharedAction
 }

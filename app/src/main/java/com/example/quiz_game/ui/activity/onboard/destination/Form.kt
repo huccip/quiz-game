@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.contentColorFor
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -24,7 +25,7 @@ import androidx.navigation.compose.rememberNavController
 import com.example.quiz_game.R
 import com.example.quiz_game.ui.activity.onboard.OnboardDestination
 import com.example.quiz_game.ui.shared.animation.Orientation
-import com.example.quiz_game.ui.shared.animation.shake
+import com.example.quiz_game.ui.shared.animation.shakeLinear
 import com.example.quiz_game.ui.shared.component.ButtonPrimary
 import com.example.quiz_game.ui.shared.component.CardButton
 import com.example.quiz_game.ui.shared.component.IconButton
@@ -88,7 +89,14 @@ fun Form(
         subjects.addAll(errorMessages)
 
         CardButton(
-            onClick = { sharedAction(SharedAction.Navigate(OnboardDestination.Language, navController)) },
+            onClick = {
+                sharedAction(
+                    SharedAction.Navigate(
+                        OnboardDestination.Language,
+                        navController
+                    )
+                )
+            },
             buttonText = R.string.onboard_form_error_button,
             contextualText = R.string.generic_error_message,
             subjectText = subjects.toTypedArray(),
@@ -115,7 +123,7 @@ fun Form(
             TextFieldPrimary(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .shake(!buttonEnabled, Orientation.Horizontal),
+                    .shakeLinear(!buttonEnabled, Orientation.Horizontal),
                 enabled = textfieldEnabled,
                 placeholder = R.string.onboard_name_placeholder,
                 label = R.string.onboard_name_label,
@@ -140,9 +148,14 @@ fun Form(
                     enabled = buttonEnabled,
                     color = MaterialTheme.colorScheme.primary
                 ) {
-                    TextButton(text = stringResource(R.string.onboard_form_submit))
+                    TextButton(
+                        text = stringResource(R.string.onboard_form_submit),
+                        color = contentColorFor(MaterialTheme.colorScheme.primary),
+                        fontWeight = FontWeight.Bold
+                    )
                     IconButton(
                         painter = painterResource(R.drawable.ic_arrow_forward),
+                        tint = contentColorFor(MaterialTheme.colorScheme.primary)
                     )
                 }
             }

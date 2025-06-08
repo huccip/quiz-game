@@ -7,6 +7,7 @@ import com.example.quiz_game.App.Companion.userPrefs
 import com.example.quiz_game.data.category.CategoryRepository
 import com.example.quiz_game.data.collectible.CollectibleRepository
 import com.example.quiz_game.data.quiz.QuizRepository
+import com.example.quiz_game.data.quote.QuoteRepository
 import com.example.quiz_game.data.session.SessionRepository
 import com.example.quiz_game.data.user.User
 import com.example.quiz_game.other.Constants
@@ -86,4 +87,6 @@ object Repository {
     val quizRepository by lazy { QuizRepository }
     val categoryRepository by lazy { CategoryRepository }
     val sessionRepository by lazy { SessionRepository }
+    val collectibleRepository by lazy { CollectibleRepository }
+    val quoteRepository by lazy { QuoteRepository }
 }

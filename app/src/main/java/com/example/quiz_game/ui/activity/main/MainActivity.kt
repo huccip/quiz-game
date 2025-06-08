@@ -12,6 +12,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.fastFilter
 import androidx.compose.ui.util.fastForEach
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -33,6 +34,8 @@ import com.example.quiz_game.ui.viewmodel.CategoryAction
 import com.example.quiz_game.ui.viewmodel.CategoryViewModel
 import com.example.quiz_game.ui.viewmodel.QuizAction
 import com.example.quiz_game.ui.viewmodel.QuizViewModel
+import com.example.quiz_game.ui.viewmodel.QuoteAction
+import com.example.quiz_game.ui.viewmodel.QuoteViewModel
 import com.example.quiz_game.ui.viewmodel.SessionViewModel
 import com.example.quiz_game.ui.viewmodel.SharedViewModel
 import kotlinx.serialization.Serializable
@@ -45,6 +48,7 @@ class MainActivity : BaseActivity() {
     val categoryViewModel by viewModels<CategoryViewModel>()
     val quizViewModel by viewModels<QuizViewModel>()
     val sessionViewModel by viewModels<SessionViewModel>()
+    val quoteViewModel by viewModels<QuoteViewModel>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -56,6 +60,7 @@ class MainActivity : BaseActivity() {
             val quizState by quizViewModel.state.collectAsStateWithLifecycle()
             val categoryState by categoryViewModel.state.collectAsStateWithLifecycle()
             val sessionState by sessionViewModel.state.collectAsStateWithLifecycle()
+            val quoteState by quoteViewModel.state.collectAsStateWithLifecycle()
 
             LaunchedEffect(sharedState) {
                 categoryViewModel.onAction(
@@ -65,10 +70,14 @@ class MainActivity : BaseActivity() {
                 quizViewModel.onAction(
                     QuizAction.GetAll
                 )
+
+                quoteViewModel.onAction(
+                    QuoteAction.GetQuote
+                )
             }
 
             QuizgameTheme {
-                Scaffold(modifier = Modifier.Companion.fillMaxSize()) { innerPadding ->
+                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
                     Box(
                         Modifier
                             .fillMaxSize()
@@ -76,6 +85,7 @@ class MainActivity : BaseActivity() {
                         contentAlignment = Alignment.Center
                     ) {
                         NavHost(
+                            modifier = Modifier.padding(10.dp),
                             navController = navController,
                             startDestination = Home
                         ) {
@@ -87,7 +97,10 @@ class MainActivity : BaseActivity() {
                                     sessionState = sessionState,
                                     sharedAction = sharedViewModel::onAction,
                                     navController = navController,
-                                    sessionAction = sessionViewModel::onAction
+                                    sessionAction = sessionViewModel::onAction,
+                                    quoteState = quoteState,
+                                    quoteAction = quoteViewModel::onAction,
+                                    categoryAction = categoryViewModel::onAction
                                 )
                             }
 

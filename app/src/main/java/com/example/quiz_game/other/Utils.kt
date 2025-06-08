@@ -1,6 +1,7 @@
 package com.example.quiz_game.other
 
 import android.content.res.Configuration
+import android.icu.util.Calendar
 import android.text.Html
 import android.util.Log
 import com.example.quiz_game.App
@@ -174,4 +175,13 @@ object Utils {
     fun decodeHtml(html: String): String =
         Html.fromHtml(html, Html.FROM_HTML_MODE_LEGACY).toString()
 
+    fun greetingBasedOnTimezone(): String {
+        val calendar = Calendar.getInstance()
+        val currentHour = calendar.get(Calendar.HOUR_OF_DAY)
+        return when (currentHour) {
+            in 0..11 -> "Good morning"
+            in 12..17 -> "Good afternoon"
+            else -> "Good evening"
+        }
+    }
 }

@@ -29,6 +29,10 @@
     <string name="home_button_start">Start</string>
     <string name="home_button_resume">Resume</string>
     <string name="home_button_browse">Browse all categories</string>
+    <string name="home_greeting_subtitle">Good to see you!</string>
+    <string name="home_featured_title">Featured</string>
+    <string name="home_featured_subtitle">See more</string>
+    <string name="home_quote_label">Today\'s wisdom</string>
 
     <string name="loading_title">Hold on, loading your </string>
     <string-array name="home_loading_subjects">

@@ -11,6 +11,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -48,6 +49,7 @@ class OnboardActivity : BaseActivity() {
                         contentAlignment = Alignment.Center
                     ) {
                         NavHost(
+                            modifier = Modifier.padding(10.dp),
                             navController = navController,
                             startDestination = OnboardDestination.Language
                         ) {
