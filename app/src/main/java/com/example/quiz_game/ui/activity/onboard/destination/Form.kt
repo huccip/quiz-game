@@ -33,6 +33,7 @@ import com.example.quiz_game.ui.shared.component.LoadingInfiniteLine
 import com.example.quiz_game.ui.shared.component.TextButton
 import com.example.quiz_game.ui.shared.component.TextFancy
 import com.example.quiz_game.ui.shared.component.TextFieldPrimary
+import com.example.quiz_game.ui.shared.component.TextRegular
 import com.example.quiz_game.ui.viewmodel.OnboardAction
 import com.example.quiz_game.ui.viewmodel.OnboardState
 import com.example.quiz_game.ui.viewmodel.SharedAction
@@ -80,39 +81,16 @@ fun Form(
 
     if (sharedState.executing) {
         LoadingInfiniteLine(subject = arrayOf(stringResource(R.string.onboard_form_loading_subject)))
-    } else if (sharedState.translator == null || sharedState.errors.isNotEmpty()) {
-        val errorMessages = sharedState.errors.mapNotNull { it.localizedMessage }
-        val subjects = mutableListOf<String>()
-        if (sharedState.translator == null) {
-            subjects.add(stringResource(R.string.onboard_form_error_translator))
-        }
-        subjects.addAll(errorMessages)
-
-        CardButton(
-            onClick = {
-                sharedAction(
-                    SharedAction.Navigate(
-                        OnboardDestination.Language,
-                        navController
-                    )
-                )
-            },
-            buttonText = R.string.onboard_form_error_button,
-            contextualText = R.string.generic_error_message,
-            subjectText = subjects.toTypedArray(),
-            contextualIcon = R.drawable.ic_frown,
-            buttonIcon = R.drawable.ic_retry
-        )
     } else {
         Column(modifier = modifier) {
-            TextFancy(
+            TextRegular(
                 text = stringResource(
                     R.string.onboard_form_greet,
                     if (!buttonEnabled) "you" else usernameState
                 ),
             )
             Spacer(Modifier.height(5.dp))
-            TextFancy(
+            TextRegular(
                 text = stringResource(R.string.onboard_form_question),
                 color = MaterialTheme.colorScheme.primary,
                 fontWeight = FontWeight.Bold
@@ -142,21 +120,22 @@ fun Form(
 
             Spacer(Modifier.height(25.dp))
 
-            Box(Modifier.fillMaxWidth(), contentAlignment = Alignment.CenterEnd) {
-                ButtonPrimary(
-                    onClick = { onUpdateUsername(usernameState) },
-                    enabled = buttonEnabled,
-                    color = MaterialTheme.colorScheme.primary
-                ) {
-                    TextButton(
-                        text = stringResource(R.string.onboard_form_submit),
-                        color = contentColorFor(MaterialTheme.colorScheme.primary),
-                        fontWeight = FontWeight.Bold
-                    )
-                    IconButton(
-                        painter = painterResource(R.drawable.ic_arrow_forward),
-                        tint = contentColorFor(MaterialTheme.colorScheme.primary)
-                    )
+            if (buttonEnabled) {
+                Box(Modifier.fillMaxWidth(), contentAlignment = Alignment.CenterEnd) {
+                    ButtonPrimary(
+                        onClick = { onUpdateUsername(usernameState) },
+                        color = MaterialTheme.colorScheme.primary
+                    ) {
+                        TextButton(
+                            text = stringResource(R.string.onboard_form_submit),
+                            color = contentColorFor(MaterialTheme.colorScheme.primary),
+                            fontWeight = FontWeight.Bold
+                        )
+                        IconButton(
+                            painter = painterResource(R.drawable.ic_arrow_forward),
+                            tint = contentColorFor(MaterialTheme.colorScheme.primary)
+                        )
+                    }
                 }
             }
         }

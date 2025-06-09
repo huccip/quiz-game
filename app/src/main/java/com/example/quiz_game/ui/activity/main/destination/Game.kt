@@ -27,6 +27,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -34,6 +35,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.util.fastFilter
+import androidx.compose.ui.util.fastForEach
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.example.quiz_game.R
@@ -53,9 +56,15 @@ import com.example.quiz_game.ui.viewmodel.SessionAction
 import com.example.quiz_game.ui.viewmodel.SessionState
 import com.example.quiz_game.ui.viewmodel.SharedAction
 import com.example.quiz_game.ui.viewmodel.SharedState
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 
 private const val TAG = "test1234 Game"
+
+// TODO: remake
 
 @Composable
 fun Game(
@@ -71,23 +80,18 @@ fun Game(
 ) {
     val session = sessionState.session
     val sessionQuizzes = quizState.sessionQuizzes
+    val scope = rememberCoroutineScope()
 
-    LaunchedEffect(Unit) {
-        if (session.uid.isEmpty() || session.expiredAt != null) {
+    LaunchedEffect(quizState.sessionQuizzes) {
+        if (quizState.sessionQuizzes.isEmpty()) {
+            quizAction(QuizAction.GetBySession(quizzesUids, sharedState.translator))
+        } else if (session.createdAt == null) {
             sessionAction(
                 SessionAction.InitiateSession(
                     quizzesUids = quizzesUids,
-                    maxScore = quizState.quizzes
-                        .filter { quizzesUids.contains(it.uid) }
-                        .sumOf { it.mark ?: 0 }
+                    maxScore = sessionQuizzes.sumOf { it.mark!! }
                 )
             )
-        }
-    }
-
-    LaunchedEffect(session.quizzesUids) {
-        if (!session.quizzesUids.isNullOrEmpty()) {
-            quizAction(QuizAction.GetBySession(session.quizzesUids!!, sharedState.translator))
         }
     }
 
@@ -95,6 +99,29 @@ fun Game(
     var incorrectlyAnswered by rememberSaveable(session.uid) { mutableIntStateOf(0) }
 
     val quiz = sessionQuizzes.getOrNull(quizIndex)
+
+    val endGame = {
+        scope.launch(Dispatchers.IO) {
+            async {
+                quizState.quizzes
+                    .fastFilter { it.expired }
+                    .fastForEach { quizAction(QuizAction.DeleteByUid(it.uid)) }
+
+                sessionAction(
+                    SessionAction.UpdateTrophies(
+                        session.uid,
+                        incorrectlyAnswered
+                    )
+                )
+
+                sessionAction(SessionAction.EndSession(session.uid))
+            }.await()
+
+            sharedAction(
+                SharedAction.Navigate(MainDestination.PostGame, navController)
+            )
+        }
+    }
 
     Box(modifier = modifier.fillMaxSize()) {
         when {
@@ -124,27 +151,15 @@ fun Game(
                             incorrectlyAnswered += 1
                         }
 
-                        sessionAction(SessionAction.UpdateScore(session.uid, mark))
-                        quizAction(QuizAction.UpdateExpired(quiz.uid))
+                        scope.launch(Dispatchers.IO) {
+                            sessionAction(SessionAction.UpdateScore(session.uid, mark))
+                            async { quizAction(QuizAction.UpdateExpired(quiz.uid)) }.await()
 
-                        if (quizIndex >= sessionQuizzes.lastIndex) {
-                            sessionAction(
-                                SessionAction.UpdateTrophies(
-                                    session.uid,
-                                    incorrectlyAnswered
-                                )
-                            )
-                            sessionAction(SessionAction.EndSession(session.uid))
-
-                            quizState.quizzes
-                                .filter { quizzesUids.contains(it.uid) && it.expired }
-                                .forEach { quizAction(QuizAction.DeleteByUid(it.uid)) }
-
-                            sharedAction(
-                                SharedAction.Navigate(MainDestination.PostGame, navController)
-                            )
-                        } else {
-                            quizIndex += 1
+                            if (quizIndex >= sessionQuizzes.lastIndex) {
+                                endGame()
+                            } else {
+                                quizIndex += 1
+                            }
                         }
                     }
                 )

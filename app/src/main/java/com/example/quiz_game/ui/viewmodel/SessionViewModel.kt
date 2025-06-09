@@ -70,7 +70,7 @@ class SessionViewModel : ViewModel() {
                     )
                 }
 
-                is SessionAction.UpdateScore -> execute {
+                is SessionAction.UpdateScore -> {
                     Repository.sessionRepository.updateScore(
                         uid = action.uid,
                         score = (state.value.session.score ?: 0) + action.score,

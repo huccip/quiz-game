@@ -4,17 +4,18 @@ import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import androidx.activity.ComponentActivity
+import androidx.core.net.toUri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.NavController
 import com.example.quiz_game.AppDestination
 import com.example.quiz_game.data.Repository
+import com.example.quiz_game.other.Utils
 import com.example.quiz_game.ui.activity.onboard.OnboardActivity
 import com.google.mlkit.nl.translate.Translator
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
-import androidx.core.net.toUri
 
 class SharedViewModel : ViewModel() {
 
@@ -24,7 +25,9 @@ class SharedViewModel : ViewModel() {
         private set
 
     init {
-        onAction(SharedAction.PrepareTranslator)
+        if (Utils.hasInternet()) {
+            onAction(SharedAction.PrepareTranslator)
+        }
     }
 
     fun onAction(action: SharedAction) {
@@ -48,7 +51,10 @@ class SharedViewModel : ViewModel() {
 
                 is SharedAction.PrepareTranslator -> execute {
                     Repository.prepareTranslator(
-                        onSuccess = { updateStateOnSuccess(translator = it) },
+                        onSuccess = {
+                            println("test1234 translator: $it")
+                            updateStateOnSuccess(translator = it)
+                        },
                         onError = { updateStateOnError(it) }
                     )
                 }

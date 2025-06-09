@@ -30,17 +30,14 @@ object Repository {
     ) {
         runWithTimeout(
             block = {
-                val supportedLanguages = Constants.SUPPORTED_LANGUAGES.map {
-                    it.first
-                }
                 val userLanguage = getUser()?.language
-                if (userLanguage != null || supportedLanguages.contains(Locale.getDefault().language)) {
+                if (userLanguage != null) {
                     ioScope.launch {
                         try {
                             async {
                                 Utils.prepareTranslator(
                                     sourceLanguage = TranslateLanguage.ENGLISH,
-                                    targetLanguage = userLanguage ?: Locale.getDefault().language,
+                                    targetLanguage = userLanguage,
                                     onSuccess = {
                                         Log.d(TAG, "prepareTranslator: $it")
                                         onSuccess(it)
@@ -51,7 +48,7 @@ object Repository {
                             Log.d("test1234 App", "Translator ready 🎯")
                         } catch (e: Exception) {
                             Log.e("test1234 App", "Translation prep failed ⛔", e)
-                            onError
+                            onError(e)
                         }
                     }
 

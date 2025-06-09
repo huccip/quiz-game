@@ -29,9 +29,11 @@ import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.example.quiz_game.R
 import com.example.quiz_game.other.Constants
+import com.example.quiz_game.other.Utils
 import com.example.quiz_game.ui.activity.onboard.OnboardDestination
 import com.example.quiz_game.ui.shared.component.ButtonSecondary
 import com.example.quiz_game.ui.shared.component.CardSelectable
+import com.example.quiz_game.ui.shared.component.DialogYesOrNo
 import com.example.quiz_game.ui.shared.component.IconButton
 import com.example.quiz_game.ui.shared.component.LoadingInfiniteLine
 import com.example.quiz_game.ui.shared.component.TextBerySmol
@@ -53,6 +55,8 @@ fun Language(
     navController: NavController = rememberNavController()
 ) {
     val context = LocalContext.current
+    var showHasNoWifiOnWarning by rememberSaveable { mutableStateOf(false) }
+    var showHasNoInternetConnectionWarning by rememberSaveable { mutableStateOf(false) }
 
     LaunchedEffect(onboardState) {
         if (!onboardState.user.language.isNullOrEmpty()) {
@@ -65,58 +69,102 @@ fun Language(
     if (sharedState.executing || onboardState.executing) {
         LoadingInfiniteLine(subject = arrayOf("Language"))
     } else {
-        LazyColumn(
-            verticalArrangement = Arrangement.spacedBy(10.dp),
-            contentPadding = PaddingValues(10.dp),
-        ) {
-            item {
-                Box(Modifier.fillMaxWidth(), contentAlignment = Alignment.CenterEnd) {
-                    ButtonSecondary(
-                        enabled = selectedLanguage.isNotEmpty(),
-                        onClick = {
-                            onboardAction(OnboardAction.UpdateLanguage(language = selectedLanguage))
-                            sharedAction(SharedAction.PrepareTranslator)
-                            sharedAction(SharedAction.Restart(context))
+        when {
+            showHasNoWifiOnWarning -> {
+                DialogYesOrNo(
+                    title = R.string.generic_warning_message,
+                    text = R.string.onboard_language_no_wifi_warning_message,
+                    buttonConfirmText = R.string.onboard_language_no_wifi_warning_positive_button,
+                    buttonDismissText = R.string.onboard_language_no_wifi_warning_negative_button,
+                    icon = R.drawable.ic_no_wifi,
+                    onConfirm = {
+                        onboardAction(OnboardAction.UpdateLanguage(language = selectedLanguage))
+                        sharedAction(SharedAction.PrepareTranslator)
+                        sharedAction(SharedAction.Restart(context))
+
+                        showHasNoWifiOnWarning = false
+                    },
+                    onDismiss = { showHasNoWifiOnWarning = false }
+                )
+            }
+
+            showHasNoInternetConnectionWarning -> {
+                DialogYesOrNo(
+                    title = R.string.generic_warning_message,
+                    text = R.string.onboard_language_no_internet_warning_message,
+                    buttonConfirmText = R.string.onboard_language_no_internet_warning_positive_button,
+                    buttonDismissText = R.string.onboard_language_no_internet_warning_negative_button,
+                    icon = R.drawable.ic_no_internet,
+                    onConfirm = {
+                        onboardAction(OnboardAction.UpdateLanguage(language = selectedLanguage)) // remember user's language choice for next launch with internet connection
+
+                        showHasNoInternetConnectionWarning = false
+                    },
+                    onDismiss = { showHasNoInternetConnectionWarning = false }
+                )
+            }
+
+            else -> {
+                LazyColumn(
+                    verticalArrangement = Arrangement.spacedBy(10.dp),
+                    contentPadding = PaddingValues(10.dp),
+                ) {
+                    item {
+                        Box(Modifier.fillMaxWidth(), contentAlignment = Alignment.CenterEnd) {
+                            ButtonSecondary(
+                                enabled = selectedLanguage.isNotEmpty(),
+                                onClick = {
+                                    if (!Utils.hasInternet()) {
+                                        showHasNoInternetConnectionWarning = true
+                                    } else if (!Utils.hasWifiOn()) {
+                                        showHasNoWifiOnWarning = true
+                                    } else {
+                                        onboardAction(OnboardAction.UpdateLanguage(language = selectedLanguage))
+                                        sharedAction(SharedAction.PrepareTranslator)
+                                        sharedAction(SharedAction.Restart(context))
+                                    }
+                                }
+                            ) {
+                                Text(text = stringResource(R.string.onboard_language_next_button))
+                                IconButton(
+                                    painter = painterResource(R.drawable.ic_arrow_forward),
+                                )
+                            }
                         }
-                    ) {
-                        Text(text = stringResource(R.string.onboard_language_next_button))
-                        IconButton(
-                            painter = painterResource(R.drawable.ic_arrow_forward),
+                    }
+                    items(items = Constants.SUPPORTED_LANGUAGES, key = { it.hashCode() }) {
+                        val (language, country, countryCode) = it
+                        CardSelectable(
+                            selected = selectedLanguage == language,
+                            onSelect = {
+                                selectedLanguage = language
+                            },
+                            content = { modifier ->
+                                Row(
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    modifier = modifier
+                                ) {
+                                    IconButton(
+                                        model = "https://flagsapi.com/$countryCode/shiny/64.png"
+                                    )
+                                    Spacer(modifier = Modifier.width(8.dp))
+                                    Column(modifier = Modifier.weight(1f)) {
+                                        TextSmol(
+                                            text = country.split(" ").first(),
+                                            color = MaterialTheme.colorScheme.onSurface
+                                        )
+                                        TextBerySmol(text = country.split(" ").last())
+                                    }
+                                    if (selectedLanguage == language) {
+                                        IconButton(
+                                            painter = painterResource(R.drawable.ic_check),
+                                        )
+                                    }
+                                }
+                            }
                         )
                     }
                 }
-            }
-            items(items = Constants.SUPPORTED_LANGUAGES, key = { it.hashCode() }) {
-                val (language, country, countryCode) = it
-                CardSelectable(
-                    selected = selectedLanguage == language,
-                    onSelect = {
-                        selectedLanguage = language
-                    },
-                    content = { modifier ->
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically,
-                            modifier = modifier
-                        ) {
-                            IconButton(
-                                model = "https://flagsapi.com/$countryCode/shiny/64.png"
-                            )
-                            Spacer(modifier = Modifier.width(8.dp))
-                            Column(modifier = Modifier.weight(1f)) {
-                                TextSmol(
-                                    text = country.split(" ").first(),
-                                    color = MaterialTheme.colorScheme.onSurface
-                                )
-                                TextBerySmol(text = country.split(" ").last())
-                            }
-                            if (selectedLanguage == language) {
-                                IconButton(
-                                    painter = painterResource(R.drawable.ic_check),
-                                )
-                            }
-                        }
-                    }
-                )
             }
         }
     }

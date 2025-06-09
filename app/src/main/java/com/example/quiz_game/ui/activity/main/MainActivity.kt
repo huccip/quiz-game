@@ -72,7 +72,7 @@ class MainActivity : BaseActivity() {
                 )
 
                 quoteViewModel.onAction(
-                    QuoteAction.GetQuote
+                    QuoteAction.GetQuote(translator = sharedState.translator)
                 )
             }
 

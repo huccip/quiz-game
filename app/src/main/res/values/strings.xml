@@ -21,6 +21,13 @@
     <string name="onboard_button_letsgo">Let\'s go!</string>
 
     <string name="onboard_language_next_button">Form</string>
+    <string name="onboard_language_no_internet_warning_positive_button">Yes, continue</string>
+    <string name="onboard_language_no_internet_warning_negative_button">Cancel</string>
+    <string name="onboard_language_no_wifi_warning_positive_button">Yes, use mobile data</string>
+    <string name="onboard_language_no_wifi_warning_negative_button">No</string>
+
+    <string name="onboard_language_no_internet_warning_message">No internet connection. Do you wish to continue without setting up your preferred language.</string>
+    <string name="onboard_language_no_wifi_warning_message">You\'re not connected to Wi-Fi. Do you want to continue using mobile data?</string>
 
     <string name="main_game_answer_state_idle">Waiting…</string>
     <string name="main_game_answer_state_picked">Confirm answer</string>
@@ -33,6 +40,7 @@
     <string name="home_featured_title">Featured</string>
     <string name="home_featured_subtitle">See more</string>
     <string name="home_quote_label">Today\'s wisdom</string>
+    <string name="home_quote_not_found">"No quote available today. Check back later!"</string>
 
     <string name="loading_title">Hold on, loading your </string>
     <string-array name="home_loading_subjects">
@@ -178,4 +186,5 @@
     <string name="guide_section_faq">faq</string>
 
     <string name="generic_error_message">Something went wrong</string>
+    <string name="generic_warning_message">Attention</string>
 </resources>

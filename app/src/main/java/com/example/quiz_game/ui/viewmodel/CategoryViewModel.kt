@@ -27,13 +27,10 @@ class CategoryViewModel() : ViewModel() {
                                 val categories = arrayListOf<Category>()
 
                                 action.translator?.let { translator ->
-                                    Log.d(TAG, "Translator is available.")
                                     it.forEach { category ->
                                         category.name?.let { name ->
-                                            Log.d(TAG, "Original name: $name")
                                             val translatedName =
                                                 translator.translate(name).await()
-                                            Log.d(TAG, "Translated name: $translatedName")
                                             categories.add(category.copy(name = translatedName))
                                         }
                                     }

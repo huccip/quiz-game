@@ -1,18 +1,20 @@
 package com.example.quiz_game.other
 
-import android.content.res.Configuration
+import android.content.Context
 import android.icu.util.Calendar
+import android.net.ConnectivityManager
+import android.net.NetworkCapabilities
 import android.text.Html
 import android.util.Log
 import com.example.quiz_game.App
 import com.example.quiz_game.R
-import com.example.quiz_game.data.collectible.Collectible
 import com.google.mlkit.common.model.DownloadConditions
 import com.google.mlkit.nl.translate.Translation
 import com.google.mlkit.nl.translate.Translator
 import com.google.mlkit.nl.translate.TranslatorOptions
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.TimeoutCancellationException
+import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.withTimeout
 import kotlinx.serialization.json.Json
@@ -73,17 +75,14 @@ object Utils {
 
         val translator = Translation.getClient(options)
 
-        translator.downloadModelIfNeeded(
-            DownloadConditions.Builder()
-                .requireWifi()
-                .build()
-        )
+        translator
+            .downloadModelIfNeeded(DownloadConditions.Builder().build())
             .addOnFailureListener {
-                Log.e(TAG, "prepareTranslator: translation model download failed ⛔", it)
+                Log.e(TAG, "test1234 prepareTranslator: translation model download failed ⛔", it)
                 onError(it)
             }
             .addOnSuccessListener {
-                Log.e(TAG, "prepareTranslator: translation model downloaded 🎯")
+                Log.e(TAG, "test1234 prepareTranslator: translation model downloaded 🎯")
                 onSuccess(translator)
             }
     }
@@ -103,7 +102,6 @@ object Utils {
         }/$type/$size.png"
     }
 
-    
 
     fun stringDateFormat(date: Long): String {
         val sdf = SimpleDateFormat("dd/MM/yyyy HH:mm:ss", Locale.getDefault())
@@ -175,13 +173,30 @@ object Utils {
     fun decodeHtml(html: String): String =
         Html.fromHtml(html, Html.FROM_HTML_MODE_LEGACY).toString()
 
-    fun greetingBasedOnTimezone(): String {
+    suspend fun greetingBasedOnTimezone(translator: Translator? = null): String {
         val calendar = Calendar.getInstance()
         val currentHour = calendar.get(Calendar.HOUR_OF_DAY)
-        return when (currentHour) {
+        val message = when (currentHour) {
             in 0..11 -> "Good morning"
             in 12..17 -> "Good afternoon"
             else -> "Good evening"
         }
+
+        return translator?.translate(message)?.await() ?: message
+    }
+
+    fun hasWifiOn(): Boolean {
+        val connectivityManager = App.instance.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+        val network = connectivityManager.activeNetwork ?: return false
+        val capabilities = connectivityManager.getNetworkCapabilities(network) ?: return false
+        return capabilities.hasTransport(NetworkCapabilities.TRANSPORT_WIFI)
+    }
+
+    fun hasInternet(): Boolean {
+        val connectivityManager = App.instance.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+        val network = connectivityManager.activeNetwork ?: return false
+        val capabilities = connectivityManager.getNetworkCapabilities(network) ?: return false
+        return capabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET) &&
+                capabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_VALIDATED)
     }
 }

@@ -60,15 +60,17 @@ class QuizViewModel : ViewModel() {
                             fetchedQuiz?.let { quiz ->
                                 action.translator?.let { translator ->
                                     try {
+                                        val translatedCategory = translator.translate(quiz.category!!).await()
                                         val translatedQuestion =
-                                            translator.translate(quiz.question ?: "").await()
+                                            translator.translate(quiz.question!!).await()
                                         val translatedCorrectAnswer =
-                                            translator.translate(quiz.correctAnswer ?: "").await()
+                                            translator.translate(quiz.correctAnswer!!).await()
                                         val translatedIncorrectAnswers =
-                                            quiz.incorrectAnswers?.map { answer ->
+                                            quiz.incorrectAnswers!!.map { answer ->
                                                 translator.translate(answer).await()
                                             }
                                         quiz.copy(
+                                            category = translatedCategory,
                                             question = translatedQuestion,
                                             correctAnswer = translatedCorrectAnswer,
                                             incorrectAnswers = translatedIncorrectAnswers
@@ -85,21 +87,21 @@ class QuizViewModel : ViewModel() {
                     updateStateOnSuccess(sessionList = translatedQuizzes)
                 }
 
-                is QuizAction.DeleteByUid -> execute {
+                is QuizAction.DeleteByUid -> {
                     Repository.quizRepository.deleteByUid(
-                        uid = action.uid,
-                        onSuccess = { updateStateOnSuccess() },
-                        onError = { updateStateOnError(it) }
-                    )
-                }
-
-                is QuizAction.UpdateExpired -> execute {
-                    Repository.quizRepository.updateExpired(
                         uid = action.uid,
                         onSuccess = { onAction(QuizAction.GetAll) },
                         onError = { updateStateOnError(it) }
                     )
                 }
+
+                is QuizAction.UpdateExpired -> async {
+                    Repository.quizRepository.updateExpired(
+                        uid = action.uid,
+                        onSuccess = { onAction(QuizAction.GetAll) },
+                        onError = { updateStateOnError(it) }
+                    )
+                }.await()
             }
         }
     }

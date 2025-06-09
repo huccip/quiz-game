@@ -25,6 +25,7 @@ import androidx.compose.material3.SuggestionChip
 import androidx.compose.material3.SuggestionChipDefaults
 import androidx.compose.material3.contentColorFor
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -39,6 +40,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.util.fastFilter
+import androidx.compose.ui.util.fastMap
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.example.quiz_game.R
@@ -53,11 +56,11 @@ import com.example.quiz_game.ui.shared.component.IconButton
 import com.example.quiz_game.ui.shared.component.LayoutSectionHeadline
 import com.example.quiz_game.ui.shared.component.LoadingInfiniteCircle
 import com.example.quiz_game.ui.shared.component.TextBerySmol
-import com.example.quiz_game.ui.shared.component.TextBig
 import com.example.quiz_game.ui.shared.component.TextFancy
 import com.example.quiz_game.ui.shared.component.TextRegular
 import com.example.quiz_game.ui.viewmodel.CategoryAction
 import com.example.quiz_game.ui.viewmodel.CategoryState
+import com.example.quiz_game.ui.viewmodel.QuizAction
 import com.example.quiz_game.ui.viewmodel.QuizState
 import com.example.quiz_game.ui.viewmodel.QuoteAction
 import com.example.quiz_game.ui.viewmodel.QuoteState
@@ -80,41 +83,24 @@ fun Home(
     sessionState: SessionState = SessionState(),
     sessionAction: (SessionAction) -> Unit = {},
     categoryAction: (CategoryAction) -> Unit = {},
+    quizAction: (QuizAction) -> Unit = {},
     navController: NavController = rememberNavController()
 ) {
     val context = LocalContext.current
-    var confirmationTrigger by rememberSaveable { mutableStateOf(false) }
-    var confirmationDestination by rememberSaveable { mutableStateOf<MainDestination?>(null) }
+    var shouldShowStartNewGameDialog by rememberSaveable { mutableStateOf(false) }
+    var confirmationDestination: MainDestination? by rememberSaveable { mutableStateOf(null) }
 
-//    val isLoading = sharedState.executing || quizState.executing ||
-//            categoryState.executing || quoteState.executing
-//
-//    if (isLoading) {
-//        LoadingInfiniteLine(subject = stringArrayResource(R.array.home_loading_subjects))
-//        return
-//    }
-
-    // Navigation functions
-    val navigateToGame = {
-        sessionAction(SessionAction.EndSession(sessionState.session.uid))
-        val destination = MainDestination.Game(
-            quizzesUids = quizState.quizzes.take(Constants.DEFAULT_QUIZ_SESSION_AMOUNT)
-                .map { it.uid }
-        )
-        sharedAction(SharedAction.Navigate(destination, navController))
+    val navigate: (MainDestination) -> Unit = {
+        sharedAction(SharedAction.Navigate(it, navController))
     }
 
-    val navigateToBrowse = {
-        sessionAction(SessionAction.EndSession(sessionState.session.uid))
-        sharedAction(SharedAction.Navigate(MainDestination.Browse, navController))
+    val startOverAndNavigate: (MainDestination) -> Unit = {
+        sessionAction(SessionAction.EndSession(uid = sessionState.session.uid))
+        sharedAction(SharedAction.Navigate(it, navController))
+        shouldShowStartNewGameDialog = false
     }
 
-    val showConfirmationDialog = { destination: MainDestination ->
-        confirmationDestination = destination
-        confirmationTrigger = true
-    }
-
-    if (confirmationTrigger) {
+    if (shouldShowStartNewGameDialog) {
         DialogYesOrNo(
             modifier = Modifier.fillMaxWidth(),
             title = R.string.dialog_discard_session_title,
@@ -122,14 +108,8 @@ fun Home(
             icon = R.drawable.ic_warning,
             buttonConfirmText = R.string.dialog_discard_session_confirm_button,
             buttonDismissText = R.string.dialog_discard_session_dissmiss_button,
-            onConfirm = {
-                when (confirmationDestination) {
-                    is MainDestination.Browse -> navigateToBrowse()
-                    else -> navigateToGame()
-                }
-                confirmationTrigger = false
-            },
-            onDismiss = { confirmationTrigger = false }
+            onConfirm = { startOverAndNavigate(confirmationDestination!!) },
+            onDismiss = { shouldShowStartNewGameDialog = false }
         )
     }
 
@@ -141,7 +121,7 @@ fun Home(
                 .weight(.90f)
                 .padding(horizontal = 16.dp)
         ) {
-            GreetingSection()
+            GreetingSection(sharedState = sharedState)
 
             Spacer(Modifier.height(30.dp))
 
@@ -163,9 +143,29 @@ fun Home(
 
             FeaturedCategoriesSection(
                 categories = categoryState.categories,
-                onBrowseClick = navigateToBrowse,
+                onBrowseClick = {
+                    if (sessionState.session.createdAt == null) {
+                        navigate(MainDestination.Browse)
+                        return@FeaturedCategoriesSection
+                    }
+
+                    confirmationDestination = MainDestination.Browse
+                    shouldShowStartNewGameDialog = true
+                },
                 onCategoryClick = { categoryId ->
                     categoryAction(CategoryAction.GetById(categoryId))
+                    val quizzesUids = quizState.quizzes
+                        .fastFilter { it.category == categoryState.category.name }
+                        .take(Constants.DEFAULT_QUIZ_SESSION_AMOUNT)
+                        .fastMap { it.uid }
+
+                    if (sessionState.session.createdAt == null) {
+                        navigate(MainDestination.Game(quizzesUids = quizzesUids))
+                        return@FeaturedCategoriesSection
+                    }
+
+                    confirmationDestination = MainDestination.Game(quizzesUids = quizzesUids)
+                    shouldShowStartNewGameDialog = true
                 }
             )
         }
@@ -173,20 +173,29 @@ fun Home(
         StartResumeButton(
             hasActiveSession = !sessionState.session.quizzesUids.isNullOrEmpty(),
             onClick = {
-                if (sessionState.session.quizzesUids.isNullOrEmpty()) {
-                    showConfirmationDialog(MainDestination.Game())
-                } else {
-                    navigateToGame()
+                val quizzesUids = quizState.quizzes
+                    .take(Constants.DEFAULT_QUIZ_SESSION_AMOUNT)
+                    .fastMap { it.uid }
+                if (sessionState.session.createdAt == null || sessionState.session.expiredAt != null) {
+                    navigate(MainDestination.Game(quizzesUids = quizzesUids))
+                    return@StartResumeButton
                 }
+
+                confirmationDestination = MainDestination.Game(quizzesUids = quizzesUids)
+                shouldShowStartNewGameDialog = true
             }
         )
     }
 }
 
 @Composable
-private fun GreetingSection() {
+private fun GreetingSection(sharedState: SharedState = SharedState()) {
+    var greetingMessage by rememberSaveable { mutableStateOf("") }
+    LaunchedEffect(sharedState.translator) {
+        greetingMessage = Utils.greetingBasedOnTimezone(translator = sharedState.translator)
+    }
     LayoutSectionHeadline(
-        title = "${Utils.greetingBasedOnTimezone()} ${Repository.getUser()?.username}",
+        title = "$greetingMessage ${Repository.getUser()?.username}",
         leadingIcon = R.drawable.ic_wave
     )
 //    Spacer(Modifier.height(3.dp))
@@ -236,7 +245,9 @@ private fun QuoteCard(
             }
 
             TextRegular(
-                text = if (quoteState.quote?.author != null) "\"${quoteState.quote.quote}\"" else "No quote available today. Check back later!",
+                text = if (quoteState.quote?.author != null) "\"${quoteState.quote.quote}\"" else stringResource(
+                    R.string.home_quote_not_found
+                ),
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = padding),
@@ -279,7 +290,8 @@ private fun FeaturedCategoriesSection(
         title = stringResource(R.string.home_featured_title),
         leadingIcon = R.drawable.ic_fire,
         actionText = stringResource(R.string.home_featured_subtitle),
-        actionIcon = R.drawable.ic_arrow_forward
+        actionIcon = R.drawable.ic_arrow_forward,
+        onClick = onBrowseClick
     )
 
     Spacer(Modifier.height(10.dp))
