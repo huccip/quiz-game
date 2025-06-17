@@ -86,7 +86,7 @@ fun Form(
             TextRegular(
                 text = stringResource(
                     R.string.onboard_form_greet,
-                    if (!buttonEnabled) "you" else usernameState
+                    if (!buttonEnabled) "" else usernameState
                 ),
             )
             Spacer(Modifier.height(5.dp))

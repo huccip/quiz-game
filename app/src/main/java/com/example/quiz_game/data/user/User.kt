@@ -10,6 +10,7 @@ data class User(
     var collectiblesUids: List<String> = emptyList<String>(),
     var language: String? = null,
     var onboarded: Boolean = false,
+    var translatorReady: Boolean = false,
 ) {
     companion object {
         const val KEY_USER = "user"

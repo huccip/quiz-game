@@ -39,13 +39,16 @@ object Repository {
                                     sourceLanguage = TranslateLanguage.ENGLISH,
                                     targetLanguage = userLanguage,
                                     onSuccess = {
-                                        Log.d(TAG, "prepareTranslator: $it")
+                                        Log.d("test1234 App", "Translator ready 🎯")
+                                        getUser()?.let {
+                                            it.translatorReady = true
+                                            saveUser(it)
+                                        }
                                         onSuccess(it)
                                     },
                                     onError = onError
                                 )
                             }.await()
-                            Log.d("test1234 App", "Translator ready 🎯")
                         } catch (e: Exception) {
                             Log.e("test1234 App", "Translation prep failed ⛔", e)
                             onError(e)

@@ -7,6 +7,7 @@ import android.util.Log
 import androidx.core.content.edit
 import androidx.room.Room
 import com.example.quiz_game.data.Database
+import com.example.quiz_game.data.Repository
 import com.example.quiz_game.data.Repository.getUser
 import com.example.quiz_game.data.Repository.saveUser
 import com.example.quiz_game.data.user.User
@@ -42,7 +43,7 @@ class App : Application() {
             )
             .build()
 
-        userPrefs = getSharedPreferences("app_prefs", MODE_PRIVATE)
+        userPrefs = getSharedPreferences(User.KEY_USER, MODE_PRIVATE)
     }
 
     override fun onTerminate() {

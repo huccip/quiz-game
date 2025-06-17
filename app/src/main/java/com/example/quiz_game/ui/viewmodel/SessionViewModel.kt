@@ -8,6 +8,7 @@ import com.example.quiz_game.App
 import com.example.quiz_game.R
 import com.example.quiz_game.data.Repository
 import com.example.quiz_game.data.session.Session
+import kotlinx.coroutines.async
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
@@ -37,6 +38,13 @@ class SessionViewModel : ViewModel() {
                     )
                 }
 
+                is SessionAction.Resume -> execute {
+                    Repository.sessionRepository.resume(
+                        onSuccess = { updateStateOnSuccess(data = it) },
+                        onError = { updateStateOnError(it) }
+                    )
+                }
+
                 is SessionAction.GetByUid -> execute {
                     Repository.sessionRepository.getByUid(
                         uid = action.uid,
@@ -46,14 +54,8 @@ class SessionViewModel : ViewModel() {
                 }
 
                 is SessionAction.InitiateSession -> execute {
-
                     Repository.sessionRepository.insert(
-                        session = arrayOf(
-                            Session(
-                                quizzesUids = action.quizzesUids,
-                                maxScore = action.maxScore,
-                            )
-                        ),
+                        session = arrayOf(Session(quizzesUids = action.quizzesUids)),
                         onSuccess = { session ->
                             updateStateOnSuccess(data = session.fastFirstOrNull { it.expiredAt == null })
                         },
@@ -61,25 +63,25 @@ class SessionViewModel : ViewModel() {
                     )
                 }
 
-                is SessionAction.EndSession -> execute {
+                is SessionAction.EndSession -> async {
                     Repository.sessionRepository.updateExpiredAt(
                         uid = action.uid,
                         expiredAt = System.currentTimeMillis(),
                         onSuccess = { updateStateOnSuccess(data = it) },
                         onError = { updateStateOnError(it) }
                     )
-                }
+                }.await()
 
-                is SessionAction.UpdateScore -> {
+                is SessionAction.UpdateScore -> async {
                     Repository.sessionRepository.updateScore(
                         uid = action.uid,
                         score = (state.value.session.score ?: 0) + action.score,
                         onSuccess = { onAction(SessionAction.GetByUid(action.uid)) },
                         onError = { updateStateOnError(it) }
                     )
-                }
+                }.await()
 
-                is SessionAction.UpdateTrophies -> execute {
+                is SessionAction.UpdateTrophies -> async {
                     val achievements = arrayListOf<Int>()
 
                     // record trophies
@@ -156,12 +158,9 @@ data class SessionState(
 )
 
 sealed interface SessionAction {
-    data class InitiateSession(
-        val quizzesUids: List<String>,
-        val maxScore: Int,
-    ) : SessionAction
-
+    data class InitiateSession(val quizzesUids: List<String>) : SessionAction
     data object GetAll : SessionAction
+    data object Resume : SessionAction
     data class GetByUid(val uid: String) : SessionAction
     data class UpdateScore(val uid: String, val score: Int) : SessionAction
     data class UpdateTrophies(val uid: String, val incorrectlyAnswered: Int) : SessionAction

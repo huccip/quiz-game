@@ -171,7 +171,7 @@ fun Home(
         }
 
         StartResumeButton(
-            hasActiveSession = !sessionState.session.quizzesUids.isNullOrEmpty(),
+            hasActiveSession = sessionState.session.createdAt != null && sessionState.session.expiredAt == null,
             onClick = {
                 val quizzesUids = quizState.quizzes
                     .take(Constants.DEFAULT_QUIZ_SESSION_AMOUNT)

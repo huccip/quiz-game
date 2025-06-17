@@ -25,7 +25,7 @@ class SharedViewModel : ViewModel() {
         private set
 
     init {
-        if (Utils.hasInternet()) {
+        if (Repository.getUser()?.translatorReady == false && Utils.hasInternet()) {
             onAction(SharedAction.PrepareTranslator)
         }
     }

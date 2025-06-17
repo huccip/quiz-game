@@ -1,9 +1,8 @@
 package com.example.quiz_game.data.session
 
-import android.util.Log
+import androidx.compose.ui.util.fastFirstOrNull
 import com.example.quiz_game.App
 import com.example.quiz_game.other.Utils.runWithTimeout
-import kotlinx.coroutines.launch
 
 object SessionRepository {
 
@@ -45,6 +44,30 @@ object SessionRepository {
                 onSuccess(data)
             },
             onFinish = { },
+            onTimeout = onError
+        )
+    }
+
+    suspend fun resume(onSuccess: (Session) -> Unit, onError: (Throwable) -> Unit) {
+        var data: Session? = null
+
+        runWithTimeout(
+            block = {
+                get(
+                    onSuccess = {
+                        data = it.fastFirstOrNull { session -> session.expiredAt == null }
+                    },
+                    onError = onError
+                )
+            },
+            onFinish = {
+                if (data == null) {
+                    onError(Exception("No active sessions found"))
+                    return@runWithTimeout
+                }
+
+                onSuccess(data!!)
+            },
             onTimeout = onError
         )
     }

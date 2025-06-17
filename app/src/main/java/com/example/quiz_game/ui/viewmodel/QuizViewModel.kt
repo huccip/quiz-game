@@ -87,13 +87,13 @@ class QuizViewModel : ViewModel() {
                     updateStateOnSuccess(sessionList = translatedQuizzes)
                 }
 
-                is QuizAction.DeleteByUid -> {
+                is QuizAction.DeleteByUid -> async {
                     Repository.quizRepository.deleteByUid(
                         uid = action.uid,
                         onSuccess = { onAction(QuizAction.GetAll) },
                         onError = { updateStateOnError(it) }
                     )
-                }
+                }.await()
 
                 is QuizAction.UpdateExpired -> async {
                     Repository.quizRepository.updateExpired(
