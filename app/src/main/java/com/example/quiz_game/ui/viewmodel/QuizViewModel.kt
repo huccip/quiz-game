@@ -1,5 +1,6 @@
 package com.example.quiz_game.ui.viewmodel
 
+import androidx.compose.ui.util.fastMapNotNull
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.quiz_game.data.Repository
@@ -82,7 +83,7 @@ class QuizViewModel : ViewModel() {
                                 } ?: quiz
                             }
                         }
-                    }.mapNotNull { deferred -> deferred.await() }
+                    }.fastMapNotNull { deferred -> deferred.await() }
 
                     updateStateOnSuccess(sessionList = translatedQuizzes)
                 }

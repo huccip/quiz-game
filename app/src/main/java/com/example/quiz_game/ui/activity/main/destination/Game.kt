@@ -18,6 +18,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.util.fastFilter
+import androidx.compose.ui.util.fastJoinToString
+import androidx.compose.ui.util.fastSumBy
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.example.quiz_game.R
@@ -35,6 +38,7 @@ import com.example.quiz_game.ui.viewmodel.SessionState
 import com.example.quiz_game.ui.viewmodel.SharedAction
 import com.example.quiz_game.ui.viewmodel.SharedState
 import kotlinx.coroutines.async
+import kotlinx.coroutines.delay
 
 private const val TAG = "test1234 Game"
 
@@ -60,13 +64,18 @@ fun Game(
         if (session.createdAt == null || session.expiredAt != null) { // no session or expired session, start new
             async { sessionAction(SessionAction.InitiateSession(quizzesUids = quizzesUids)) }.await()
             async { sessionAction(SessionAction.GetAll) }.await()
-
-            quizAction(QuizAction.GetBySession(quizzesUids, translator = sharedState.translator))
         }
+
+        async { quizAction(QuizAction.GetBySession(uids = quizzesUids, translator = sharedState.translator)) }.await()
     }
 
     LaunchedEffect(session, quizzes) {
         renderUi = (session.createdAt != null) && (quizzes.isNotEmpty())
+
+        if (renderUi) {
+            sessionAction(SessionAction.UpdateMaxScore(uid = session.uid, maxScore = quizzes.fastSumBy { it.mark!! }))
+            return@LaunchedEffect
+        }
     }
 
     when {
@@ -77,22 +86,32 @@ fun Game(
         renderUi -> {
             var index by rememberSaveable { mutableIntStateOf(0) }
             val onNext = {
-                if (index == quizzes.lastIndex) navController.navigate(MainDestination.PostGame)
+                quizAction(QuizAction.UpdateExpired(quizzes[index].uid))
+
+                if (index == quizzes.lastIndex) {
+                    sessionAction(SessionAction.EndSession(session.uid))
+                    for (quiz in quizzes) { quizAction(QuizAction.DeleteByUid(quiz.uid)) }
+                    navController.navigate(MainDestination.PostGame)
+                }
                 else index += 1
             }
 
             Box {
                 val quiz = remember(index) { quizzes[index] }
 
-                QuizCard(
-                    modifier = Modifier.fillMaxSize(),
-                    quiz = quiz,
-                    onAnswered = {
-                        println("test1234 $it")
-                    },
-                    onNext = onNext,
-                    lastIndex = index == quizzes.lastIndex
-                )
+                if (quiz.expired) {
+                    onNext()
+                } else {
+                    QuizCard(
+                        modifier = Modifier.fillMaxSize(),
+                        quiz = quiz,
+                        onAnswered = {
+                            println("test1234 $it")
+                        },
+                        onNext = onNext,
+                        lastIndex = index == quizzes.lastIndex
+                    )
+                }
             }
         }
     }

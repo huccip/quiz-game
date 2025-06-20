@@ -118,6 +118,33 @@ object SessionRepository {
         )
     }
 
+    suspend fun updateMaxScore(
+        uid: String,
+        maxScore: Int,
+        onSuccess: (Session) -> Unit,
+        onError: (Throwable) -> Unit
+    ) {
+        runWithTimeout(
+            block = {
+                getByUid(
+                    uid = uid,
+                    onSuccess = {
+                        App.db.sessionDao().updateMaxScore(it.uid, maxScore)
+                    },
+                    onError = onError
+                )
+            },
+            onFinish = {
+                getByUid(
+                    uid = uid,
+                    onSuccess = onSuccess,
+                    onError = onError
+                )
+            },
+            onTimeout = onError
+        )
+    }
+
     suspend fun updateScore(
         uid: String,
         score: Int,

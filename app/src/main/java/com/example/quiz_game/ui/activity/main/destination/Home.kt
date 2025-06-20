@@ -176,13 +176,8 @@ fun Home(
                 val quizzesUids = quizState.quizzes
                     .take(Constants.DEFAULT_QUIZ_SESSION_AMOUNT)
                     .fastMap { it.uid }
-                if (sessionState.session.createdAt == null || sessionState.session.expiredAt != null) {
-                    navigate(MainDestination.Game(quizzesUids = quizzesUids))
-                    return@StartResumeButton
-                }
 
-                confirmationDestination = MainDestination.Game(quizzesUids = quizzesUids)
-                shouldShowStartNewGameDialog = true
+                navigate(MainDestination.Game(quizzesUids = quizzesUids))
             }
         )
     }

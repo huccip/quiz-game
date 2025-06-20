@@ -148,14 +148,6 @@ class MainActivity : BaseActivity() {
             }
         }
     }
-
-    override fun onResume() {
-        super.onResume()
-
-        quizViewModel.state.value.quizzes.fastFilter { it.expired }.fastForEach {
-            quizViewModel.onAction(QuizAction.DeleteByUid(it.uid))
-        }
-    }
 }
 
 sealed interface MainDestination : AppDestination {

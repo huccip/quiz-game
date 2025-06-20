@@ -72,6 +72,15 @@ class SessionViewModel : ViewModel() {
                     )
                 }.await()
 
+                is SessionAction.UpdateMaxScore -> async {
+                    Repository.sessionRepository.updateMaxScore(
+                        uid = action.uid,
+                        maxScore = action.maxScore,
+                        onSuccess = { updateStateOnSuccess(data = it) },
+                        onError = { updateStateOnError(it) }
+                    )
+                }
+
                 is SessionAction.UpdateScore -> async {
                     Repository.sessionRepository.updateScore(
                         uid = action.uid,
@@ -162,6 +171,7 @@ sealed interface SessionAction {
     data object GetAll : SessionAction
     data object Resume : SessionAction
     data class GetByUid(val uid: String) : SessionAction
+    data class UpdateMaxScore(val uid: String, val maxScore: Int) : SessionAction
     data class UpdateScore(val uid: String, val score: Int) : SessionAction
     data class UpdateTrophies(val uid: String, val incorrectlyAnswered: Int) : SessionAction
     data class EndSession(val uid: String) : SessionAction
