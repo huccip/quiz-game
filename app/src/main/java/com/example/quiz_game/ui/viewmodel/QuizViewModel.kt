@@ -33,7 +33,14 @@ class QuizViewModel : ViewModel() {
                     Repository.quizRepository.getByCategory(
                         amount = Constants.DEFAULT_QUIZ_AMOUNT,
                         category = action.category,
-                        onSuccess = { updateStateOnSuccess(list = it) },
+                        onSuccess = {
+                            updateStateOnSuccess(
+                                list = buildList {
+                                    addAll(state.value.quizzes)
+                                    addAll(it)
+                                }
+                            )
+                        },
                         onError = { updateStateOnError(it) }
                     )
                 }
@@ -61,7 +68,8 @@ class QuizViewModel : ViewModel() {
                             fetchedQuiz?.let { quiz ->
                                 action.translator?.let { translator ->
                                     try {
-                                        val translatedCategory = translator.translate(quiz.category!!).await()
+                                        val translatedCategory =
+                                            translator.translate(quiz.category!!).await()
                                         val translatedQuestion =
                                             translator.translate(quiz.question!!).await()
                                         val translatedCorrectAnswer =
@@ -110,7 +118,7 @@ class QuizViewModel : ViewModel() {
     private suspend fun execute(block: suspend () -> Unit) {
         state.value = state.value.copy(executing = true)
 
-        delay(1000L)
+        delay(250L)
         block()
     }
 

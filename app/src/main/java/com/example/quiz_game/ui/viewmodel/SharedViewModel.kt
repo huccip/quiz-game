@@ -51,10 +51,7 @@ class SharedViewModel : ViewModel() {
 
                 is SharedAction.PrepareTranslator -> execute {
                     Repository.prepareTranslator(
-                        onSuccess = {
-                            println("test1234 translator: $it")
-                            updateStateOnSuccess(translator = it)
-                        },
+                        onSuccess = { updateStateOnSuccess(translator = it) },
                         onError = { updateStateOnError(it) }
                     )
                 }

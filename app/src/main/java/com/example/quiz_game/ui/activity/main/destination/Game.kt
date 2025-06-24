@@ -18,8 +18,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.util.fastFilter
-import androidx.compose.ui.util.fastJoinToString
 import androidx.compose.ui.util.fastSumBy
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
@@ -38,7 +36,6 @@ import com.example.quiz_game.ui.viewmodel.SessionState
 import com.example.quiz_game.ui.viewmodel.SharedAction
 import com.example.quiz_game.ui.viewmodel.SharedState
 import kotlinx.coroutines.async
-import kotlinx.coroutines.delay
 
 private const val TAG = "test1234 Game"
 
@@ -48,6 +45,7 @@ private const val TAG = "test1234 Game"
 fun Game(
     modifier: Modifier = Modifier,
     quizzesUids: List<String> = emptyList(),
+    categoryUid: String? = null,
     quizState: QuizState = QuizState(),
     quizAction: (QuizAction) -> Unit = {},
     sharedAction: (SharedAction) -> Unit = {},
@@ -62,18 +60,29 @@ fun Game(
 
     LaunchedEffect(Unit) {
         if (session.createdAt == null || session.expiredAt != null) { // no session or expired session, start new
-            async { sessionAction(SessionAction.InitiateSession(quizzesUids = quizzesUids)) }.await()
+            async { sessionAction(SessionAction.InitiateSession(quizzesUids = quizzesUids, categoryUid = categoryUid)) }.await()
             async { sessionAction(SessionAction.GetAll) }.await()
         }
 
-        async { quizAction(QuizAction.GetBySession(uids = quizzesUids, translator = sharedState.translator)) }.await()
+        async {
+            quizAction(
+                QuizAction.GetBySession(
+                    uids = quizzesUids,
+                    translator = sharedState.translator
+                )
+            )
+        }.await()
     }
 
     LaunchedEffect(session, quizzes) {
         renderUi = (session.createdAt != null) && (quizzes.isNotEmpty())
 
         if (renderUi) {
-            sessionAction(SessionAction.UpdateMaxScore(uid = session.uid, maxScore = quizzes.fastSumBy { it.mark!! }))
+            sessionAction(
+                SessionAction.UpdateMaxScore(
+                    uid = session.uid,
+                    maxScore = quizzes.fastSumBy { it.mark!! })
+            )
             return@LaunchedEffect
         }
     }
@@ -90,10 +99,11 @@ fun Game(
 
                 if (index == quizzes.lastIndex) {
                     sessionAction(SessionAction.EndSession(session.uid))
-                    for (quiz in quizzes) { quizAction(QuizAction.DeleteByUid(quiz.uid)) }
+                    for (quiz in quizzes) {
+                        quizAction(QuizAction.DeleteByUid(quiz.uid))
+                    }
                     navController.navigate(MainDestination.PostGame)
-                }
-                else index += 1
+                } else index += 1
             }
 
             Box {

@@ -28,6 +28,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -41,6 +42,8 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.fastFilter
+import androidx.compose.ui.util.fastFirst
+import androidx.compose.ui.util.fastForEach
 import androidx.compose.ui.util.fastMap
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
@@ -71,6 +74,8 @@ import com.example.quiz_game.ui.viewmodel.SharedState
 
 private const val TAG = "test1234 Home"
 
+// FIXME: start/resume by category
+
 @Composable
 fun Home(
     modifier: Modifier = Modifier,
@@ -87,17 +92,42 @@ fun Home(
     navController: NavController = rememberNavController()
 ) {
     val context = LocalContext.current
+
     var shouldShowStartNewGameDialog by rememberSaveable { mutableStateOf(false) }
     var confirmationDestination: MainDestination? by rememberSaveable { mutableStateOf(null) }
+    var selectedCategory by remember {
+        mutableStateOf<Category?>(null)
+    }
 
-    val navigate: (MainDestination) -> Unit = {
+    val onNavigate: (MainDestination) -> Unit = {
         sharedAction(SharedAction.Navigate(it, navController))
     }
 
-    val startOverAndNavigate: (MainDestination) -> Unit = {
+    val onStartOverAndNavigate: (MainDestination) -> Unit = {
         sessionAction(SessionAction.EndSession(uid = sessionState.session.uid))
         sharedAction(SharedAction.Navigate(it, navController))
         shouldShowStartNewGameDialog = false
+    }
+
+    LaunchedEffect(categoryState) {
+        if (categoryState.category.uid == selectedCategory?.uid) {
+            quizAction(QuizAction.GetByCategory(categoryState.category.name!!))
+        }
+    }
+
+    LaunchedEffect(categoryState.category, quizState.quizzes) {
+        if (selectedCategory != null && categoryState.category.uid.isNotEmpty()) {
+            val quizzesUids = quizState.quizzes
+                .fastFilter { it.category == categoryState.category.name!! }
+                .take(Constants.DEFAULT_QUIZ_SESSION_AMOUNT)
+                .fastMap { it.uid }
+            onNavigate(
+                MainDestination.Game(
+                    quizzesUids = quizzesUids,
+                    categoryUid = selectedCategory!!.uid
+                )
+            )
+        }
     }
 
     if (shouldShowStartNewGameDialog) {
@@ -108,7 +138,7 @@ fun Home(
             icon = R.drawable.ic_warning,
             buttonConfirmText = R.string.dialog_discard_session_confirm_button,
             buttonDismissText = R.string.dialog_discard_session_dissmiss_button,
-            onConfirm = { startOverAndNavigate(confirmationDestination!!) },
+            onConfirm = { onStartOverAndNavigate(confirmationDestination!!) },
             onDismiss = { shouldShowStartNewGameDialog = false }
         )
     }
@@ -142,30 +172,33 @@ fun Home(
             Spacer(Modifier.height(30.dp))
 
             FeaturedCategoriesSection(
+                activeSessionCategoryUid = sessionState.session.categoryUid,
                 categories = categoryState.categories,
                 onBrowseClick = {
                     if (sessionState.session.createdAt == null) {
-                        navigate(MainDestination.Browse)
+                        onNavigate(MainDestination.Browse)
                         return@FeaturedCategoriesSection
                     }
 
                     confirmationDestination = MainDestination.Browse
                     shouldShowStartNewGameDialog = true
                 },
-                onCategoryClick = { categoryId ->
-                    categoryAction(CategoryAction.GetById(categoryId))
-                    val quizzesUids = quizState.quizzes
-                        .fastFilter { it.category == categoryState.category.name }
-                        .take(Constants.DEFAULT_QUIZ_SESSION_AMOUNT)
-                        .fastMap { it.uid }
-
-                    if (sessionState.session.createdAt == null) {
-                        navigate(MainDestination.Game(quizzesUids = quizzesUids))
+                onCategoryClick = { category ->
+                    if (sessionState.session.createdAt == null) { // new game
+                        selectedCategory = category
+                        categoryAction(CategoryAction.GetByUid(category.uid))
+                    } else if (sessionState.session.expiredAt == null && sessionState.session.categoryUid == category.uid) { //resume
+                        onNavigate(MainDestination.Game(quizzesUids = sessionState.session.quizzesUids!!))
                         return@FeaturedCategoriesSection
-                    }
+                    } else { // start over
+                        val quizzesUids = quizState.quizzes
+                            .fastFilter { it.category == category.name }
+                            .take(Constants.DEFAULT_QUIZ_SESSION_AMOUNT)
+                            .fastMap { it.uid }
 
-                    confirmationDestination = MainDestination.Game(quizzesUids = quizzesUids)
-                    shouldShowStartNewGameDialog = true
+                        confirmationDestination = MainDestination.Game(quizzesUids = quizzesUids)
+                        shouldShowStartNewGameDialog = true
+                    }
                 }
             )
         }
@@ -173,11 +206,15 @@ fun Home(
         StartResumeButton(
             hasActiveSession = sessionState.session.createdAt != null && sessionState.session.expiredAt == null,
             onClick = {
-                val quizzesUids = quizState.quizzes
-                    .take(Constants.DEFAULT_QUIZ_SESSION_AMOUNT)
-                    .fastMap { it.uid }
+                if (sessionState.session.createdAt == null) { // new game
+                    val quizzesUids = quizState.quizzes
+                        .take(Constants.DEFAULT_QUIZ_SESSION_AMOUNT)
+                        .fastMap { it.uid }
 
-                navigate(MainDestination.Game(quizzesUids = quizzesUids))
+                    onNavigate(MainDestination.Game(quizzesUids = quizzesUids))
+                } else { // resume
+                    onNavigate(MainDestination.Game(quizzesUids = sessionState.session.quizzesUids!!))
+                }
             }
         )
     }
@@ -240,7 +277,7 @@ private fun QuoteCard(
             }
 
             TextRegular(
-                text = if (quoteState.quote?.author != null) "\"${quoteState.quote.quote}\"" else stringResource(
+                text = if (quoteState.quote?.quote != null) "\"${quoteState.quote.quote}\"" else stringResource(
                     R.string.home_quote_not_found
                 ),
                 modifier = Modifier
@@ -277,10 +314,18 @@ private fun QuoteCard(
 
 @Composable
 private fun FeaturedCategoriesSection(
+    activeSessionCategoryUid: String? = null,
     categories: List<Category>,
-    onCategoryClick: (Int) -> Unit = {},
+    onCategoryClick: (Category) -> Unit = {},
     onBrowseClick: () -> Unit = {},
 ) {
+    val featuredCategories = remember(categories) {
+        buildList {
+            activeSessionCategoryUid?.let { categoryUid -> add(categories.fastFirst { it.uid == categoryUid }) }
+            addAll(categories.shuffled().fastFilter { it.uid != activeSessionCategoryUid }.take(5))
+        }
+    }
+
     LayoutSectionHeadline(
         title = stringResource(R.string.home_featured_title),
         leadingIcon = R.drawable.ic_fire,
@@ -292,13 +337,14 @@ private fun FeaturedCategoriesSection(
     Spacer(Modifier.height(10.dp))
 
     Column(verticalArrangement = Arrangement.spacedBy(10.dp), modifier = Modifier.fillMaxWidth()) {
-        categories.take(6).shuffled().forEach { category ->
+        featuredCategories.fastForEach { category ->
             if (category.id != null) {
                 FeaturedCategoryItem(
                     modifier = Modifier
                         .fillMaxWidth(),
                     category = category,
-                    onClick = onCategoryClick
+                    onClick = onCategoryClick,
+                    isActive = category.uid == activeSessionCategoryUid
                 )
             }
         }
@@ -335,11 +381,12 @@ private fun StartResumeButton(
 fun FeaturedCategoryItem(
     modifier: Modifier = Modifier,
     category: Category,
-    onClick: (Int) -> Unit = {}
+    isActive: Boolean = false,
+    onClick: (Category) -> Unit = {}
 ) {
     OutlinedCard(
         modifier = modifier,
-        onClick = { onClick(category.id ?: -1) },
+        onClick = { onClick(category) },
         colors = CardDefaults.outlinedCardColors(
             containerColor = Color.Transparent
         ),
@@ -353,7 +400,11 @@ fun FeaturedCategoryItem(
             modifier = Modifier.padding(PaddingValues(20.dp)),
         ) {
             IconButton(painter = painterResource(R.drawable.ic_fire))
-            TextRegular(text = category.name ?: "Undefined")
+            TextRegular(text = category.name ?: "Undefined", modifier = Modifier.weight(1f))
+            if (isActive) IconButton(
+                painter = painterResource(R.drawable.ic_live),
+                tint = MaterialTheme.colorScheme.error
+            )
         }
     }
 }

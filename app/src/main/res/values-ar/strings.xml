@@ -4,7 +4,7 @@
     <string name="textfield_placeholder_default">اكتب هنا…</string>
     <string name="textfield_label_default" />
 
-    <string name="onboard_form_loading_subject">إعداد لغتك</string>
+    <string name="onboard_form_loading_subject">إعدادات اللغة</string>
     <string name="onboard_form_greet">مرحباً %s،</string>
     <string name="onboard_form_question">هل أنت مستعد لمغامرة لا تُنسى؟</string>
     <string name="onboard_form_submit">نعم، أنا مستعد</string>

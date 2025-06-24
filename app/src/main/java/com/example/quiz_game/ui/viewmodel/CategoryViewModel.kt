@@ -9,7 +9,6 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
-import android.util.Log
 
 private const val TAG = "test1234 CategoryViewModel"
 
@@ -60,8 +59,8 @@ class CategoryViewModel() : ViewModel() {
                 }
 
                 is CategoryAction.GetByUid -> execute {
-                    Repository.categoryRepository.getByName(
-                        name = action.uid,
+                    Repository.categoryRepository.getByUid(
+                        uid = action.uid,
                         onSuccess = { updateStateOnSuccess(data = it) },
                         onError = { updateStateOnError(it) }
                     )

@@ -55,7 +55,7 @@ class SessionViewModel : ViewModel() {
 
                 is SessionAction.InitiateSession -> execute {
                     Repository.sessionRepository.insert(
-                        session = arrayOf(Session(quizzesUids = action.quizzesUids)),
+                        session = arrayOf(Session(quizzesUids = action.quizzesUids, categoryUid = action.categoryUid)),
                         onSuccess = { session ->
                             updateStateOnSuccess(data = session.fastFirstOrNull { it.expiredAt == null })
                         },
@@ -167,7 +167,7 @@ data class SessionState(
 )
 
 sealed interface SessionAction {
-    data class InitiateSession(val quizzesUids: List<String>) : SessionAction
+    data class InitiateSession(val quizzesUids: List<String>, val categoryUid: String? = null) : SessionAction
     data object GetAll : SessionAction
     data object Resume : SessionAction
     data class GetByUid(val uid: String) : SessionAction

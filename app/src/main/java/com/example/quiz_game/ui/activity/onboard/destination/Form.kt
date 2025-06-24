@@ -1,5 +1,6 @@
 package com.example.quiz_game.ui.activity.onboard.destination
 
+import android.widget.Toast
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -15,6 +16,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -50,11 +52,7 @@ fun Form(
     onboardAction: (OnboardAction) -> Unit = {},
     navController: NavController = rememberNavController(),
 ) {
-    LaunchedEffect(onboardAction) {
-        if (!onboardState.user.username.isNullOrEmpty()) {
-            sharedAction(SharedAction.Navigate(OnboardDestination.Guide, navController))
-        }
-    }
+    val context = LocalContext.current
 
     var textfieldEnabled by rememberSaveable { mutableStateOf(true) }
     var usernameState by rememberSaveable { mutableStateOf("") }
@@ -79,62 +77,74 @@ fun Form(
         Regex("^[\\p{L}0-9]+$") to stringResource(R.string.onboard_name_textfield_unallowed_characters)
     )
 
-    if (sharedState.executing) {
-        LoadingInfiniteLine(subject = arrayOf(stringResource(R.string.onboard_form_loading_subject)))
-    } else {
-        Column(modifier = modifier) {
-            TextRegular(
-                text = stringResource(
-                    R.string.onboard_form_greet,
-                    if (!buttonEnabled) "" else usernameState
-                ),
-            )
-            Spacer(Modifier.height(5.dp))
-            TextRegular(
-                text = stringResource(R.string.onboard_form_question),
-                color = MaterialTheme.colorScheme.primary,
-                fontWeight = FontWeight.Bold
-            )
+    when {
+        sharedState.executing -> {
+            LoadingInfiniteLine(subject = arrayOf(stringResource(R.string.onboard_form_loading_subject)))
+        }
 
-            Spacer(Modifier.height(25.dp))
+        sharedState.errors.isNotEmpty() -> {
+            Toast.makeText(context, context.getString(R.string.generic_error_message), Toast.LENGTH_SHORT).show()
+        }
 
-            TextFieldPrimary(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .shakeLinear(!buttonEnabled, Orientation.Horizontal),
-                enabled = textfieldEnabled,
-                placeholder = R.string.onboard_name_placeholder,
-                label = R.string.onboard_name_label,
-                trailingIcon = if (usernameState.isEmpty()) null else R.drawable.ic_erase,
-                isLast = true,
-                regex = validationRules,
-                onDone = { username -> onUpdateUsername(username) },
-                onTrailingIconClicked = onClear,
-                cleared = textfieldCleared,
-                onValid = { isValid, username ->
-                    buttonEnabled = isValid
-                    usernameState = username
-                    textfieldCleared = false
-                }
-            )
+        !onboardState.user.username.isNullOrEmpty() -> {
+            sharedAction(SharedAction.Navigate(OnboardDestination.Guide, navController))
+        }
 
-            Spacer(Modifier.height(25.dp))
+        else -> {
+            Column(modifier = modifier) {
+                TextRegular(
+                    text = stringResource(
+                        R.string.onboard_form_greet,
+                        if (!buttonEnabled) "" else usernameState
+                    ),
+                )
+                Spacer(Modifier.height(5.dp))
+                TextRegular(
+                    text = stringResource(R.string.onboard_form_question),
+                    color = MaterialTheme.colorScheme.primary,
+                    fontWeight = FontWeight.Bold
+                )
 
-            if (buttonEnabled) {
-                Box(Modifier.fillMaxWidth(), contentAlignment = Alignment.CenterEnd) {
-                    ButtonPrimary(
-                        onClick = { onUpdateUsername(usernameState) },
-                        color = MaterialTheme.colorScheme.primary
-                    ) {
-                        TextButton(
-                            text = stringResource(R.string.onboard_form_submit),
-                            color = contentColorFor(MaterialTheme.colorScheme.primary),
-                            fontWeight = FontWeight.Bold
-                        )
-                        IconButton(
-                            painter = painterResource(R.drawable.ic_arrow_forward),
-                            tint = contentColorFor(MaterialTheme.colorScheme.primary)
-                        )
+                Spacer(Modifier.height(25.dp))
+
+                TextFieldPrimary(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .shakeLinear(!buttonEnabled, Orientation.Horizontal),
+                    enabled = textfieldEnabled,
+                    placeholder = R.string.onboard_name_placeholder,
+                    label = R.string.onboard_name_label,
+                    trailingIcon = if (usernameState.isEmpty()) null else R.drawable.ic_erase,
+                    isLast = true,
+                    regex = validationRules,
+                    onDone = { username -> onUpdateUsername(username) },
+                    onTrailingIconClicked = onClear,
+                    cleared = textfieldCleared,
+                    onValid = { isValid, username ->
+                        buttonEnabled = isValid
+                        usernameState = username
+                        textfieldCleared = false
+                    }
+                )
+
+                Spacer(Modifier.height(25.dp))
+
+                if (buttonEnabled) {
+                    Box(Modifier.fillMaxWidth(), contentAlignment = Alignment.CenterEnd) {
+                        ButtonPrimary(
+                            onClick = { onUpdateUsername(usernameState) },
+                            color = MaterialTheme.colorScheme.primary
+                        ) {
+                            TextButton(
+                                text = stringResource(R.string.onboard_form_submit),
+                                color = contentColorFor(MaterialTheme.colorScheme.primary),
+                                fontWeight = FontWeight.Bold
+                            )
+                            IconButton(
+                                painter = painterResource(R.drawable.ic_arrow_forward),
+                                tint = contentColorFor(MaterialTheme.colorScheme.primary)
+                            )
+                        }
                     }
                 }
             }

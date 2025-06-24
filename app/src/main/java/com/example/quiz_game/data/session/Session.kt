@@ -12,6 +12,7 @@ data class Session(
     @PrimaryKey(autoGenerate = false)
     var uid: String = "",
     var nickname: String? = null,
+    var categoryUid: String? = null,
     var quizzesUids: List<String>? = null,
     var score: Int? = null,
     var maxScore: Int? = null,

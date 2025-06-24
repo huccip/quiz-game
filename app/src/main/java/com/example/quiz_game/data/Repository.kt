@@ -39,7 +39,6 @@ object Repository {
                                     sourceLanguage = TranslateLanguage.ENGLISH,
                                     targetLanguage = userLanguage,
                                     onSuccess = {
-                                        Log.d("test1234 App", "Translator ready 🎯")
                                         getUser()?.let {
                                             it.translatorReady = true
                                             saveUser(it)
@@ -50,7 +49,6 @@ object Repository {
                                 )
                             }.await()
                         } catch (e: Exception) {
-                            Log.e("test1234 App", "Translation prep failed ⛔", e)
                             onError(e)
                         }
                     }
@@ -58,7 +56,7 @@ object Repository {
                     return@runWithTimeout
                 }
 
-                onError(IllegalStateException("Translator could not be prepared for the unsupported language."))
+                onError(IllegalStateException("Language is null, maybe the user has not set the language yet?"))
             },
             onFinish = {},
             onTimeout = onError

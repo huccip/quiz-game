@@ -13,8 +13,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.util.fastFilter
-import androidx.compose.ui.util.fastForEach
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -26,7 +24,6 @@ import com.example.quiz_game.ui.activity.main.MainDestination.Home
 import com.example.quiz_game.ui.activity.main.destination.Browse
 import com.example.quiz_game.ui.activity.main.destination.Game
 import com.example.quiz_game.ui.activity.main.destination.Home
-import com.example.quiz_game.ui.activity.onboard.destination.Language
 import com.example.quiz_game.ui.activity.main.destination.PostGame
 import com.example.quiz_game.ui.activity.main.destination.Store
 import com.example.quiz_game.ui.theme.QuizgameTheme
@@ -93,6 +90,7 @@ class MainActivity : BaseActivity() {
                                 Home(
                                     sharedState = sharedState,
                                     quizState = quizState,
+                                    quizAction = quizViewModel::onAction,
                                     categoryState = categoryState,
                                     sessionState = sessionState,
                                     sharedAction = sharedViewModel::onAction,
@@ -107,6 +105,7 @@ class MainActivity : BaseActivity() {
                             composable<MainDestination.Game> {
                                 Game(
                                     quizzesUids = it.toRoute<MainDestination.Game>().quizzesUids,
+                                    categoryUid = it.toRoute<MainDestination.Game>().categoryUid,
                                     quizState = quizState,
                                     sharedAction = sharedViewModel::onAction,
                                     quizAction = quizViewModel::onAction,
@@ -155,7 +154,10 @@ sealed interface MainDestination : AppDestination {
     data object Home : MainDestination
 
     @Serializable
-    data class Game(val quizzesUids: List<String> = emptyList<String>()) : MainDestination
+    data class Game(
+        val quizzesUids: List<String> = emptyList<String>(),
+        val categoryUid: String? = null
+    ) : MainDestination
 
     @Serializable
     data object Browse : MainDestination
