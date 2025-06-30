@@ -1,6 +1,5 @@
 package com.example.quiz_game.data.quiz
 
-import android.util.Log
 import androidx.compose.ui.util.fastMap
 import com.example.quiz_game.App
 import com.example.quiz_game.data.Repository
@@ -52,18 +51,27 @@ object QuizRepository {
     ) {
         runWithTimeout(
             block = {
-                App.db.quizDao()
-                    .insert(*(quiz.map {
-                        it.mark = it.generateMark()
-                        if (it.question != null) it.question = Utils.decodeHtml(it.question!!)
-                        if (it.correctAnswer != null) it.correctAnswer =
-                            Utils.decodeHtml(it.correctAnswer!!)
-                        if (it.incorrectAnswers != null) {
-                            it.incorrectAnswers!!.fastMap { Utils.decodeHtml(it) }
-                        }
-                        it.uid = it.generateUid()
-                        it
-                    }).toTypedArray())
+                App.db.quizDao().insert(*(quiz.map {
+                    it.mark = it.generateMark()
+                    if (it.question != null) it.question = Utils.decodeHtml(it.question!!)
+                    if (it.correctAnswer != null) it.correctAnswer =
+                        Utils.decodeHtml(it.correctAnswer!!)
+                    if (it.incorrectAnswers != null) {
+                        it.incorrectAnswers!!.fastMap { Utils.decodeHtml(it) }
+                    }
+                    if (it.category != null) {
+                        it.category = Utils.decodeHtml(it.category!!)
+                        Repository.categoryRepository.getByName(
+                            Utils.decodeHtml(it.category!!),
+                            onSuccess = { category ->
+                                it.categoryUid = category.uid
+                            },
+                            onError = onError
+                        )
+                    }
+                    it.uid = it.generateUid()
+                    it
+                }).toTypedArray())
             },
             onFinish = onSuccess,
             onTimeout = onError
@@ -129,14 +137,14 @@ object QuizRepository {
 
     suspend fun getByCategory(
         amount: Int = 50,
-        category: String,
+        categoryUid: String,
         onSuccess: (List<Quiz>) -> Unit,
         onError: (Throwable) -> Unit
     ) {
         runWithTimeout(
             block = {
-                Repository.categoryRepository.getByName(
-                    category,
+                Repository.categoryRepository.getByUid(
+                    categoryUid,
                     onSuccess = { category ->
                         category.name?.let { name ->
                             val data = App.db.quizDao().getByCategory(name)
@@ -173,7 +181,7 @@ object QuizRepository {
                                 }
                             }
                             onSuccess(data)
-                        } ?: onError(Exception("Category name was found null"))
+                        } ?: onError(Exception("Category name for uid ($categoryUid) was found null"))
                     },
                     onError = onError
                 )

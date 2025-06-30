@@ -32,7 +32,7 @@ class QuizViewModel : ViewModel() {
                 is QuizAction.GetByCategory -> execute {
                     Repository.quizRepository.getByCategory(
                         amount = Constants.DEFAULT_QUIZ_AMOUNT,
-                        category = action.category,
+                        categoryUid = action.category,
                         onSuccess = {
                             updateStateOnSuccess(
                                 list = buildList {

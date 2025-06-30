@@ -3,6 +3,7 @@ package com.example.quiz_game.data.quiz
 import android.util.Base64
 import androidx.compose.ui.util.fastJoinToString
 import androidx.room.Entity
+import androidx.room.Ignore
 import androidx.room.PrimaryKey
 import com.google.gson.annotations.SerializedName
 import java.util.UUID
@@ -14,6 +15,7 @@ data class Quiz(
     var type: String? = null,
     var difficulty: String? = null,
     var category: String? = null,
+    var categoryUid: String? = null,
     var question: String? = null,
     @SerializedName("correct_answer")
     var correctAnswer: String? = null,
@@ -23,7 +25,7 @@ data class Quiz(
     var expired: Boolean = false, // TODO: update to expiredAt: Long for better a achievement system
 ) {
     fun generateUid(): String = Base64.encodeToString(
-        (type + difficulty + category + question + correctAnswer + incorrectAnswers?.fastJoinToString(
+        (type + difficulty + category + categoryUid + question + correctAnswer + incorrectAnswers?.fastJoinToString(
             ""
         ) + UUID.randomUUID().mostSignificantBits)
             .split("")
