@@ -115,6 +115,11 @@ class SessionViewModel : ViewModel() {
                             }
                         )
                     }
+
+                    // Save achievements to the session state
+                    state.value = state.value.copy(
+                        session = state.value.session.copy(achievements = achievements)
+                    )
                 }
 
             }
@@ -123,8 +128,6 @@ class SessionViewModel : ViewModel() {
 
     private suspend fun execute(block: suspend () -> Unit) {
         state.value = state.value.copy(executing = true)
-
-        delay(500L)
         block()
     }
 

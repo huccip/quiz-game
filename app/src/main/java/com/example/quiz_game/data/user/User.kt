@@ -17,5 +17,6 @@ data class User(
         const val KEY_COLLECTIBLES_UIDS = "collectiblesUids"
         const val KEY_SELECTED_LANGUAGE = "selectedLanguage"
         const val KEY_LAST_KNOWN_LANGUAGE = "lastKnownLanguage"
+        const val KEY_ONBOARDED = "onboarded"
     }
 }

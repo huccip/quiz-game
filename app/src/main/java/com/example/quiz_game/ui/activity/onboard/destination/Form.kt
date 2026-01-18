@@ -5,6 +5,9 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -64,7 +67,7 @@ fun Form(
         Regex("^[a-zA-Z0-9]+$") to stringResource(R.string.onboard_name_textfield_unallowed_characters)
     )
 
-    Column(modifier = modifier) {
+    Column(modifier = modifier.padding(horizontal = 16.dp).wrapContentSize()) {
         TextFancy(
             text = stringResource(
                 R.string.onboard_form_greet,
@@ -75,7 +78,8 @@ fun Form(
         TextFancy(
             text = stringResource(R.string.onboard_form_question),
             color = MaterialTheme.colorScheme.primary,
-            fontWeight = FontWeight.Bold
+            fontWeight = FontWeight.Bold,
+            modifier = Modifier.wrapContentHeight()
         )
 
         Spacer(Modifier.height(25.dp))

@@ -86,6 +86,7 @@ fun ButtonPrimary(
     onClick: () -> Unit = {},
     enabled: Boolean = true,
     color: Color = MaterialTheme.colorScheme.onSurface,
+    contentColor: Color = MaterialTheme.colorScheme.surface,
     content: @Composable () -> Unit = {}
 ) {
     val interactionSource = remember { MutableInteractionSource() }
@@ -101,7 +102,7 @@ fun ButtonPrimary(
             shape = RoundedCornerShape(6.dp),
             colors = ButtonDefaults.buttonColors(
                 containerColor = color,
-                contentColor = contentColorFor(color)
+                contentColor = contentColor
             ),
             elevation = ButtonDefaults.buttonElevation(
                 defaultElevation = 0.dp,
@@ -237,18 +238,4 @@ fun ButtonGameChoices(
             }
         }
     )
-}
-
-
-@Preview(showBackground = true)
-@Composable
-private fun ButtonPreview() {
-    Preview {
-        ButtonSecondary {
-            Text("Start", fontSize = 10.sp)
-            IconButton(
-                painter = painterResource(R.drawable.ic_arrow_north_east)
-            )
-        }
-    }
 }

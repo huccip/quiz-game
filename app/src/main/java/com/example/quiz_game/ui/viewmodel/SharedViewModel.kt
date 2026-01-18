@@ -68,8 +68,6 @@ class SharedViewModel : ViewModel() {
 
     private suspend fun execute(block: suspend () -> Unit) {
         state.value = state.value.copy(executing = true)
-
-        delay(500L)
         block()
     }
 

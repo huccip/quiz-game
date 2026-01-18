@@ -142,15 +142,13 @@ fun Home(
                     TextButton(text = stringResource(R.string.home_button_start))
                 }
 
-                if (sessionState.session.uid.isNotEmpty()) {
+                if (sessionState.session.uid.isNotEmpty() && sessionState.session.expiredAt == null) {
                     ButtonPrimary(
                         onClick = {
                             sharedAction(
                                 SharedAction.Navigate(
                                     MainDestination.Game(
-                                        quizzesUids = quizState.quizzes.take(
-                                            Constants.DEFAULT_QUIZ_SESSION_AMOUNT
-                                        ).map { it.uid }
+                                        quizzesUids = sessionState.session.quizzesUids ?: emptyList()
                                     ),
                                     navController
                                 )

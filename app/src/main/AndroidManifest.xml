@@ -29,6 +29,7 @@
         <activity
             android:name=".ui.activity.main.MainActivity"
             android:exported="true"
+            android:configChanges="orientation|screenSize|uiMode|screenLayout|smallestScreenSize"
             android:theme="@style/Theme.Quizgame">
         </activity>
     </application>

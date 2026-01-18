@@ -72,8 +72,12 @@ fun Game(
     val session = sessionState.session
     val sessionQuizzes = quizState.sessionQuizzes
 
+    // Track if we've initiated the session to avoid duplicates
+    var sessionInitiated by rememberSaveable { mutableStateOf(false) }
+
     LaunchedEffect(Unit) {
-        if (session.uid.isEmpty() || session.expiredAt != null) {
+        if (!sessionInitiated && (session.uid.isEmpty() || session.expiredAt != null)) {
+            sessionInitiated = true
             sessionAction(
                 SessionAction.InitiateSession(
                     quizzesUids = quizzesUids,
@@ -161,36 +165,30 @@ fun QuizCard(
     correctChoice: String? = null,
     onAnswered: (String, Int) -> Unit = { str, int -> }, // send selected answer and its mark
 ) {
-    var answer by rememberSaveable { mutableStateOf("") }
-    var enabled by rememberSaveable { mutableStateOf(true) }
-    var answeredState by rememberSaveable { mutableStateOf(AnsweredState.IDLE) }
-
-    var timer by rememberSaveable { mutableIntStateOf(Constants.DEFAULT_QUIZ_TIMER) }
-
-    LaunchedEffect(quiz.uid) {
-        timer = Constants.DEFAULT_QUIZ_TIMER
-        enabled = true
-        answer = ""
-        answeredState = AnsweredState.IDLE
-    }
+    var answer by rememberSaveable(quiz.uid) { mutableStateOf("") }
+    var enabled by rememberSaveable(quiz.uid) { mutableStateOf(true) }
+    var answeredState by rememberSaveable(quiz.uid) { mutableStateOf(AnsweredState.IDLE) }
+    var timer by rememberSaveable(quiz.uid) { mutableIntStateOf(Constants.DEFAULT_QUIZ_TIMER) }
 
     LaunchedEffect(answeredState) {
         if (answeredState == AnsweredState.LOCKED) {
             delay(1500L)
-            onAnswered(answer, if (answer == correctChoice) +quiz.mark!! else -quiz.mark!!)
+            onAnswered(answer, if (answer == correctChoice) quiz.mark!! else 0)
         }
     }
 
-    LaunchedEffect(timer) {
-        if (answeredState != AnsweredState.LOCKED) {
-            if (timer > 0) {
-                delay(1000L)
+    // Stable timer implementation using a single coroutine
+    LaunchedEffect(quiz.uid) {
+        while (timer > 0 && answeredState != AnsweredState.LOCKED) {
+            delay(1000L)
+            if (answeredState != AnsweredState.LOCKED) {
                 timer -= 1
-            } else {
-                // same logic as if clicked "confirm"
-                enabled = false
-                answeredState = AnsweredState.LOCKED
             }
+        }
+        // Time ran out
+        if (timer <= 0 && answeredState != AnsweredState.LOCKED) {
+            enabled = false
+            answeredState = AnsweredState.LOCKED
         }
     }
 
@@ -274,7 +272,7 @@ fun QuizCard(
                 ) {
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
                         TextBig(
-                            text = "${if (answer == correctChoice) "+" else "-"}${quiz.mark}",
+                            text = if (answer == correctChoice) "+${quiz.mark}" else "+0",
                             color = if (answer == correctChoice) Color.Green else MaterialTheme.colorScheme.error
                         )
 

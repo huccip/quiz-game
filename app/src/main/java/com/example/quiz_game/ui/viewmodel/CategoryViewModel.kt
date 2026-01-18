@@ -71,8 +71,6 @@ class CategoryViewModel() : ViewModel() {
 
     private suspend fun execute(block: suspend () -> Unit) {
         state.value = state.value.copy(executing = true)
-
-        delay(250L)
         block()
     }
 

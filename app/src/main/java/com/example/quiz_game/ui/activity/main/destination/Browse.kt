@@ -57,20 +57,17 @@ fun Browse(
                     .clickable(
                         enabled = true,
                         onClick = {
-                            category.name?.let {
-                                quizAction(QuizAction.GetByCategory(it))
-                                sharedAction(
-                                    SharedAction.Navigate(
-                                        MainDestination.Game(
-                                            quizzesUids = quizState.quizzes
-                                                .filter { quiz -> quiz.category == it }
-                                                .take(Constants.DEFAULT_QUIZ_SESSION_AMOUNT)
-                                                .map { it.uid }
-                                        ),
-                                        navController
-                                    )
+                            sharedAction(
+                                SharedAction.Navigate(
+                                    MainDestination.Game(
+                                        quizzesUids = quizState.quizzes
+                                            .filter { quiz -> quiz.category == category.name }
+                                            .take(Constants.DEFAULT_QUIZ_SESSION_AMOUNT)
+                                            .map { it.uid }
+                                    ),
+                                    navController
                                 )
-                            }
+                            )
                         }
                     )
             )

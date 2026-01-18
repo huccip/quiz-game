@@ -162,4 +162,8 @@
     <string name="guide_section_utilities">utilities</string>
     <string name="guide_section_coins">coins</string>
     <string name="guide_section_faq">faq</string>
+    <string name="language_restart_dialog_title">Please note</string>
+    <string name="language_restart_dialog_message">The application will restart to apply changes to the language</string>
+    <string name="language_restart_dialog_button_positive">Restart</string>
+    <string name="language_restart_dialog_button_negative">Cancel</string>
 </resources>
