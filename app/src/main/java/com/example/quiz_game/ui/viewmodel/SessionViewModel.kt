@@ -53,7 +53,7 @@ class SessionViewModel : ViewModel() {
                                 maxScore = action.maxScore,
                             )
                         ),
-                        onSuccess = { updateStateOnSuccess(data = it.fastFirstOrNull { it.expiredAt == null }) },
+                        onSuccess = { updateStateOnSuccess(data = it.fastFirstOrNull { session -> session.expiredAt == null }) },
                         onError = { updateStateOnError(it) }
                     )
                 }

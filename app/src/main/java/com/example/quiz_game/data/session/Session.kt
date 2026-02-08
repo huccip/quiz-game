@@ -27,7 +27,7 @@ data class Session(
                 .shuffled()
                 .fastJoinToString("")
                 .toByteArray(),
-            Base64.CRLF
+            Base64.NO_WRAP
         )
 
     @get:Ignore

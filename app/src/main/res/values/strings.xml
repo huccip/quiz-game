@@ -21,6 +21,7 @@
     <string name="home_button_browse">Browse all categories</string>
 
     <string name="loading_title">Hold on, loading your </string>
+    <string name="loading_title_variator_1">One sec...</string>
     <string-array name="home_loading_subjects">
         <item>quiz list</item>
         <item>trivia</item>

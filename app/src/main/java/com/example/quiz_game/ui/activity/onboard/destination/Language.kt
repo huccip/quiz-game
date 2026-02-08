@@ -98,12 +98,15 @@ fun Language(
                         ) == language
                     ) {
                         IconButton(
-                            painter = painterResource(R.drawable.ic_check),
+                            painter = painterResource(R.drawable.ic_pin),
                         )
                     }
                 },
                 modifier = Modifier.clickable(
-                    enabled = true,
+                    enabled = App.userPrefs.getString(
+                        "selectedLanguage",
+                        "selectedLanguage"
+                    ) != language,
                     onClick = {
                         showRestartWarning = true
                         selectedLanguage = language

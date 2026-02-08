@@ -27,6 +27,16 @@ fun Guide(
 
     var buttonClicked by rememberSaveable { mutableStateOf(false) }
 
+    // remove this LaunchedEffect when ready to integrate the Guide screen
+    LaunchedEffect(Unit) {
+        sharedAction(
+            SharedAction.StartActivity(
+                context,
+                MainActivity::class.java
+            )
+        )
+    }
+
     LaunchedEffect(buttonClicked) {
         if (App.userPrefs.contains(User.KEY_ONBOARDED)) {
             sharedAction(

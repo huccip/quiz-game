@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -17,10 +18,15 @@ import androidx.compose.ui.res.stringArrayResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.util.fastAll
+import androidx.compose.ui.util.fastFilter
+import androidx.compose.ui.util.fastMap
+import androidx.compose.ui.util.fastSumBy
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.example.quiz_game.App
 import com.example.quiz_game.R
+import com.example.quiz_game.data.session.Session
 import com.example.quiz_game.other.Constants
 import com.example.quiz_game.other.Utils
 import com.example.quiz_game.ui.activity.main.MainDestination
@@ -31,11 +37,14 @@ import com.example.quiz_game.ui.shared.component.IconButton
 import com.example.quiz_game.ui.shared.component.LoadingInfiniteLine
 import com.example.quiz_game.ui.shared.component.TextButton
 import com.example.quiz_game.ui.viewmodel.CategoryState
+import com.example.quiz_game.ui.viewmodel.QuizAction
 import com.example.quiz_game.ui.viewmodel.QuizState
 import com.example.quiz_game.ui.viewmodel.SessionAction
 import com.example.quiz_game.ui.viewmodel.SessionState
 import com.example.quiz_game.ui.viewmodel.SharedAction
 import com.example.quiz_game.ui.viewmodel.SharedState
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.tasks.await
 import java.util.Locale
 
@@ -46,15 +55,25 @@ fun Home(
     modifier: Modifier = Modifier,
     sharedState: SharedState = SharedState(),
     quizState: QuizState = QuizState(),
+    quizAction: (QuizAction) -> Unit = {},
     categoryState: CategoryState = CategoryState(),
     sharedAction: (SharedAction) -> Unit = {},
-    sessionState: SessionState = SessionState(),
+    sessionState: StateFlow<SessionState>? = null,
     sessionAction: (SessionAction) -> Unit = {},
     navController: NavController = rememberNavController()
 ) {
     var translated by remember { mutableStateOf("Undefined") }
     var selectedCountryCode by remember { mutableStateOf("Undefined") }
     var confirmationDialog by remember { mutableStateOf(false) }
+    var currentSession: Session? by remember { mutableStateOf(null) }
+
+    LaunchedEffect(Unit) {
+        if (sessionState == null) return@LaunchedEffect
+
+        sessionState.first { sessionState ->
+            !sessionState.executing && sessionState.session.uid.isNotEmpty() && sessionState.session.expiredAt == null
+        }.let { currentSession = it.session }
+    }
 
     LaunchedEffect(sharedState) {
         translated =
@@ -63,7 +82,7 @@ fun Home(
                     App.userPrefs.getString(
                         "selectedLanguage",
                         null
-                    )
+                    ) ?: "selectedLanguage"
                 ).displayLanguage
             )?.await()
                 ?: "English"
@@ -95,7 +114,7 @@ fun Home(
                 buttonConfirmText = R.string.dialog_discard_session_confirm_button,
                 buttonDismissText = R.string.dialog_discard_session_dissmiss_button,
                 onConfirm = {
-                    sessionAction(SessionAction.EndSession(sessionState.session.uid))
+                    currentSession?.let { sessionAction(SessionAction.EndSession(it.uid)) }
                     sharedAction(
                         SharedAction.Navigate(
                             MainDestination.Game(
@@ -122,7 +141,18 @@ fun Home(
             ) {
                 ButtonPrimary(
                     onClick = {
-                        if (sessionState.session.uid.isEmpty()) {
+                        if (currentSession == null) {
+                            val sessionQuizzes = quizState.quizzes.fastFilter { !it.expired }.take(
+                                Constants.DEFAULT_QUIZ_SESSION_AMOUNT
+                            )
+
+                            //Initiate a new session
+                            sessionAction(SessionAction.InitiateSession(
+                                quizzesUids = sessionQuizzes.fastMap { it.uid },
+                                maxScore = sessionQuizzes.fastSumBy { it.mark!! }
+                            ))
+
+                            // Navigate
                             sharedAction(
                                 SharedAction.Navigate(
                                     MainDestination.Game(
@@ -142,13 +172,14 @@ fun Home(
                     TextButton(text = stringResource(R.string.home_button_start))
                 }
 
-                if (sessionState.session.uid.isNotEmpty() && sessionState.session.expiredAt == null) {
+                if (currentSession != null) {
                     ButtonPrimary(
                         onClick = {
                             sharedAction(
                                 SharedAction.Navigate(
                                     MainDestination.Game(
-                                        quizzesUids = sessionState.session.quizzesUids ?: emptyList()
+                                        quizzesUids = currentSession!!.quizzesUids
+                                            ?: emptyList()
                                     ),
                                     navController
                                 )
@@ -161,7 +192,7 @@ fun Home(
             }
             ButtonSecondary(
                 onClick = {
-                    if (sessionState.session.uid.isEmpty()) {
+                    if (currentSession == null) {
                         sharedAction(
                             SharedAction.Navigate(
                                 MainDestination.Browse,
