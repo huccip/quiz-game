@@ -10,6 +10,6 @@ open class BaseActivity: ComponentActivity() {
     override fun attachBaseContext(newBase: Context) {
         val lang = Repository.getUser()?.language ?: "en"
         val context = LocaleHelper.wrap(newBase, lang)
-        super.attachBaseContext(if (Utils.hasInternet() && lang != "en") context else newBase)
+        super.attachBaseContext(if (lang != "en") context else newBase)
     }
 }

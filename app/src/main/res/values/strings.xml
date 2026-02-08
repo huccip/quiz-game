@@ -192,4 +192,7 @@
 
     <string name="generic_error_message">Something went wrong</string>
     <string name="generic_warning_message">Attention</string>
+    
+    <string name="connectivity_offline">You are offline</string>
+    <string name="connectivity_online">You\'re back online!</string>
 </resources>

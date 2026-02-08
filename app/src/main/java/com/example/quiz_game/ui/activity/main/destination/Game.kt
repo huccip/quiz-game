@@ -182,7 +182,7 @@ fun Game(
 fun QuizCard(
     modifier: Modifier = Modifier,
     quiz: Quiz = Quiz(),
-    choices: List<String> = emptyList<String>(),
+    choices: List<String> = emptyList(),
     correctChoice: String? = null,
     onAnswered: (String, Int) -> Unit = { str, int -> }, // send selected answer and its mark
 ) {

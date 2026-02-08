@@ -37,6 +37,19 @@ import com.example.quiz_game.ui.viewmodel.SessionAction
 import com.example.quiz_game.ui.viewmodel.SessionViewModel
 import com.example.quiz_game.ui.viewmodel.SharedViewModel
 import kotlinx.serialization.Serializable
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.SnackbarDuration
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
+import com.example.quiz_game.R
+import com.example.quiz_game.other.NetworkConnectivityObserver
+import com.example.quiz_game.other.Utils
+import com.example.quiz_game.ui.viewmodel.SharedAction
 import kotlin.getValue
 
 private const val TAG = "test1234 MainActivity"
@@ -61,18 +74,72 @@ class MainActivity : BaseActivity() {
             val sessionState by sessionViewModel.state.collectAsStateWithLifecycle()
             val onboardState by onboardViewModel.state.collectAsStateWithLifecycle()
 
-            LaunchedEffect(sharedState) {
-                categoryViewModel.onAction(
-                    CategoryAction.GetAll(sharedState.translator)
-                )
+            val context = LocalContext.current
+            val snackbarHostState = remember { SnackbarHostState() }
+            val connectivityObserver = remember { NetworkConnectivityObserver(context) }
+            val initialNetworkStatus = if (Utils.hasInternet()) NetworkConnectivityObserver.Status.Available else NetworkConnectivityObserver.Status.Unavailable
+            val networkStatus by connectivityObserver.observe().collectAsStateWithLifecycle(initialValue = initialNetworkStatus)
+            var isInitialStatus by rememberSaveable { mutableStateOf(true) }
 
-                quizViewModel.onAction(
-                    QuizAction.GetAll
-                )
+            val offlineMessage = stringResource(R.string.connectivity_offline)
+            val onlineMessage = stringResource(R.string.connectivity_online)
+
+            LaunchedEffect(networkStatus) {
+                if (isInitialStatus) {
+                    isInitialStatus = false
+                    if (networkStatus == NetworkConnectivityObserver.Status.Lost || networkStatus == NetworkConnectivityObserver.Status.Unavailable) {
+                        snackbarHostState.showSnackbar(
+                            offlineMessage,
+                            duration = SnackbarDuration.Indefinite
+                        )
+                    }
+                } else {
+                    if (networkStatus == NetworkConnectivityObserver.Status.Available) {
+                        snackbarHostState.currentSnackbarData?.dismiss()
+                        snackbarHostState.showSnackbar(onlineMessage)
+
+                        sharedViewModel.onAction(SharedAction.PrepareTranslator)
+
+                        if (categoryState.categories.isEmpty()) {
+                            categoryViewModel.onAction(
+                                CategoryAction.GetAll(sharedState.translator)
+                            )
+                        }
+
+                        if (quizState.quizzes.isEmpty()) {
+                            quizViewModel.onAction(
+                                QuizAction.GetAll
+                            )
+                        }
+                    } else if (networkStatus == NetworkConnectivityObserver.Status.Lost || networkStatus == NetworkConnectivityObserver.Status.Unavailable) {
+                        snackbarHostState.showSnackbar(
+                            offlineMessage,
+                            duration = SnackbarDuration.Indefinite,
+                            withDismissAction = true
+                        )
+                    }
+                }
+            }
+
+            LaunchedEffect(sharedState) {
+                if (categoryState.categories.isEmpty()) {
+                    categoryViewModel.onAction(
+                        CategoryAction.GetAll(sharedState.translator)
+                    )
+                }
+
+                if (quizState.quizzes.isEmpty()) {
+                    quizViewModel.onAction(
+                        QuizAction.GetAll
+                    )
+                }
             }
 
             QuizgameTheme {
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
+                Scaffold(
+                    modifier = Modifier.fillMaxSize(),
+                    snackbarHost = { SnackbarHost(snackbarHostState) }
+                ) { innerPadding ->
                     Box(
                         Modifier
                             .fillMaxSize()

@@ -193,4 +193,7 @@
     <string name="language_restart_dialog_button_negative">إلغاء</string>
 
     <string name="loading_title_variator_1">ثانية واحدة…</string>
+    
+    <string name="connectivity_offline">أنت غير متصل بالإنترنت</string>
+    <string name="connectivity_online">أنت متصل بالإنترنت الآن!</string>
 </resources>
