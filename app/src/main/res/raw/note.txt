@@ -1,0 +1,3 @@
+next up:
+1. fully integrate internalization
+2. redesigns

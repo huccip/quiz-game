@@ -53,7 +53,7 @@ class SessionViewModel : ViewModel() {
                                 maxScore = action.maxScore,
                             )
                         ),
-                        onSuccess = { updateStateOnSuccess(data = it.fastFirstOrNull { it.expiredAt == null }) },
+                        onSuccess = { updateStateOnSuccess(data = it.fastFirstOrNull { session -> session.expiredAt == null }) },
                         onError = { updateStateOnError(it) }
                     )
                 }
@@ -115,6 +115,11 @@ class SessionViewModel : ViewModel() {
                             }
                         )
                     }
+
+                    // Save achievements to the session state
+                    state.value = state.value.copy(
+                        session = state.value.session.copy(achievements = achievements)
+                    )
                 }
 
             }
@@ -123,8 +128,6 @@ class SessionViewModel : ViewModel() {
 
     private suspend fun execute(block: suspend () -> Unit) {
         state.value = state.value.copy(executing = true)
-
-        delay(500L)
         block()
     }
 

@@ -1,6 +1,5 @@
 package com.example.quiz_game.data.quiz
 
-import android.util.Log
 import androidx.compose.ui.util.fastMap
 import com.example.quiz_game.App
 import com.example.quiz_game.data.Repository
@@ -90,20 +89,24 @@ object QuizRepository {
                         },
                         onError = onError
                     )
-                } else if (data.size < amount / 2) {
+                    // Don't call onSuccess - wait for remote data
+                } else if (data.size < amount) {
+                    val remaining = amount - data.size
                     getRemote(
-                        amount = amount / 2,
+                        amount = remaining,
                         onSuccess = {
                             App.ioScope.launch {
                                 // ⚠ careful
                                 delay(1000L)
-                                get(amount / 2, onSuccess, onError)
+                                get(amount, onSuccess, onError)
                             }
                         },
                         onError = onError
                     )
+                    onSuccess(data)  // Have some data, call onSuccess
+                } else {
+                    onSuccess(data)  // Enough data, call onSuccess
                 }
-                onSuccess(data)
             },
             onFinish = {},
             onTimeout = onError
@@ -156,23 +159,27 @@ object QuizRepository {
                                         onError = onError
                                     )
                                 }
-                            } else if (data.size < amount / 2) {
+                                // Don't call onSuccess - wait for remote data
+                            } else if (data.size < amount) {
+                                val remaining = amount - data.size
                                 App.ioScope.launch {
                                     getRemote(
-                                        amount = amount / 2,
+                                        amount = remaining,
                                         category = category.id,
                                         onSuccess = {
                                             App.ioScope.launch {
                                                 // ⚠ careful
                                                 delay(1000L)
-                                                getByCategory(amount / 2, name, onSuccess, onError)
+                                                getByCategory(amount, name, onSuccess, onError)
                                             }
                                         },
                                         onError = onError
                                     )
                                 }
+                                onSuccess(data)  // Have some data
+                            } else {
+                                onSuccess(data)  // Enough data
                             }
-                            onSuccess(data)
                         } ?: onError(Exception("Category name was found null"))
                     },
                     onError = onError
@@ -188,10 +195,10 @@ object QuizRepository {
         onSuccess: (List<Quiz>) -> Unit,
         onError: (Throwable) -> Unit
     ) {
-        var data = emptyList<Quiz>()
         runWithTimeout(
-            block = { data = App.db.quizDao().getBySession(uids) },
-            onFinish = {
+            block = {
+                val data = App.db.quizDao().getBySession(uids)
+
                 if (data.isEmpty()) {
                     onError(Exception("One or more quizzes in uids $uids were not found"))
                     return@runWithTimeout
@@ -199,6 +206,7 @@ object QuizRepository {
 
                 onSuccess(data)
             },
+            onFinish = {},
             onTimeout = onError
         )
     }

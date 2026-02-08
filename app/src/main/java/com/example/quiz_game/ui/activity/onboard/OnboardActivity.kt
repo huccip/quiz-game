@@ -13,8 +13,10 @@ import androidx.compose.ui.Modifier
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.example.quiz_game.App
 import com.example.quiz_game.AppDestination
 import com.example.quiz_game.BaseActivity
+import com.example.quiz_game.data.user.User
 import com.example.quiz_game.ui.activity.onboard.destination.Form
 import com.example.quiz_game.ui.activity.onboard.destination.Guide
 import com.example.quiz_game.ui.activity.onboard.destination.Language
@@ -45,7 +47,11 @@ class OnboardActivity : BaseActivity() {
                     ) {
                         NavHost(
                             navController = navController,
-                            startDestination = OnboardDestination.Form
+                            startDestination = when {
+                                !App.userPrefs.contains(User.KEY_SELECTED_LANGUAGE) -> OnboardDestination.Language
+                                !App.userPrefs.contains(User.KEY_USERNAME) -> OnboardDestination.Form
+                                else -> OnboardDestination.Guide
+                            }
                         ) {
                             composable<OnboardDestination.Form> {
                                 Form(
@@ -65,7 +71,7 @@ class OnboardActivity : BaseActivity() {
                             composable<OnboardDestination.Language> {
                                 Language(
                                     sharedAction = sharedViewModel::onAction,
-                                    onboardAction = onboardViewModel::onAction
+                                    onboardAction = onboardViewModel::onAction,
                                 )
                             }
                         }

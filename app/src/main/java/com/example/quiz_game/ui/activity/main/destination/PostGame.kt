@@ -80,7 +80,7 @@ fun PostGame(
 
     LaunchedEffect(sessionState) {
         val target = if (maxScore > 0) {
-            (score.toFloat() / maxScore.toFloat()) * 360f
+            ((score.toFloat().coerceAtLeast(0f) / maxScore.toFloat()) * 360f).coerceIn(0f, 360f)
         } else {
             0f
         }
@@ -114,19 +114,20 @@ fun PostGame(
                     .align(Alignment.BottomCenter)
             ) {
                 val correctAngle = sweepAngle.value
-                val incorrectAngle = 360f - correctAngle
 
+                // Draw background (gray) arc first - full circle
                 drawArc(
                     color = Color.Gray,
-                    startAngle = correctAngle,
-                    sweepAngle = incorrectAngle,
+                    startAngle = -90f,
+                    sweepAngle = 360f,
                     useCenter = false,
                     style = Stroke(10f)
                 )
 
+                // Draw foreground (green) arc on top - representing correct score
                 drawArc(
                     color = Color.Green,
-                    startAngle = 90f,
+                    startAngle = -90f,
                     sweepAngle = correctAngle,
                     useCenter = false,
                     style = Stroke(10f)

@@ -32,6 +32,7 @@ import com.example.quiz_game.ui.viewmodel.CategoryAction
 import com.example.quiz_game.ui.viewmodel.CategoryViewModel
 import com.example.quiz_game.ui.viewmodel.QuizAction
 import com.example.quiz_game.ui.viewmodel.QuizViewModel
+import com.example.quiz_game.ui.viewmodel.SessionAction
 import com.example.quiz_game.ui.viewmodel.SessionViewModel
 import com.example.quiz_game.ui.viewmodel.SharedViewModel
 import kotlinx.serialization.Serializable
@@ -67,7 +68,7 @@ class MainActivity : BaseActivity() {
             }
 
             QuizgameTheme {
-                Scaffold(modifier = Modifier.Companion.fillMaxSize()) { innerPadding ->
+                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
                     Box(
                         Modifier
                             .fillMaxSize()
@@ -83,7 +84,7 @@ class MainActivity : BaseActivity() {
                                     sharedState = sharedState,
                                     quizState = quizState,
                                     categoryState = categoryState,
-                                    sessionState = sessionState,
+                                    sessionState = sessionViewModel.state,
                                     sharedAction = sharedViewModel::onAction,
                                     navController = navController,
                                     sessionAction = sessionViewModel::onAction
@@ -92,11 +93,11 @@ class MainActivity : BaseActivity() {
 
                             composable<MainDestination.Game> {
                                 Game(
-                                    quizState = quizState,
+                                    quizState = quizViewModel.state,
                                     quizzesUids = it.toRoute<MainDestination.Game>().quizzesUids,
                                     sharedAction = sharedViewModel::onAction,
                                     quizAction = quizViewModel::onAction,
-                                    sessionState = sessionState,
+                                    sessionState = sessionViewModel.state,
                                     sessionAction = sessionViewModel::onAction,
                                     navController = navController
                                 )
@@ -104,12 +105,15 @@ class MainActivity : BaseActivity() {
 
                             composable<MainDestination.Browse> {
                                 Browse(
+                                    quizState = quizState,
+                                    quizStateFlow = quizViewModel.state,
                                     sharedState = sharedState,
                                     categoryState = categoryState,
                                     sharedAction = sharedViewModel::onAction,
                                     navController = navController,
                                     quizAction = quizViewModel::onAction,
-                                    categoryAction = categoryViewModel::onAction
+                                    categoryAction = categoryViewModel::onAction,
+                                    sessionAction = sessionViewModel::onAction
                                 )
                             }
 

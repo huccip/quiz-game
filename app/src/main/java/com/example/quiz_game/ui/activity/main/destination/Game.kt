@@ -22,11 +22,13 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -34,14 +36,17 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.util.fastFilter
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.example.quiz_game.R
 import com.example.quiz_game.data.quiz.Quiz
+import com.example.quiz_game.data.session.Session
 import com.example.quiz_game.other.Constants
 import com.example.quiz_game.ui.activity.main.MainDestination
 import com.example.quiz_game.ui.shared.component.ButtonGameChoices
 import com.example.quiz_game.ui.shared.component.ButtonPrimary
+import com.example.quiz_game.ui.shared.component.LoadingFullScreenLowOpacityWithInfiniteSpinner
 import com.example.quiz_game.ui.shared.component.LoadingInfiniteLine
 import com.example.quiz_game.ui.shared.component.TextBig
 import com.example.quiz_game.ui.shared.component.TextButton
@@ -53,101 +58,119 @@ import com.example.quiz_game.ui.viewmodel.SessionAction
 import com.example.quiz_game.ui.viewmodel.SessionState
 import com.example.quiz_game.ui.viewmodel.SharedAction
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.launch
 
 private const val TAG = "test1234 Game"
-
-// TODO: update this screen
 
 @Composable
 fun Game(
     modifier: Modifier = Modifier,
-    quizzesUids: List<String> = emptyList(),
-    quizState: QuizState = QuizState(),
+    quizzesUids: List<String> = emptyList(), // FIXME: Probably won't need this anymore
+    quizState: StateFlow<QuizState>? = null,
     quizAction: (QuizAction) -> Unit = {},
     sharedAction: (SharedAction) -> Unit = {},
-    sessionState: SessionState = SessionState(),
+    sessionState: StateFlow<SessionState>? = null,
     sessionAction: (SessionAction) -> Unit = {},
     navController: NavController = rememberNavController(),
 ) {
-    val session = sessionState.session
-    val sessionQuizzes = quizState.sessionQuizzes
 
-    LaunchedEffect(Unit) {
-        if (session.uid.isEmpty() || session.expiredAt != null) {
-            sessionAction(
-                SessionAction.InitiateSession(
-                    quizzesUids = quizzesUids,
-                    maxScore = quizState.quizzes
-                        .filter { quizzesUids.contains(it.uid) }
-                        .sumOf { it.mark ?: 0 }
-                )
-            )
+    var currentSession: Session? by remember { mutableStateOf(null) }
+    var currentQuizzes: List<Quiz> by remember { mutableStateOf(emptyList()) }
+    var currentQuizState: QuizState? by remember { mutableStateOf(null) }
+    var currentErrors by remember { mutableStateOf(emptyList<String>()) }
+    var loading by rememberSaveable { mutableStateOf(false) }
+    val scope = rememberCoroutineScope()
+
+    DisposableEffect(Unit) {
+        if (quizState != null && sessionState != null) {
+            loading = true
+            scope.launch {
+                sessionState
+                    .first { session ->
+                        // Make sure the session created is not empty and not finished (expiredAt == null means active)
+                        session.session.uid.isNotEmpty() && session.session.expiredAt == null
+                    }.let { currentSession = it.session; quizAction(QuizAction.GetBySession(it.session.quizzesUids!!)) }
+
+                quizState
+                    .first { quizState ->
+                        // Make sure retrieval is done and current session quizzes are available
+                        println("test1234 ${!quizState.executing} && ${quizState.sessionQuizzes.isNotEmpty()}")
+                        (!quizState.executing) && quizState.sessionQuizzes.isNotEmpty()
+                    }.let { currentQuizzes = it.sessionQuizzes.fastFilter { quiz -> !quiz.expired }; currentQuizState = it; loading = false }
+            }
+        }
+
+        onDispose {
+            currentSession = null
+            currentQuizzes = emptyList()
+            currentQuizState = null
+            currentErrors = emptyList()
         }
     }
 
-    LaunchedEffect(session.quizzesUids) {
-        if (!session.quizzesUids.isNullOrEmpty()) {
-            quizAction(QuizAction.GetBySession(session.quizzesUids!!))
-        }
-    }
+    currentSession?.let { session ->
+        var quizIndex by rememberSaveable(session.uid) { mutableIntStateOf(0) }
+        var incorrectlyAnswered by rememberSaveable(session.uid) { mutableIntStateOf(0) }
 
-    var quizIndex by rememberSaveable(session.uid) { mutableIntStateOf(0) }
-    var incorrectlyAnswered by rememberSaveable(session.uid) { mutableIntStateOf(0) }
+        val quiz = currentQuizzes.getOrNull(quizIndex)
 
-    val quiz = sessionQuizzes.getOrNull(quizIndex)
-
-    Box(modifier = modifier.fillMaxSize()) {
-        when {
-            sessionState.executing || quizState.executing -> {
-                LoadingInfiniteLine(subject = arrayOf(stringResource(R.string.game_loading_subject)))
-            }
-
-            sessionQuizzes.isEmpty() -> {
-                TextSmol(text = "No available quizzes")
-            }
-
-            quiz != null -> {
-                val choices = remember(quiz.uid) {
-                    buildList {
-                        add(quiz.correctAnswer ?: "")
-                        addAll(quiz.incorrectAnswers.orEmpty())
-                        shuffle()
-                    }
+        Box(modifier = modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+            when {
+                loading -> {
+                    LoadingFullScreenLowOpacityWithInfiniteSpinner()
                 }
 
-                QuizCard(
-                    quiz = quiz,
-                    choices = choices,
-                    correctChoice = quiz.correctAnswer,
-                    onAnswered = { answer, mark ->
-                        if (answer != quiz.correctAnswer) {
-                            incorrectlyAnswered += 1
-                        }
+                currentQuizzes.isEmpty() -> {
+                    TextSmol(text = "No available quizzes")
+                }
 
-                        sessionAction(SessionAction.UpdateScore(session.uid, mark))
-                        quizAction(QuizAction.UpdateExpired(quiz.uid))
-
-                        if (quizIndex >= sessionQuizzes.lastIndex) {
-                            sessionAction(
-                                SessionAction.UpdateTrophies(
-                                    session.uid,
-                                    incorrectlyAnswered
-                                )
-                            )
-                            sessionAction(SessionAction.EndSession(session.uid))
-
-                            quizState.quizzes
-                                .filter { quizzesUids.contains(it.uid) && it.expired }
-                                .forEach { quizAction(QuizAction.DeleteByUid(it.uid)) }
-
-                            sharedAction(
-                                SharedAction.Navigate(MainDestination.PostGame, navController)
-                            )
-                        } else {
-                            quizIndex += 1
+                quiz != null -> {
+                    val choices = remember(quiz.uid) {
+                        buildList {
+                            add(quiz.correctAnswer ?: "")
+                            addAll(quiz.incorrectAnswers.orEmpty())
+                            shuffle()
                         }
                     }
-                )
+
+                    QuizCard(
+                        quiz = quiz,
+                        choices = choices,
+                        correctChoice = quiz.correctAnswer,
+                        onAnswered = { answer, mark ->
+                            if (answer != quiz.correctAnswer) {
+                                incorrectlyAnswered += 1
+                            }
+
+                            sessionAction(SessionAction.UpdateScore(session.uid, mark))
+                            quizAction(QuizAction.UpdateExpired(quiz.uid))
+
+                            if (quizIndex >= currentQuizzes.lastIndex) {
+                                sessionAction(
+                                    SessionAction.UpdateTrophies(
+                                        session.uid,
+                                        incorrectlyAnswered
+                                    )
+                                )
+                                sessionAction(SessionAction.EndSession(session.uid))
+
+//                                currentQuizState?.let {
+//                                    it.sessionQuizzes
+//                                        .filter { sessionQuiz -> quizzesUids.contains(sessionQuiz.uid) && sessionQuiz.expired }
+//                                        .forEach { sessionQuiz -> quizAction(QuizAction.DeleteByUid(sessionQuiz.uid)) }
+//                                }
+
+                                sharedAction(
+                                    SharedAction.Navigate(MainDestination.PostGame, navController)
+                                )
+                            } else {
+                                quizIndex += 1
+                            }
+                        }
+                    )
+                }
             }
         }
     }
@@ -161,36 +184,30 @@ fun QuizCard(
     correctChoice: String? = null,
     onAnswered: (String, Int) -> Unit = { str, int -> }, // send selected answer and its mark
 ) {
-    var answer by rememberSaveable { mutableStateOf("") }
-    var enabled by rememberSaveable { mutableStateOf(true) }
-    var answeredState by rememberSaveable { mutableStateOf(AnsweredState.IDLE) }
-
-    var timer by rememberSaveable { mutableIntStateOf(Constants.DEFAULT_QUIZ_TIMER) }
-
-    LaunchedEffect(quiz.uid) {
-        timer = Constants.DEFAULT_QUIZ_TIMER
-        enabled = true
-        answer = ""
-        answeredState = AnsweredState.IDLE
-    }
+    var answer by rememberSaveable(quiz.uid) { mutableStateOf("") }
+    var enabled by rememberSaveable(quiz.uid) { mutableStateOf(true) }
+    var answeredState by rememberSaveable(quiz.uid) { mutableStateOf(AnsweredState.IDLE) }
+    var timer by rememberSaveable(quiz.uid) { mutableIntStateOf(Constants.DEFAULT_QUIZ_TIMER) }
 
     LaunchedEffect(answeredState) {
         if (answeredState == AnsweredState.LOCKED) {
             delay(1500L)
-            onAnswered(answer, if (answer == correctChoice) +quiz.mark!! else -quiz.mark!!)
+            onAnswered(answer, if (answer == correctChoice) quiz.mark!! else 0)
         }
     }
 
-    LaunchedEffect(timer) {
-        if (answeredState != AnsweredState.LOCKED) {
-            if (timer > 0) {
-                delay(1000L)
+    // Stable timer implementation using a single coroutine
+    LaunchedEffect(quiz.uid) {
+        while (timer > 0 && answeredState != AnsweredState.LOCKED) {
+            delay(1000L)
+            if (answeredState != AnsweredState.LOCKED) {
                 timer -= 1
-            } else {
-                // same logic as if clicked "confirm"
-                enabled = false
-                answeredState = AnsweredState.LOCKED
             }
+        }
+        // Time ran out
+        if (timer <= 0 && answeredState != AnsweredState.LOCKED) {
+            enabled = false
+            answeredState = AnsweredState.LOCKED
         }
     }
 
@@ -274,7 +291,7 @@ fun QuizCard(
                 ) {
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
                         TextBig(
-                            text = "${if (answer == correctChoice) "+" else "-"}${quiz.mark}",
+                            text = if (answer == correctChoice) "+${quiz.mark}" else "+0",
                             color = if (answer == correctChoice) Color.Green else MaterialTheme.colorScheme.error
                         )
 

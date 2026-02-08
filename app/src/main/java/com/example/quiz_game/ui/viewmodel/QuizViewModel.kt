@@ -70,8 +70,6 @@ class QuizViewModel : ViewModel() {
 
     private suspend fun execute(block: suspend () -> Unit) {
         state.value = state.value.copy(executing = true)
-
-        delay(1000L)
         block()
     }
 

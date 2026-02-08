@@ -1,7 +1,8 @@
 package com.example.quiz_game.other
 
-import android.content.res.Configuration
 import android.text.Html
+import androidx.appcompat.app.AppCompatDelegate
+import androidx.core.os.LocaleListCompat
 import android.util.Log
 import com.example.quiz_game.App
 import com.example.quiz_game.R
@@ -103,14 +104,8 @@ object Utils {
     }
 
     fun updateAppLocale(language: String) {
-        val locale = Locale(language)
-        Locale.setDefault(locale)
-
-        val resources = App.instance.baseContext.resources
-        val config = Configuration(resources.configuration)
-        config.setLocale(locale)
-
-        resources.updateConfiguration(config, resources.displayMetrics) // ✅ force update
+        val localeList = LocaleListCompat.forLanguageTags(language)
+        AppCompatDelegate.setApplicationLocales(localeList)
     }
 
     fun stringDateFormat(date: Long): String {

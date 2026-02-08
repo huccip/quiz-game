@@ -30,7 +30,7 @@ data class Quiz(
             .shuffled()
             .fastJoinToString("")
             .toByteArray(),
-        Base64.CRLF
+        Base64.NO_WRAP
     )
 
     fun generateMark(): Int = when (difficulty) {
