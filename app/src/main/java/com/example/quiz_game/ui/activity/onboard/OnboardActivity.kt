@@ -8,14 +8,18 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.quiz_game.App
 import com.example.quiz_game.AppDestination
 import com.example.quiz_game.BaseActivity
+import com.example.quiz_game.data.Repository
 import com.example.quiz_game.data.user.User
 import com.example.quiz_game.ui.activity.onboard.destination.Form
 import com.example.quiz_game.ui.activity.onboard.destination.Guide
@@ -35,6 +39,9 @@ class OnboardActivity : BaseActivity() {
         enableEdgeToEdge()
         setContent {
 
+            val sharedState by sharedViewModel.state.collectAsStateWithLifecycle()
+            val onboardState by onboardViewModel.state.collectAsStateWithLifecycle()
+
             val navController = rememberNavController()
 
             QuizgameTheme {
@@ -48,8 +55,8 @@ class OnboardActivity : BaseActivity() {
                         NavHost(
                             navController = navController,
                             startDestination = when {
-                                !App.userPrefs.contains(User.KEY_SELECTED_LANGUAGE) -> OnboardDestination.Language
-                                !App.userPrefs.contains(User.KEY_USERNAME) -> OnboardDestination.Form
+                                onboardState.user.language == null -> OnboardDestination.Language
+                                onboardState.user.username == null -> OnboardDestination.Form
                                 else -> OnboardDestination.Guide
                             }
                         ) {
@@ -70,6 +77,9 @@ class OnboardActivity : BaseActivity() {
 
                             composable<OnboardDestination.Language> {
                                 Language(
+                                    onboardState = onboardState,
+                                    sharedState = sharedState,
+                                    navController = navController,
                                     sharedAction = sharedViewModel::onAction,
                                     onboardAction = onboardViewModel::onAction,
                                 )

@@ -1,33 +1,47 @@
 package com.example.quiz_game.ui.activity.onboard.destination
 
-import android.widget.Toast
-import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material3.HorizontalDivider
-import androidx.compose.material3.ListItem
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
-import androidx.core.content.edit
-import com.example.quiz_game.App
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
+import androidx.navigation.compose.rememberNavController
 import com.example.quiz_game.R
 import com.example.quiz_game.other.Constants
 import com.example.quiz_game.other.Utils
+import com.example.quiz_game.ui.activity.onboard.OnboardDestination
+import com.example.quiz_game.ui.shared.component.ButtonSecondary
+import com.example.quiz_game.ui.shared.component.CardSelectable
 import com.example.quiz_game.ui.shared.component.DialogYesOrNo
 import com.example.quiz_game.ui.shared.component.IconButton
+import com.example.quiz_game.ui.shared.component.LoadingInfiniteLine
 import com.example.quiz_game.ui.shared.component.TextBerySmol
+import com.example.quiz_game.ui.shared.component.TextSmol
 import com.example.quiz_game.ui.viewmodel.OnboardAction
+import com.example.quiz_game.ui.viewmodel.OnboardState
 import com.example.quiz_game.ui.viewmodel.SharedAction
-import com.google.mlkit.nl.translate.TranslateLanguage
-import java.util.Locale
+import com.example.quiz_game.ui.viewmodel.SharedState
 
 private const val TAG = "test1234 Language"
 
@@ -36,84 +50,144 @@ fun Language(
     modifier: Modifier = Modifier,
     onboardAction: (OnboardAction) -> Unit = {},
     sharedAction: (SharedAction) -> Unit = {},
+    onboardState: OnboardState = OnboardState(),
+    sharedState: SharedState = SharedState(),
+    navController: NavController = rememberNavController(),
+    fromOnboarding: Boolean = true
 ) {
-
     val context = LocalContext.current
+    var showHasNoWifiOnWarning by rememberSaveable { mutableStateOf(false) }
+    var showHasNoInternetConnectionWarning by rememberSaveable { mutableStateOf(false) }
+    var selectedLanguage by rememberSaveable { mutableStateOf("") }
+    // State to track if we initiated a language update locally
+    // This prevents the global "if language is set, navigate to form" check from hijacking the flow before we restart
+    var isUpdatingLanguage by rememberSaveable { mutableStateOf(false) }
 
-    var showRestartWarning by rememberSaveable { mutableStateOf(false) }
-    var selectedLanguage: String? by rememberSaveable { mutableStateOf(null) }
+    // Effect to handle successful language update
+    LaunchedEffect(onboardState.user.language) {
+        if (isUpdatingLanguage && onboardState.user.language == selectedLanguage) {
+             // Language saved successfully. Now prepare translator and restart.
+             sharedAction(SharedAction.PrepareTranslator)
+             sharedAction(SharedAction.Restart(context))
+             // Reset flag (though app will restart)
+             isUpdatingLanguage = false
+        }
+    }
 
-    val onLanguageSelect: (String) -> Unit = { language ->
-        App.userPrefs.edit {
-            putString(
-                "lastKnownLanguage",
-                App.userPrefs.getString(
-                    "selectedLanguage",
-                    TranslateLanguage.ENGLISH
-                )
-            )
-            putString("selectedLanguage", language)
-
-            commit()
+    when {
+        sharedState.executing || onboardState.executing -> {
+            LoadingInfiniteLine(subject = arrayOf(stringResource(R.string.onboard_form_loading_subject)))
         }
 
-        Utils.updateAppLocale(language)
-        sharedAction(SharedAction.Restart(context))
-    }
+        // Only navigate to Form if we are NOT in the middle of updating language
+        // and language is already set (e.g. user re-opened app)
+        // AND we are in the onboarding flow (not settings)
+        !onboardState.user.language.isNullOrEmpty() && !isUpdatingLanguage && fromOnboarding -> {
+            sharedAction(SharedAction.Navigate(OnboardDestination.Form, navController))
+        }
 
-    if (showRestartWarning) {
-        DialogYesOrNo(
-            title = R.string.language_restart_dialog_title,
-            text = R.string.language_restart_dialog_message,
-            onDismiss = { showRestartWarning = false },
-            onConfirm = {
-                showRestartWarning = false
-                selectedLanguage?.let { onLanguageSelect(it) } ?: Toast.makeText(context, "Something went wrong", Toast.LENGTH_SHORT).show()
-            },
-            buttonDismissText = R.string.language_restart_dialog_button_negative,
-            buttonConfirmText = R.string.language_restart_dialog_button_positive,
-        )
-    }
+        else -> {
+            when {
+                showHasNoWifiOnWarning -> {
+                    DialogYesOrNo(
+                        title = R.string.generic_warning_message,
+                        text = R.string.onboard_language_no_wifi_warning_message,
+                        buttonConfirmText = R.string.onboard_language_no_wifi_warning_positive_button,
+                        buttonDismissText = R.string.onboard_language_no_wifi_warning_negative_button,
+                        icon = R.drawable.ic_no_wifi,
+                        onConfirm = {
+                            isUpdatingLanguage = true
+                            onboardAction(OnboardAction.UpdateLanguage(language = selectedLanguage))
+                            // sharedAction(SharedAction.PrepareTranslator) // Move to Effect
+                            // sharedAction(SharedAction.Restart(context))  // Move to Effect
 
-    LazyColumn {
-        items(items = Constants.SUPPORTED_LANGUAGES, key = { it.hashCode() }) {
-            val (language, country, countryCode) = it
-            ListItem(
-                leadingContent = {
-                    IconButton(
-                        model = "https://flagsapi.com/$countryCode/shiny/64.png"
+                            showHasNoWifiOnWarning = false
+                        },
+                        onDismiss = { showHasNoWifiOnWarning = false }
                     )
-                },
-                headlineContent = {
-                    Column {
-                        Text(country)
-                        TextBerySmol(text = Locale(language, countryCode).displayLanguage)
-                        HorizontalDivider()
-                    }
-                },
-                trailingContent = {
-                    if (App.userPrefs.getString(
-                            "selectedLanguage",
-                            "selectedLanguage"
-                        ) == language
+                }
+
+                showHasNoInternetConnectionWarning -> {
+                    DialogYesOrNo(
+                        title = R.string.generic_warning_message,
+                        text = R.string.onboard_language_no_internet_warning_message,
+                        buttonConfirmText = R.string.onboard_language_no_internet_warning_positive_button,
+                        buttonDismissText = R.string.onboard_language_no_internet_warning_negative_button,
+                        icon = R.drawable.ic_no_internet,
+                        onConfirm = {
+                            isUpdatingLanguage = true
+                            onboardAction(OnboardAction.UpdateLanguage(language = selectedLanguage))
+
+                            showHasNoInternetConnectionWarning = false
+                        },
+                        onDismiss = { showHasNoInternetConnectionWarning = false }
+                    )
+                }
+
+                else -> {
+                    LazyColumn(
+                        verticalArrangement = Arrangement.spacedBy(10.dp),
+                        contentPadding = PaddingValues(10.dp),
                     ) {
-                        IconButton(
-                            painter = painterResource(R.drawable.ic_pin),
-                        )
+                        item {
+                            Box(Modifier.fillMaxWidth(), contentAlignment = Alignment.CenterEnd) {
+                                ButtonSecondary(
+                                    enabled = selectedLanguage.isNotEmpty(),
+                                    onClick = {
+                                        if (!Utils.hasInternet()) {
+                                            showHasNoInternetConnectionWarning = true
+                                        } else if (!Utils.hasWifiOn()) {
+                                            showHasNoWifiOnWarning = true
+                                        } else {
+                                            isUpdatingLanguage = true
+                                            onboardAction(OnboardAction.UpdateLanguage(language = selectedLanguage))
+                                            // sharedAction(SharedAction.PrepareTranslator) // Move to Effect
+                                            // sharedAction(SharedAction.Restart(context))  // Move to Effect
+                                        }
+                                    }
+                                ) {
+                                    Text(text = stringResource(R.string.onboard_language_next_button))
+                                    IconButton(
+                                        painter = painterResource(R.drawable.ic_arrow_forward),
+                                    )
+                                }
+                            }
+                        }
+                        items(items = Constants.SUPPORTED_LANGUAGES, key = { it.hashCode() }) {
+                            val (language, country, countryCode) = it
+                            CardSelectable(
+                                selected = selectedLanguage == language,
+                                onSelect = {
+                                    selectedLanguage = language
+                                },
+                                content = { modifier ->
+                                    Row(
+                                        verticalAlignment = Alignment.CenterVertically,
+                                        modifier = modifier
+                                    ) {
+                                        IconButton(
+                                            model = Utils.countryFlag(countryCode = countryCode)
+                                        )
+                                        Spacer(modifier = Modifier.width(8.dp))
+                                        Column(modifier = Modifier.weight(1f)) {
+                                            TextSmol(
+                                                text = country.split(" ").first(),
+                                                color = MaterialTheme.colorScheme.onSurface
+                                            )
+                                            TextBerySmol(text = country.split(" ").last())
+                                        }
+                                        if (selectedLanguage == language) {
+                                            IconButton(
+                                                painter = painterResource(R.drawable.ic_pin),
+                                            )
+                                        }
+                                    }
+                                }
+                            )
+                        }
                     }
-                },
-                modifier = Modifier.clickable(
-                    enabled = App.userPrefs.getString(
-                        "selectedLanguage",
-                        "selectedLanguage"
-                    ) != language,
-                    onClick = {
-                        showRestartWarning = true
-                        selectedLanguage = language
-                    }
-                )
-            )
+                }
+            }
         }
     }
-
 }

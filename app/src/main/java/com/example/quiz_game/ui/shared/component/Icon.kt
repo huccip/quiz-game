@@ -6,7 +6,9 @@ import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalDensity
@@ -21,12 +23,14 @@ fun IconButton(
     model: Any? = null,
     contentDescription: String? = null,
     style: TextStyle = LocalTextStyle.current,
+    tint: Color = MaterialTheme.colorScheme.onSurface
 ) {
     val iconSize = with(LocalDensity.current) { style.fontSize.toDp() }
 
     painter?.let {
         Icon(
             painter = it,
+            tint = tint,
             contentDescription = contentDescription,
             modifier = modifier.size(iconSize)
         )
@@ -35,6 +39,7 @@ fun IconButton(
     imageVector?.let {
         Icon(
             imageVector = it,
+            tint = tint,
             contentDescription = contentDescription,
             modifier = modifier.size(iconSize)
         )

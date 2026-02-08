@@ -1,3 +1,7 @@
 next up:
-1. fully integrate internalization
-2. redesigns
+. Investigate why some categories are in Browse.kt don't get loaded from api
+. fully integrate internalization
+. handle backpresses in all screens
+. answer buttons in Game.kt need coloring
+. carefully pull the Home.kt redesign from origin/enhancement/localization into master
+. PostGame.kt screen need a lot of work

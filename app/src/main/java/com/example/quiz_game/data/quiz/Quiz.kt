@@ -14,6 +14,7 @@ data class Quiz(
     var type: String? = null,
     var difficulty: String? = null,
     var category: String? = null,
+    var categoryUid: String? = null,
     var question: String? = null,
     @SerializedName("correct_answer")
     var correctAnswer: String? = null,
@@ -23,12 +24,7 @@ data class Quiz(
     var expired: Boolean = false, // TODO: update to expiredAt: Long for better a achievement system
 ) {
     fun generateUid(): String = Base64.encodeToString(
-        (type + difficulty + category + question + correctAnswer + incorrectAnswers?.fastJoinToString(
-            ""
-        ) + UUID.randomUUID().mostSignificantBits)
-            .split("")
-            .shuffled()
-            .fastJoinToString("")
+        ("${category ?: ""}${question ?: ""}${correctAnswer ?: ""}")
             .toByteArray(),
         Base64.NO_WRAP
     )

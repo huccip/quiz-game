@@ -209,7 +209,7 @@ fun ButtonGameChoices(
 ) {
     val interactionSource = remember { MutableInteractionSource() }
 
-    var contentColor = when {
+    val contentColor = when {
         !enabled && answeredState == AnsweredState.PICKED -> MaterialTheme.colorScheme.primary
         !enabled && isCorrectChoice -> Color.Green
         !enabled && !isCorrectChoice -> MaterialTheme.colorScheme.error

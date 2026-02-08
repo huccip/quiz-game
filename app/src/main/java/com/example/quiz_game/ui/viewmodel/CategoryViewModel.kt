@@ -59,8 +59,8 @@ class CategoryViewModel() : ViewModel() {
                 }
 
                 is CategoryAction.GetByUid -> execute {
-                    Repository.categoryRepository.getByName(
-                        name = action.uid,
+                    Repository.categoryRepository.getByUid(
+                        uid = action.uid,
                         onSuccess = { updateStateOnSuccess(data = it) },
                         onError = { updateStateOnError(it) }
                     )

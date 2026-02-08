@@ -1,0 +1,196 @@
+<resources>
+    <string name="app_name">لعبة مسابقة</string>
+
+    <string name="textfield_placeholder_default">اكتب هنا…</string>
+    <string name="textfield_label_default" />
+
+    <string name="onboard_form_loading_subject">إعدادات اللغة</string>
+    <string name="onboard_form_greet">مرحباً %s،</string>
+    <string name="onboard_form_question">هل أنت مستعد لمغامرة لا تُنسى؟</string>
+    <string name="onboard_form_submit">نعم، أنا مستعد</string>
+    <string name="onboard_form_error_translator">حدث خطأ أثناء إعداد لغتك</string>
+    <string name="onboard_form_error_button">إعادة المحاولة</string>
+
+    <string name="onboard_name_label">الاسم المستعار</string>
+    <string name="onboard_name_placeholder">ماذا يجب أن نسميك</string>
+    <string name="onboard_name_textfield_max_characters">يجب أن يكون الاسم المستعار أقل من 10 أحرف</string>
+    <string name="onboard_name_textfield_min_characters">يجب أن يكون الاسم المستعار 4 أحرف على الأقل</string>
+    <string name="onboard_name_textfield_unallowed_characters">يمكن أن يحتوي الاسم المستعار على أحرف وأرقام فقط</string>
+    <string name="onboard_avatar_label">الصورة الرمزية</string>
+    <string name="onboard_avatar_hint">اختر أسطورة بطلك ودعنا نبدأ الطحن 🔥</string>
+    <string name="onboard_button_letsgo">هيا بنا!</string>
+
+    <string name="onboard_language_next_button">تعريف الهوية</string>
+    <string name="onboard_language_no_internet_warning_positive_button">نعم، تابع</string>
+    <string name="onboard_language_no_internet_warning_negative_button">إلغاء</string>
+    <string name="onboard_language_no_wifi_warning_positive_button">نعم، استخدم بيانات الجوال</string>
+    <string name="onboard_language_no_wifi_warning_negative_button">لا</string>
+
+    <string name="onboard_language_no_internet_warning_message">لا يوجد اتصال بالإنترنت. يرجى الاتصال بالإنترنت لإعداد اللغة.</string>
+    <string name="onboard_language_no_wifi_warning_message">أنت غير متصل بشبكة الواي فاي. هل تريد المتابعة باستخدام بيانات الجوال؟"</string>
+
+    <string name="main_game_answer_state_idle">في انتظار…</string>
+    <string name="main_game_answer_state_picked">تأكيد الإجابة</string>
+    <string name="main_game_answer_state_locked">السؤال التالي</string>
+
+    <string name="home_button_start">ابدأ</string>
+    <string name="home_button_resume">استئناف</string>
+    <string name="home_button_browse">تصفح جميع الفئات</string>
+    <string name="home_greeting_subtitle">سعيد لرؤيتك!</string>
+    <string name="home_featured_title">مميز</string>
+    <string name="home_featured_subtitle">شاهد المزيد</string>
+    <string name="home_quote_label">حكمة اليوم</string>
+    <string name="home_quote_not_found">"يتعذر ايجاد حكمة لليوم. يرجى المحاولة لاحقًا!"</string>
+
+    <string name="loading_title">انتظر، جارٍ تحميل </string>
+    <string-array name="home_loading_subjects">
+        <item>قائمة الاختبارات</item>
+        <item>معلومات عامة</item>
+        <item>أوقات ممتعة</item>
+        <item>رحلة التعلم</item>
+        <item>عالم ذكي</item>
+        <item>حقيبة المعرفة</item>
+        <item>ورقة امتحان مفاجئة 😈</item>
+        <item>GG, EZ!</item>
+        <item>الإنجازات</item>
+    </string-array>
+    <string name="game_loading_subject">اختبارات</string>
+
+    <string name="home_title">هيا بنا!</string>
+    <string name="home_subtitle">يجب أن يكون أحد الأزرار كافياً لتبدأ</string>
+
+    <string name="avatar_wind">ويندي</string>
+    <string name="avatar_fire">فتى النار</string>
+    <string name="avatar_rock">الصخرة</string>
+    <string name="avatar_water">فتاة الماء</string>
+
+    <string name="guide_button_finish">فهمت!</string>
+
+    <string name="achievements_new_record">رقم قياسي جديد!!</string>
+    <string name="achievements_no_mistakes">العبقري</string>
+    <string name="achievements_one_mistake">الناس يخطئون، وهذا أمر طبيعي</string>
+    <string name="achievements_two_mistakes">خدعتني مرة عار عليك، خدعتني مرتين عار علي</string>
+    <string name="achievements_ten_mistakes">لا تستسلم الآن، يمكنك فعلها</string>
+    <string name="achievements_twenty_mistakes">نعم… حظاً أوفر في المرة القادمة</string>
+    <string name="achievements_empty" />
+
+    <string name="achievements_detailed_new_record">لقد حطمت أفضل رقم قياسي سابق لك! تفتح هذه البطاقة عندما تسجل رقماً قياسياً شخصياً جديداً.</string>
+    <string name="achievements_detailed_no_mistakes">انتصار بلا عيوب! تُمنح هذه البطاقة لإكمال التحدي بأكمله دون خطأ واحد.</string>
+    <string name="achievements_detailed_one_mistake">مجرد عثرة واحدة، لكن الكمال كان في متناول اليد. تُمنح لإكمال اللعبة بخطأ واحد فقط.</string>
+    <string name="achievements_detailed_two_mistakes">تشغيل شبه مثالي - تعثرت مرتين، لكنك لا تزال واقفاً بقوة. تُظهر هذه البطاقة مرونتك بخطأين فقط.</string>
+    <string name="achievements_detailed_ten_mistakes">يتعثر الجميع بين الحين والآخر. يعكس هذا الإنجاز إصرارك، حتى بعد عشرة أخطاء.</string>
+    <string name="achievements_detailed_twenty_mistakes">لقد مررنا جميعاً بأيام صعبة. هذه الشارة تذكير بأن السقوط عشرين مرة هو مجرد عشرين فرصة للنهوض.</string>
+
+    <string name="achievement_timelapse_quick_thinker">مفكر سريع</string>
+    <string name="achievement_timelapse_detailed_quick_thinker">أكملت اختباراً في أقل من دقيقة! سرعة وذكاء مجتمعان!</string>
+
+    <string name="achievement_timelapse_casual_cruiser">متجول عادي</string>
+    <string name="achievement_timelapse_detailed_casual_cruiser">قضيت أكثر من 5 دقائق في جلسة اختبار واحدة. أنت لست في عجلة من أمرك - ذكي وثابت!</string>
+
+    <string name="achievement_timelapse_steady_strategist">استراتيجي ثابت</string>
+    <string name="achievement_timelapse_detailed_steady_strategist">لعبت جلسة اختبار تستغرق أكثر من 10 دقائق. هذا تفكير عميق!</string>
+
+    <string name="achievement_timelapse_brain_marathoner">عداء الدماغ</string>
+    <string name="achievement_timelapse_detailed_brain_marathoner">بقيت نشطاً في اختبار واحد لأكثر من 20 دقيقة. يجب أن يكون دماغك يتعرق!</string>
+
+    <string name="achievement_timelapse_quiz_zen_master">خبير زين الاختبارات</string>
+    <string name="achievement_timelapse_detailed_quiz_zen_master">لقد حللت الاختبارات بهدوء لأكثر من 30 دقيقة دفعة واحدة. السلام العقلي يلتقي بالأداء.</string>
+
+    <string name="achievement_timelapse_time_bender">ثني الوقت</string>
+    <string name="achievement_timelapse_detailed_time_bender">أكثر من 45 دقيقة في جلسة اختبار؟ هل تقوم بتحويل الوقت أم أنك منغمس جداً؟</string>
+
+    <string name="achievement_timelapse_eternal_quizzer">مختبر أبدي</string>
+    <string name="achievement_timelapse_detailed_eternal_quizzer">مرت ساعة وما زلت قوياً. هذا هو التفاني في الاختبارات في أبهى صوره!</string>
+
+    <string name="dialog_discard_session_confirm_button">نعم. ابدأ جلسة جديدة</string>
+    <string name="dialog_discard_session_dissmiss_button">لا</string>
+    <string name="dialog_discard_session_title">تحذير</string>
+    <string name="dialog_discard_session_text">هل أنت متأكد أنك تريد بدء جلسة جديدة؟ سيتم تجاهل الجلسة السابقة</string>
+
+    <string name="postgame_button_navigate_home">إعادة التشغيل</string>
+
+    <!-- Guide Screen -->
+    <string name="guide_welcome_title">مرحباً بك في لعبة الاختبار!</string>
+    <string name="guide_welcome_subtitle">دعنا نتعلم كيف نلعب ونستمتع!</string>
+
+    <string name="guide_how_to_play">كيف تلعب</string>
+    <string name="guide_tutorial_title">كيف تلعب لعبة الاختبار</string>
+
+    <string name="guide_step_1_title">اختر فئة</string>
+    <string name="guide_step_1_desc">اضغط على فئة ممتعة تثير اهتمامك!</string>
+
+    <string name="guide_step_2_title">أجب عن الأسئلة</string>
+    <string name="guide_step_2_desc">اقرأ كل سؤال بعناية واختر الإجابة الصحيحة قبل نفاد الوقت!</string>
+
+    <string name="guide_step_3_title">اكسب النقاط</string>
+    <string name="guide_step_3_desc">احصل على نقاط للإجابات الصحيحة. كلما أسرعت في الإجابة، زادت النقاط التي تحصل عليها!</string>
+
+    <string name="guide_step_4_title">اربح الجوائز</string>
+    <string name="guide_step_4_desc">اجمع الجوائز لإكمال الاختبارات بدرجات عالية!</string>
+
+    <string name="guide_utility_cards">بطاقات المساعدة</string>
+
+    <string name="guide_utility_time_booster">معزز الوقت</string>
+    <string name="guide_utility_time_booster_desc">يمنحك وقتاً إضافياً للإجابة على الأسئلة</string>
+
+    <string name="guide_utility_hint_card">بطاقة تلميح</string>
+    <string name="guide_utility_hint_card_desc">يزيل إجابة خاطئة واحدة من الخيارات</string>
+    <string name="guide_utility_double_points">نقاط مضاعفة</string>
+    <string name="guide_utility_double_points_desc">يضاعف النقاط التي تكسبها للإجابة الصحيحة</string>
+
+    <string name="guide_utility_second_chance">فرصة ثانية</string>
+    <string name="guide_utility_second_chance_desc">يسمح لك بإعادة محاولة السؤال إذا أخطأت فيه</string>
+
+    <string name="guide_coins_shop">العملات والمتجر</string>
+
+    <string name="guide_earn_coins">اكسب العملات عن طريق:</string>
+    <string name="guide_earn_coins_1">الإجابة على الأسئلة بشكل صحيح</string>
+    <string name="guide_earn_coins_2">إكمال الاختبارات</string>
+    <string name="guide_earn_coins_3">كسب الجوائز</string>
+    <string name="guide_earn_coins_4">مكافآت تسجيل الدخول اليومية</string>
+
+    <string name="guide_use_coins">استخدم العملات من أجل:</string>
+    <string name="guide_use_coins_1">شراء بطاقات المساعدة من المتجر</string>
+    <string name="guide_use_coins_2">فتح فئات خاصة</string>
+    <string name="guide_use_coins_3">المقايضة بالجوائز</string>
+
+    <string name="guide_trading_title">مقايضة البطاقات بالعملات</string>
+    <string name="guide_trading_desc">إذا كان لديك بطاقات مساعدة إضافية، يمكنك مقايضتها بالعملات في المتجر! ما عليك سوى النقر على البطاقة في مخزونك واختيار \'مقايضة\'.</string>
+
+    <string name="guide_faq">الأسئلة المتكررة</string>
+
+    <string name="guide_faq_1_q">كيف أغير اللغة؟</string>
+    <string name="guide_faq_1_a">يمكنك تغيير اللغة بالذهاب إلى الإعدادات واختيار لغتك المفضلة من القائمة.</string>
+
+    <string name="guide_faq_2_q">ماذا يحدث إذا نفد الوقت؟</string>
+    <string name="guide_faq_2_a">إذا نفد الوقت قبل الإجابة على سؤال، فسيتم وضع علامة عليه كإجابة خاطئة وستنتقل إلى السؤال التالي.</string>
+
+    <string name="guide_faq_3_q">هل يمكنني اللعب بدون إنترنت؟</string>
+    <string name="guide_faq_3_a">نعم! بعض الاختبارات متاحة دون اتصال بالإنترنت. ابحث عن رمز عدم الاتصال بجانب فئة الاختبار.</string>
+
+    <string name="guide_faq_4_q">كيف أكسب الجوائز؟</string>
+    <string name="guide_faq_4_a">تُكسب الجوائز بإكمال الاختبارات بدرجات عالية. كلما زاد عدد الأسئلة التي تجيب عليها بشكل صحيح، زادت الجائزة التي ستحصل عليها!</string>
+
+    <string name="guide_faq_5_q">هل يمكنني إنشاء اختباراتي الخاصة؟</string>
+    <string name="guide_faq_5_a">ليس بعد، لكننا نعمل على إضافة هذه الميزة في تحديث مستقبلي!</string>
+
+    <string name="guide_start_button">دعنا نبدأ اللعب!</string>
+    <string name="guide_explore_message">يرجى استكشاف جميع الأقسام قبل المتابعة</string>
+
+    <!-- Section names for tracking -->
+    <string name="guide_section_welcome">welcome</string>
+    <string name="guide_section_how_to_play">howToPlay</string>
+    <string name="guide_section_utilities">utilities</string>
+    <string name="guide_section_coins">coins</string>
+    <string name="guide_section_faq">faq</string>
+
+    <string name="generic_error_message">حدث خطأ ما</string>
+    <string name="generic_warning_message">انتباه</string>
+
+    <string name="language_restart_dialog_title">انتبه من فضلك</string>
+    <string name="language_restart_dialog_message">سيتم إعادة تشغيل التطبيق لتطبيق تغييرات اللغة</string>
+    <string name="language_restart_dialog_button_positive">إعادة تشغيل</string>
+    <string name="language_restart_dialog_button_negative">إلغاء</string>
+
+    <string name="loading_title_variator_1">ثانية واحدة…</string>
+</resources>

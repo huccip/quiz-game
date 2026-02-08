@@ -1,6 +1,5 @@
 package com.example.quiz_game.ui.activity.main.destination
 
-import android.widget.Toast
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Column
@@ -24,9 +23,9 @@ import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.example.quiz_game.data.category.Category
 import com.example.quiz_game.other.Constants
-import com.example.quiz_game.ui.shared.effect.scaleDownOnPress
 import com.example.quiz_game.ui.activity.main.MainDestination
 import com.example.quiz_game.ui.shared.component.LoadingFullScreenLowOpacityWithInfiniteSpinner
+import com.example.quiz_game.ui.shared.effect.scaleDownOnPress
 import com.example.quiz_game.ui.viewmodel.CategoryAction
 import com.example.quiz_game.ui.viewmodel.CategoryState
 import com.example.quiz_game.ui.viewmodel.QuizAction
@@ -60,19 +59,21 @@ fun Browse(
         if (quizStateFlow == null) return@LaunchedEffect
 
         loading = true
-        quizAction(QuizAction.GetByCategory(category = selectedCategory!!.name!!))
-        
+        quizAction(QuizAction.GetByCategory(categoryUid = selectedCategory!!.uid))
+
         // Collect the flow and wait for quizzes to be available
         quizStateFlow
             .first { state ->
-                val quizzesForCategory = state.quizzes.fastFilter { it.category == selectedCategory!!.name }
+                val quizzesForCategory =
+                    state.quizzes.fastFilter { it.category == selectedCategory!!.name }
                 // Wait until not executing AND we have the desired amount of quizzes for this category (check Constants.kt)
                 !state.executing && quizzesForCategory.count() == Constants.DEFAULT_QUIZ_AMOUNT
             }
             .let { state ->
-                val quizzesForCategory = state.quizzes.fastFilter { it.category == selectedCategory!!.name && !it.expired }
+                val quizzesForCategory =
+                    state.quizzes.fastFilter { it.category == selectedCategory!!.name && !it.expired }
                 val sessionQuizzes = quizzesForCategory.take(Constants.DEFAULT_QUIZ_SESSION_AMOUNT)
-                
+
                 loading = false
 
                 // Initiate the session with only the session quizzes

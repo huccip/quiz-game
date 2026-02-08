@@ -5,6 +5,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
@@ -19,13 +20,14 @@ fun TextFancy(
     color: Color = MaterialTheme.colorScheme.onSurface,
     textAlign: TextAlign = TextAlign.Start,
     fontWeight: FontWeight = FontWeight.Normal,
+    style: TextStyle = MaterialTheme.typography.headlineMedium
 ) {
     Text(
         modifier = modifier,
         textAlign = textAlign,
         text = text,
         color = color,
-        style = MaterialTheme.typography.headlineMedium,
+        style = style,
         fontWeight = fontWeight,
         fontFamily = FontFamily(Font(R.font.fancy))
     )
@@ -36,7 +38,8 @@ fun TextBig(
     modifier: Modifier = Modifier,
     text: String,
     color: Color = MaterialTheme.colorScheme.onSurface,
-    textAlign: TextAlign = TextAlign.Start
+    textAlign: TextAlign = TextAlign.Start,
+    fontWeight: FontWeight = FontWeight.Normal,
 ) {
     Text(
         modifier = modifier,
@@ -44,7 +47,27 @@ fun TextBig(
         textAlign = textAlign,
         color = color,
         style = MaterialTheme.typography.titleLarge,
-        fontFamily = FontFamily(Font(R.font.regular))
+        fontFamily = FontFamily(Font(R.font.regular)),
+        fontWeight = fontWeight
+    )
+}
+
+@Composable
+fun TextRegular(
+    modifier: Modifier = Modifier,
+    text: String,
+    color: Color = MaterialTheme.colorScheme.onSurface,
+    textAlign: TextAlign = TextAlign.Start,
+    fontWeight: FontWeight = FontWeight.Normal,
+) {
+    Text(
+        modifier = modifier,
+        text = text,
+        textAlign = textAlign,
+        color = color,
+        style = MaterialTheme.typography.bodyLarge,
+        fontFamily = FontFamily(Font(R.font.regular)),
+        fontWeight = fontWeight
     )
 }
 
@@ -70,7 +93,8 @@ fun TextBerySmol(
     modifier: Modifier = Modifier,
     text: String,
     color: Color = MaterialTheme.colorScheme.outline,
-    textAlign: TextAlign = TextAlign.Start
+    textAlign: TextAlign = TextAlign.Start,
+    fontWeight: FontWeight = FontWeight.Normal
 ) {
     Text(
         modifier = modifier,
@@ -78,7 +102,8 @@ fun TextBerySmol(
         color = color,
         textAlign = textAlign,
         style = MaterialTheme.typography.titleSmall,
-        fontFamily = FontFamily(Font(R.font.regular))
+        fontFamily = FontFamily(Font(R.font.regular)),
+        fontWeight = fontWeight
     )
 }
 
@@ -87,14 +112,16 @@ fun TextButton(
     modifier: Modifier = Modifier,
     text: String,
     textDecoration: TextDecoration? = TextDecoration.None,
-    textAlign: TextAlign = TextAlign.Start
+    textAlign: TextAlign = TextAlign.Start,
+    fontWeight: FontWeight = FontWeight.Normal
 ) {
     Text(
         modifier = modifier,
         text = text,
         textAlign = textAlign,
         fontFamily = FontFamily(Font(R.font.regular)),
+        fontWeight = fontWeight,
         textDecoration = textDecoration,
-        style = MaterialTheme.typography.labelLarge
+        style = MaterialTheme.typography.labelLarge,
     )
 }

@@ -8,6 +8,7 @@ import com.example.quiz_game.App
 import com.example.quiz_game.R
 import com.example.quiz_game.data.Repository
 import com.example.quiz_game.data.session.Session
+import kotlinx.coroutines.async
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch

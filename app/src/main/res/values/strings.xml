@@ -4,9 +4,13 @@
     <string name="textfield_placeholder_default">Type here…</string>
     <string name="textfield_label_default" />
 
+    <string name="onboard_form_loading_subject">Setting up your language</string>
     <string name="onboard_form_greet">Hey %s,</string>
     <string name="onboard_form_question">Are you ready for an unforgettable adventure?</string>
     <string name="onboard_form_submit">Yes, I am ready</string>
+    <string name="onboard_form_error_translator">There was an error setting up your language</string>
+    <string name="onboard_form_error_button">Retry</string>
+
     <string name="onboard_name_label">Nickname</string>
     <string name="onboard_name_placeholder">What should we call you</string>
     <string name="onboard_name_textfield_max_characters">Nickname must be less than 10 characters</string>
@@ -16,9 +20,27 @@
     <string name="onboard_avatar_hint">Pick your hero legend and let\'s begin the grind 🔥</string>
     <string name="onboard_button_letsgo">Let\'s go!</string>
 
+    <string name="onboard_language_next_button">Form</string>
+    <string name="onboard_language_no_internet_warning_positive_button">Yes, continue</string>
+    <string name="onboard_language_no_internet_warning_negative_button">Cancel</string>
+    <string name="onboard_language_no_wifi_warning_positive_button">Yes, use mobile data</string>
+    <string name="onboard_language_no_wifi_warning_negative_button">No</string>
+
+    <string name="onboard_language_no_internet_warning_message">No internet connection. Do you wish to continue without setting up your preferred language.</string>
+    <string name="onboard_language_no_wifi_warning_message">You\'re not connected to Wi-Fi. Do you want to continue using mobile data?</string>
+
+    <string name="main_game_answer_state_idle">Waiting…</string>
+    <string name="main_game_answer_state_picked">Confirm answer</string>
+    <string name="main_game_answer_state_locked">Next question</string>
+
     <string name="home_button_start">Start</string>
     <string name="home_button_resume">Resume</string>
     <string name="home_button_browse">Browse all categories</string>
+    <string name="home_greeting_subtitle">Good to see you!</string>
+    <string name="home_featured_title">Featured</string>
+    <string name="home_featured_subtitle">See more</string>
+    <string name="home_quote_label">Today\'s wisdom</string>
+    <string name="home_quote_not_found">"No quote available today. Check back later!"</string>
 
     <string name="loading_title">Hold on, loading your </string>
     <string name="loading_title_variator_1">One sec...</string>
@@ -167,4 +189,7 @@
     <string name="language_restart_dialog_message">The application will restart to apply changes to the language</string>
     <string name="language_restart_dialog_button_positive">Restart</string>
     <string name="language_restart_dialog_button_negative">Cancel</string>
+
+    <string name="generic_error_message">Something went wrong</string>
+    <string name="generic_warning_message">Attention</string>
 </resources>

@@ -1,9 +1,8 @@
 package com.example.quiz_game.data.session
 
-import android.util.Log
 import com.example.quiz_game.App
+import com.example.quiz_game.data.Repository
 import com.example.quiz_game.other.Utils.runWithTimeout
-import kotlinx.coroutines.launch
 
 object SessionRepository {
 
@@ -20,7 +19,7 @@ object SessionRepository {
                 App.db.sessionDao().insert(*session.map {
                     it.createdAt = System.currentTimeMillis()
                     it.score = 0
-                    it.nickname = App.userPrefs.getString("nickname", null)
+                    it.nickname = Repository.getUser()?.username
                     it.uid = it.generateUid()
 
                     sessions.add(it)

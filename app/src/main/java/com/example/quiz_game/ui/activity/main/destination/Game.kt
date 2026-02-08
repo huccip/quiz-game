@@ -57,6 +57,7 @@ import com.example.quiz_game.ui.viewmodel.QuizState
 import com.example.quiz_game.ui.viewmodel.SessionAction
 import com.example.quiz_game.ui.viewmodel.SessionState
 import com.example.quiz_game.ui.viewmodel.SharedAction
+import com.example.quiz_game.ui.viewmodel.SharedState
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.first
@@ -70,6 +71,7 @@ fun Game(
     quizzesUids: List<String> = emptyList(), // FIXME: Probably won't need this anymore
     quizState: StateFlow<QuizState>? = null,
     quizAction: (QuizAction) -> Unit = {},
+    sharedState: SharedState = SharedState(),
     sharedAction: (SharedAction) -> Unit = {},
     sessionState: StateFlow<SessionState>? = null,
     sessionAction: (SessionAction) -> Unit = {},
@@ -91,7 +93,7 @@ fun Game(
                     .first { session ->
                         // Make sure the session created is not empty and not finished (expiredAt == null means active)
                         session.session.uid.isNotEmpty() && session.session.expiredAt == null
-                    }.let { currentSession = it.session; quizAction(QuizAction.GetBySession(it.session.quizzesUids!!)) }
+                    }.let { currentSession = it.session; quizAction(QuizAction.GetBySession(it.session.quizzesUids!!, sharedState.translator)) }
 
                 quizState
                     .first { quizState ->

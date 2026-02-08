@@ -30,12 +30,14 @@ import com.example.quiz_game.ui.activity.main.destination.PostGame
 import com.example.quiz_game.ui.theme.QuizgameTheme
 import com.example.quiz_game.ui.viewmodel.CategoryAction
 import com.example.quiz_game.ui.viewmodel.CategoryViewModel
+import com.example.quiz_game.ui.viewmodel.OnboardViewModel
 import com.example.quiz_game.ui.viewmodel.QuizAction
 import com.example.quiz_game.ui.viewmodel.QuizViewModel
 import com.example.quiz_game.ui.viewmodel.SessionAction
 import com.example.quiz_game.ui.viewmodel.SessionViewModel
 import com.example.quiz_game.ui.viewmodel.SharedViewModel
 import kotlinx.serialization.Serializable
+import kotlin.getValue
 
 private const val TAG = "test1234 MainActivity"
 
@@ -45,6 +47,7 @@ class MainActivity : BaseActivity() {
     val categoryViewModel by viewModels<CategoryViewModel>()
     val quizViewModel by viewModels<QuizViewModel>()
     val sessionViewModel by viewModels<SessionViewModel>()
+    val onboardViewModel by viewModels<OnboardViewModel>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -56,6 +59,7 @@ class MainActivity : BaseActivity() {
             val quizState by quizViewModel.state.collectAsStateWithLifecycle()
             val categoryState by categoryViewModel.state.collectAsStateWithLifecycle()
             val sessionState by sessionViewModel.state.collectAsStateWithLifecycle()
+            val onboardState by onboardViewModel.state.collectAsStateWithLifecycle()
 
             LaunchedEffect(sharedState) {
                 categoryViewModel.onAction(
@@ -81,7 +85,7 @@ class MainActivity : BaseActivity() {
                         ) {
                             composable<Home> {
                                 Home(
-                                    sharedState = sharedState,
+                                    sharedState = sharedViewModel.state,
                                     quizState = quizState,
                                     categoryState = categoryState,
                                     sessionState = sessionViewModel.state,
@@ -95,6 +99,7 @@ class MainActivity : BaseActivity() {
                                 Game(
                                     quizState = quizViewModel.state,
                                     quizzesUids = it.toRoute<MainDestination.Game>().quizzesUids,
+                                    sharedState = sharedState,
                                     sharedAction = sharedViewModel::onAction,
                                     quizAction = quizViewModel::onAction,
                                     sessionState = sessionViewModel.state,
@@ -119,7 +124,12 @@ class MainActivity : BaseActivity() {
 
                             composable<MainDestination.Language> {
                                 Language(
-                                    sharedAction = sharedViewModel::onAction
+                                    sharedState = sharedState,
+                                    sharedAction = sharedViewModel::onAction,
+                                    onboardState = onboardState,
+                                    onboardAction = onboardViewModel::onAction,
+                                    navController = navController,
+                                    fromOnboarding = false
                                 )
                             }
 

@@ -7,7 +7,10 @@ data class User(
     var username: String? = null,
     var coins: Int = 0, // global earned score translates to coins
     var createdAt: Long = System.currentTimeMillis(),
-    var collectiblesUids: List<String> = emptyList<String>()
+    var collectiblesUids: List<String> = emptyList(),
+    var language: String? = null,
+    var onboarded: Boolean = false,
+    var translatorReady: Boolean = false,
 ) {
     companion object {
         const val KEY_USER = "user"

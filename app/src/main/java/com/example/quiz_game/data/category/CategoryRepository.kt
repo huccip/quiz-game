@@ -6,9 +6,14 @@ import com.example.quiz_game.data.Service
 import com.example.quiz_game.other.Utils
 import com.example.quiz_game.other.Utils.runWithTimeout
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 
 object CategoryRepository {
-    private suspend fun getRemote(onSuccess: () -> Unit, onError: (Throwable) -> Unit) {
+    private val mutex = Mutex()
+
+    private suspend fun getRemote(): Boolean {
+        var success = false
         runWithTimeout(
             block = {
                 val response = Service.categoryService.get()
@@ -18,54 +23,54 @@ object CategoryRepository {
 
                     body?.let {
                         insert(
-                            *(it.triviaCategories.fastMap {
-                                if (it.name != null) it.name = Utils.decodeHtml(it.name!!)
-                                it.uid = it.generateUid()
-                                it
-                            }).toTypedArray(),
-                            onSuccess = onSuccess,
-                            onError = onError
+                            *(it.triviaCategories.fastMap { category ->
+                                if (category.name != null) category.name = Utils.decodeHtml(category.name!!)
+                                category.uid = category.generateUid()
+                                category
+                            }).toTypedArray()
                         )
-                        onSuccess()
-                    } ?: onError(Exception("Response body was found null"))
-                } else {
-                    onError(Exception("Response was not successful ${response.errorBody()}"))
+                        success = true
+                    }
                 }
             },
             onFinish = { },
-            onTimeout = onError
+            onTimeout = { }
         )
+        return success
     }
 
-    private suspend fun insert(
-        vararg category: Category,
-        onSuccess: () -> Unit,
-        onError: (Throwable) -> Unit
-    ) {
+    private suspend fun insert(vararg category: Category) {
         runWithTimeout(
             block = { App.db.categoryDao().insert(*category) },
-            onFinish = onSuccess,
-            onTimeout = onError
+            onFinish = { },
+            onTimeout = { }
         )
     }
 
     suspend fun get(onSuccess: (List<Category>) -> Unit, onError: (Throwable) -> Unit) {
         runWithTimeout(
             block = {
-                val data = App.db.categoryDao().get()
+                var data: List<Category>
+                var fetchError: Throwable? = null
 
-                if (data.isEmpty()) {
-                    getRemote(
-                        onSuccess = {
-                            App.ioScope.launch {
-                                get(onSuccess, onError)
-                            }
-                        },
-                        onError = onError
-                    )
+                mutex.withLock {
+                    data = App.db.categoryDao().get()
+
+                    if (data.isEmpty()) {
+                        val success = getRemote()
+                        if (success) {
+                            data = App.db.categoryDao().get()
+                        } else {
+                            fetchError = Exception("Failed to fetch categories from remote")
+                        }
+                    }
                 }
 
-                onSuccess(data)
+                if (fetchError != null) {
+                    onError(fetchError)
+                } else {
+                    onSuccess(data)
+                }
             },
             onFinish = {},
             onTimeout = onError

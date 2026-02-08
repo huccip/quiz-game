@@ -25,7 +25,7 @@ data class Collectible(
             .shuffled()
             .fastJoinToString("")
             .toByteArray(),
-        Base64.CRLF
+        Base64.NO_WRAP
     )
 }
 

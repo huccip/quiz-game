@@ -49,11 +49,11 @@ fun Form(
     var buttonEnabled by rememberSaveable { mutableStateOf(true) }
     var textfieldCleared by rememberSaveable { mutableStateOf(false) }
 
-    val onSubmit: (String) -> Unit = { username ->
+    val onUpdateUsername: (String) -> Unit = { username ->
         textfieldEnabled = false
         buttonEnabled = false
         sharedAction(SharedAction.Navigate(OnboardDestination.Guide, navController))
-        onboardAction(OnboardAction.Submit(username))
+        onboardAction(OnboardAction.UpdateUsername(username))
     }
 
     val onClear: () -> Unit = {
@@ -64,7 +64,7 @@ fun Form(
     val validationRules = arrayOf(
         Regex("^.{0,10}$") to stringResource(R.string.onboard_name_textfield_max_characters),
         Regex("^.{4,}$") to stringResource(R.string.onboard_name_textfield_min_characters),
-        Regex("^[a-zA-Z0-9]+$") to stringResource(R.string.onboard_name_textfield_unallowed_characters)
+        Regex("^[\\p{L}0-9]+$") to stringResource(R.string.onboard_name_textfield_unallowed_characters)
     )
 
     Column(modifier = modifier.padding(horizontal = 16.dp).wrapContentSize()) {
@@ -92,7 +92,7 @@ fun Form(
             trailingIcon = if (usernameState.isEmpty()) null else R.drawable.ic_erase,
             isLast = true,
             regex = validationRules,
-            onDone = { username -> onSubmit(username) },
+            onDone = { username -> onUpdateUsername(username) },
             onTrailingIconClicked = onClear,
             cleared = textfieldCleared,
             onValid = { isValid, username ->
@@ -106,7 +106,7 @@ fun Form(
 
         Box(Modifier.fillMaxWidth(), contentAlignment = Alignment.CenterEnd) {
             ButtonPrimary(
-                onClick = { onSubmit(usernameState) },
+                onClick = { onUpdateUsername(usernameState) },
                 enabled = buttonEnabled,
                 color = MaterialTheme.colorScheme.primary
             ) {
