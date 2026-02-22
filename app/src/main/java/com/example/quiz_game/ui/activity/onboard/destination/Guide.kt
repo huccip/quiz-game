@@ -1,11 +1,6 @@
 package com.example.quiz_game.ui.activity.onboard.destination
 
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.core.content.edit
@@ -25,31 +20,14 @@ fun Guide(
 ) {
     val context = LocalContext.current
 
-    var buttonClicked by rememberSaveable { mutableStateOf(false) }
-
-    // remove this LaunchedEffect when ready to integrate the Guide screen
-    LaunchedEffect(Unit) {
+    ButtonPrimary(onClick = {
         sharedAction(
             SharedAction.StartActivity(
                 context,
                 MainActivity::class.java
             )
         )
-    }
 
-    LaunchedEffect(buttonClicked) {
-        if (App.userPrefs.contains(User.KEY_ONBOARDED)) {
-            sharedAction(
-                SharedAction.StartActivity(
-                    context,
-                    MainActivity::class.java
-                )
-            )
-        }
-    }
-
-    ButtonPrimary(onClick = {
-        buttonClicked = true
         App.userPrefs.edit {
             putBoolean(User.KEY_ONBOARDED, true)
             commit()

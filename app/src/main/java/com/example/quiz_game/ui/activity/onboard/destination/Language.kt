@@ -23,14 +23,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.example.quiz_game.R
 import com.example.quiz_game.other.Constants
 import com.example.quiz_game.other.Utils
-import com.example.quiz_game.ui.activity.onboard.OnboardDestination
 import com.example.quiz_game.ui.shared.component.ButtonSecondary
 import com.example.quiz_game.ui.shared.component.CardSelectable
 import com.example.quiz_game.ui.shared.component.DialogYesOrNo
@@ -42,6 +40,8 @@ import com.example.quiz_game.ui.viewmodel.OnboardAction
 import com.example.quiz_game.ui.viewmodel.OnboardState
 import com.example.quiz_game.ui.viewmodel.SharedAction
 import com.example.quiz_game.ui.viewmodel.SharedState
+import com.example.quiz_game.ui.viewmodel.TranslatorStatus
+import kotlinx.coroutines.delay
 
 private const val TAG = "test1234 Language"
 
@@ -59,31 +59,79 @@ fun Language(
     var showHasNoWifiOnWarning by rememberSaveable { mutableStateOf(false) }
     var showHasNoInternetConnectionWarning by rememberSaveable { mutableStateOf(false) }
     var selectedLanguage by rememberSaveable { mutableStateOf("") }
-    // State to track if we initiated a language update locally
-    // This prevents the global "if language is set, navigate to form" check from hijacking the flow before we restart
-    var isUpdatingLanguage by rememberSaveable { mutableStateOf(false) }
 
-    // Effect to handle successful language update
-    LaunchedEffect(onboardState.user.language) {
-        if (isUpdatingLanguage && onboardState.user.language == selectedLanguage) {
-             // Language saved successfully. Now prepare translator and restart.
-             sharedAction(SharedAction.PrepareTranslator)
-             sharedAction(SharedAction.Restart(context))
-             // Reset flag (though app will restart)
-             isUpdatingLanguage = false
+    LaunchedEffect(sharedState) {
+        if (sharedState.translator == null) {
+            if (sharedState.executing) {
+                println(
+                    "test1234 translator is still preparing ⏳ (status: ${sharedState.translatorStatus})"
+                )
+                return@LaunchedEffect
+            }
+
+            println("test1234 translator is not ready ❌ (status: ${sharedState.translatorStatus})")
+            return@LaunchedEffect
         }
+
+        println("test1234 translator is ready! ✅\nref : ${sharedState.translator}")
+    }
+
+    // Auto-retry when connectivity returns after a failed download
+    LaunchedEffect(sharedState.translatorStatus) {
+        if (sharedState.translatorStatus != TranslatorStatus.Failed) return@LaunchedEffect
+        if (selectedLanguage.isEmpty()) return@LaunchedEffect
+        // Poll until internet is back
+        while (!Utils.hasInternet()) {
+            delay(3000)
+        }
+        // Auto-retry
+        sharedAction(SharedAction.PrepareTranslator(language = selectedLanguage, context = context))
     }
 
     when {
         sharedState.executing || onboardState.executing -> {
-            LoadingInfiniteLine(subject = arrayOf(stringResource(R.string.onboard_form_loading_subject)))
+            val statusMessage =
+                when (sharedState.translatorStatus) {
+                    TranslatorStatus.Saving ->
+                        stringResource(R.string.onboard_form_loading_subject)
+
+                    TranslatorStatus.Downloading ->
+                        stringResource(R.string.onboard_language_downloading)
+
+                    TranslatorStatus.SlowDownload ->
+                        stringResource(R.string.onboard_language_slow_download)
+
+                    TranslatorStatus.Restarting ->
+                        stringResource(R.string.onboard_language_restarting)
+
+                    else -> stringResource(R.string.onboard_form_loading_subject)
+                }
+            LoadingInfiniteLine(subject = arrayOf(statusMessage))
+        }
+
+        sharedState.translatorStatus == TranslatorStatus.Failed -> {
+            Column(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.spacedBy(16.dp)
+            ) {
+                Text(
+                    text = stringResource(R.string.onboard_language_download_failed),
+                    style = MaterialTheme.typography.bodyLarge,
+                    color = MaterialTheme.colorScheme.error
+                )
+                Text(
+                    text = stringResource(R.string.onboard_language_auto_retry),
+                    style = MaterialTheme.typography.bodySmall
+                )
+            }
         }
 
         // Only navigate to Form if we are NOT in the middle of updating language
         // and language is already set (e.g. user re-opened app)
         // AND we are in the onboarding flow (not settings)
-        !onboardState.user.language.isNullOrEmpty() && !isUpdatingLanguage && fromOnboarding -> {
-            sharedAction(SharedAction.Navigate(OnboardDestination.Form, navController))
+        !onboardState.user.language.isNullOrEmpty() && fromOnboarding -> {
+            // sharedAction(SharedAction.Navigate(OnboardDestination.Form, navController))
         }
 
         else -> {
@@ -92,12 +140,18 @@ fun Language(
                     DialogYesOrNo(
                         title = R.string.generic_warning_message,
                         text = R.string.onboard_language_no_wifi_warning_message,
-                        buttonConfirmText = R.string.onboard_language_no_wifi_warning_positive_button,
-                        buttonDismissText = R.string.onboard_language_no_wifi_warning_negative_button,
+                        buttonConfirmText =
+                            R.string.onboard_language_no_wifi_warning_positive_button,
+                        buttonDismissText =
+                            R.string.onboard_language_no_wifi_warning_negative_button,
                         icon = R.drawable.ic_no_wifi,
                         onConfirm = {
-                            isUpdatingLanguage = true
-                            onboardAction(OnboardAction.UpdateLanguage(language = selectedLanguage))
+                            sharedAction(
+                                SharedAction.PrepareTranslator(
+                                    language = selectedLanguage,
+                                    context = context
+                                )
+                            )
                             // sharedAction(SharedAction.PrepareTranslator) // Move to Effect
                             // sharedAction(SharedAction.Restart(context))  // Move to Effect
 
@@ -111,12 +165,18 @@ fun Language(
                     DialogYesOrNo(
                         title = R.string.generic_warning_message,
                         text = R.string.onboard_language_no_internet_warning_message,
-                        buttonConfirmText = R.string.onboard_language_no_internet_warning_positive_button,
-                        buttonDismissText = R.string.onboard_language_no_internet_warning_negative_button,
+                        buttonConfirmText =
+                            R.string.onboard_language_no_internet_warning_positive_button,
+                        buttonDismissText =
+                            R.string.onboard_language_no_internet_warning_negative_button,
                         icon = R.drawable.ic_no_internet,
                         onConfirm = {
-                            isUpdatingLanguage = true
-                            onboardAction(OnboardAction.UpdateLanguage(language = selectedLanguage))
+                            sharedAction(
+                                SharedAction.PrepareTranslator(
+                                    language = selectedLanguage,
+                                    context = context
+                                )
+                            )
 
                             showHasNoInternetConnectionWarning = false
                         },
@@ -139,14 +199,25 @@ fun Language(
                                         } else if (!Utils.hasWifiOn()) {
                                             showHasNoWifiOnWarning = true
                                         } else {
-                                            isUpdatingLanguage = true
-                                            onboardAction(OnboardAction.UpdateLanguage(language = selectedLanguage))
-                                            // sharedAction(SharedAction.PrepareTranslator) // Move to Effect
-                                            // sharedAction(SharedAction.Restart(context))  // Move to Effect
+                                            sharedAction(
+                                                SharedAction.PrepareTranslator(
+                                                    language = selectedLanguage,
+                                                    context = context
+                                                )
+                                            )
+                                            // sharedAction(SharedAction.PrepareTranslator) //
+                                            // Move to Effect
+                                            // sharedAction(SharedAction.Restart(context))  //
+                                            // Move to Effect
                                         }
                                     }
                                 ) {
-                                    Text(text = stringResource(R.string.onboard_language_next_button))
+                                    Text(
+                                        text =
+                                            stringResource(
+                                                R.string.onboard_language_next_button
+                                            )
+                                    )
                                     IconButton(
                                         painter = painterResource(R.drawable.ic_arrow_forward),
                                     )
@@ -157,16 +228,17 @@ fun Language(
                             val (language, country, countryCode) = it
                             CardSelectable(
                                 selected = selectedLanguage == language,
-                                onSelect = {
-                                    selectedLanguage = language
-                                },
+                                onSelect = { selectedLanguage = language },
                                 content = { modifier ->
                                     Row(
                                         verticalAlignment = Alignment.CenterVertically,
                                         modifier = modifier
                                     ) {
                                         IconButton(
-                                            model = Utils.countryFlag(countryCode = countryCode)
+                                            model =
+                                                Utils.countryFlag(
+                                                    countryCode = countryCode
+                                                )
                                         )
                                         Spacer(modifier = Modifier.width(8.dp))
                                         Column(modifier = Modifier.weight(1f)) {
@@ -178,7 +250,8 @@ fun Language(
                                         }
                                         if (selectedLanguage == language) {
                                             IconButton(
-                                                painter = painterResource(R.drawable.ic_pin),
+                                                painter =
+                                                    painterResource(R.drawable.ic_pin),
                                             )
                                         }
                                     }

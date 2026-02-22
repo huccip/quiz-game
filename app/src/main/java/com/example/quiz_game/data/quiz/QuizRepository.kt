@@ -1,253 +1,188 @@
 package com.example.quiz_game.data.quiz
 
-import androidx.compose.ui.util.fastFilter
-import androidx.compose.ui.util.fastMap
 import com.example.quiz_game.App
 import com.example.quiz_game.data.Repository
 import com.example.quiz_game.data.Service
-import com.example.quiz_game.data.category.Category
 import com.example.quiz_game.other.Constants
 import com.example.quiz_game.other.Utils
-import com.example.quiz_game.other.Utils.runWithTimeout
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
+import kotlinx.coroutines.withContext
 
 object QuizRepository {
-    private const val TAG = "test1234 QuizRepository"
-    private val mutex = Mutex()
 
-    private suspend fun getRemote(
-        amount: Int,
-        category: Int? = null,
-    ): Boolean {
-        var success = false
-        runWithTimeout(
-            block = {
-                val response = Service.quizService.get(amount, category)
+    private val fetchMutex = Mutex()
 
-                if (response.isSuccessful) {
-                    val body = response.body()
+    suspend fun get(amount: Int = Constants.DEFAULT_QUIZ_AMOUNT): List<Quiz> =
+            withContext(Dispatchers.IO) {
+                println("test1234 QuizRepo get()")
 
-                    body?.let {
-                        if (it.responseCode == 0) {
-                            insert(
-                                *it.results.toTypedArray()
-                            )
-                            success = true
-                        }
-                    }
-                }
-            },
-            onFinish = {},
-            onTimeout = {}
-        )
-        return success
-    }
+                var data = App.db.quizDao().get()
 
-    private suspend fun insert(vararg quiz: Quiz) {
-        runWithTimeout(
-            block = {
-                App.db.quizDao()
-                    .insert(*(quiz.map {
-                        it.mark = it.generateMark()
-                        if (it.question != null) it.question = Utils.decodeHtml(it.question!!)
-                        if (it.correctAnswer != null) it.correctAnswer =
-                            Utils.decodeHtml(it.correctAnswer!!)
-                        if (it.incorrectAnswers != null) {
-                            it.incorrectAnswers!!.fastMap { Utils.decodeHtml(it) }
-                        }
-                        if (it.category != null) {
-                            it.category = Utils.decodeHtml(it.category!!)
-                            Repository.categoryRepository.getByName(
-                                Utils.decodeHtml(it.category!!),
-                                onSuccess = { category ->
-                                    it.categoryUid = category.uid
-                                },
-                                onError = { /* Ignore error, just keep null categoryUid */ }
-                            )
-                        }
-                        it.uid = it.generateUid()
-                        it
-                    }).toTypedArray())
-            },
-            onFinish = {},
-            onTimeout = {}
-        )
-    }
-
-    suspend fun get(
-        amount: Int = Constants.DEFAULT_QUIZ_AMOUNT,
-        onSuccess: (List<Quiz>) -> Unit,
-        onError: (Throwable) -> Unit
-    ) {
-        runWithTimeout(
-            block = {
-                var data: List<Quiz>
-                var fetchError: Throwable? = null
-
-                mutex.withLock {
-                    data = App.db.quizDao().get()
-
-                    if (data.fastFilter { !it.expired }.size <= amount / 2) {
-                        val remaining = amount - data.size
-                        val success = getRemote(amount = remaining)
-                        if (success) {
+                if (data.filter { !it.expired }.size <= amount / 2) {
+                    fetchMutex.withLock {
+                        // Re-check after lock — another coroutine may have fetched already
+                        data = App.db.quizDao().get()
+                        if (data.filter { !it.expired }.size <= amount / 2) {
+                            val remaining = amount - data.size
+                            fetchRemote(amount = remaining)
                             data = App.db.quizDao().get()
-                        } else if (data.isEmpty()) {
-                             fetchError = Exception("Failed to fetch quizzes from remote")
                         }
                     }
                 }
 
-                if (fetchError != null && data.isEmpty()) {
-                     onError(fetchError)
-                } else {
-                    onSuccess(data)
-                }
-            },
-            onFinish = {},
-            onTimeout = onError
-        )
-    }
+                data
+            }
 
-    suspend fun getByUid(uid: String, onSuccess: (Quiz) -> Unit, onError: (Throwable) -> Unit) {
-        runWithTimeout(
-            block = {
-                val data = App.db.quizDao().getByUid(uid)
-
-                if (data == null) {
-                    onError(Exception("Quiz with uid $uid was not found"))
-                    return@runWithTimeout
-                }
-
-                onSuccess(data)
-            },
-            onFinish = {},
-            onTimeout = onError
-        )
-    }
+    suspend fun getByUid(uid: String): Quiz =
+            withContext(Dispatchers.IO) {
+                App.db.quizDao().getByUid(uid)
+                        ?: throw Exception("Quiz with uid $uid was not found")
+            }
 
     suspend fun getByCategory(
-        amount: Int = 50,
-        categoryUid: String,
-        onSuccess: (List<Quiz>) -> Unit,
-        onError: (Throwable) -> Unit
-    ) {
-        runWithTimeout(
-            block = {
-                Repository.categoryRepository.getByUid(
-                    categoryUid,
-                    onSuccess = { category ->
-                        App.ioScope.launch {
-                             processGetByCategory(amount, category, onSuccess, onError)
+            amount: Int = Constants.DEFAULT_QUIZ_AMOUNT,
+            categoryUid: String
+    ): List<Quiz> =
+            withContext(Dispatchers.IO) {
+                val category =
+                        App.db.categoryDao().getByUid(categoryUid)
+                                ?: throw Exception("Category with uid $categoryUid was not found")
+
+                var data = App.db.quizDao().getByCategoryUid(category.uid)
+
+                if (data.filter { !it.expired }.size <= amount / 2) {
+                    fetchMutex.withLock {
+                        // Re-check after lock — another coroutine may have fetched already
+                        data = App.db.quizDao().getByCategoryUid(category.uid)
+                        if (data.filter { !it.expired }.size <= amount / 2) {
+                            val remaining = amount - data.size
+                            fetchRemote(amount = remaining, category = category.id)
+
+                            // Fix: re-link any orphaned quizzes whose categoryUid is null
+                            // but whose category name matches the target category.
+                            // This handles encoding mismatches in insertQuizzes' name lookup.
+                            val allQuizzes = App.db.quizDao().get()
+                            val orphaned =
+                                    allQuizzes.filter {
+                                        it.categoryUid == null && it.category == category.name
+                                    }
+                            if (orphaned.isNotEmpty()) {
+                                App.db
+                                        .quizDao()
+                                        .insert(
+                                                *orphaned
+                                                        .map { it.copy(categoryUid = category.uid) }
+                                                        .toTypedArray()
+                                        )
+                            }
+
+                            data = App.db.quizDao().getByCategoryUid(category.uid)
                         }
-                    },
-                    onError = onError
-                )
-            },
-            onFinish = {},
-            onTimeout = onError
-        )
-    }
+                    }
+                }
 
-    private suspend fun processGetByCategory(
-        amount: Int,
-        category: Category,
-        onSuccess: (List<Quiz>) -> Unit,
-        onError: (Throwable) -> Unit
-    ) {
-        var data: List<Quiz> = emptyList()
-        var fetchError: Throwable? = null
+                data
+            }
 
-        mutex.withLock {
-             category.name?.let { name ->
-                data = App.db.quizDao().getByCategory(name)
+    suspend fun getBySession(uids: List<String>): List<Quiz> =
+            withContext(Dispatchers.IO) {
+                val data = App.db.quizDao().getBySession(uids)
+                if (data.isEmpty()) {
+                    throw Exception("One or more quizzes in uids $uids were not found")
+                }
+                data
+            }
 
-                if (data.size < amount) {
-                     val remaining = amount - data.size
-                     val success = getRemote(amount = remaining, category = category.id)
-                     if (success) {
-                         data = App.db.quizDao().getByCategory(name)
-                     } else if (data.isEmpty()) {
-                         fetchError = Exception("Failed to fetch quizzes for category ${category.name}")
-                     }
+    suspend fun deleteByUid(uid: String) =
+            withContext(Dispatchers.IO) {
+                val quiz =
+                        App.db.quizDao().getByUid(uid)
+                                ?: throw Exception("Quiz with uid $uid was not found")
+                if (!quiz.expired) {
+                    throw Exception("Quiz with uid ${quiz.uid} has not expired yet")
+                }
+                App.db.quizDao().deleteByUid(quiz.uid)
+            }
+
+    suspend fun truncate() = withContext(Dispatchers.IO) { App.db.quizDao().truncate() }
+
+    suspend fun updateExpired(uid: String) =
+            withContext(Dispatchers.IO) {
+                val quiz =
+                        App.db.quizDao().getByUid(uid)
+                                ?: throw Exception("Quiz with uid $uid was not found")
+                App.db.quizDao().updateExpired(quiz.uid)
+            }
+
+    private suspend fun fetchRemote(amount: Int, category: Int? = null) =
+            withContext(Dispatchers.IO) {
+                var currentAmount = amount
+                while (currentAmount >= Constants.DEFAULT_QUIZ_SESSION_AMOUNT + 10) {
+                    val response =
+                            async { Service.quizService.get(currentAmount, category) }.await()
+                    if (!response.isSuccessful) {
+                        throw Exception("API request failed: ${response.code()}")
+                    }
+                    val body = response.body() ?: throw Exception("Response body is null")
+
+                    when (body.responseCode) {
+                        0 -> {
+                            insertQuizzes(body.results)
+                            return@withContext
+                        }
+                        1 -> {
+                            // Reduce amount by half, but keep at least
+                            // Constants.DEFAULT_QUIZ_SESSION_AMOUNT
+                            currentAmount -= 10
+                            delay(Constants.DEFAULT_TRIVIA_API_RETRY_DELAY)
+                        }
+                        5 -> {
+                            // Rate limited — wait and retry same amount
+                            delay(Constants.DEFAULT_TRIVIA_API_RETRY_DELAY * 2)
+                        }
+                        else -> throw Exception("API error code ${body.responseCode}")
+                    }
                 }
             }
-        }
-        
-        if (fetchError != null && data.isEmpty()) {
-            onError(fetchError)
-        } else {
-            onSuccess(data)
-        }
-    }
 
-    suspend fun getBySession(
-        uids: List<String>,
-        onSuccess: (List<Quiz>) -> Unit,
-        onError: (Throwable) -> Unit
-    ) {
-        runWithTimeout(
-            block = {
-                val data = App.db.quizDao().getBySession(uids)
-
-                if (data.isEmpty()) {
-                    onError(Exception("One or more quizzes in uids $uids were not found"))
-                    return@runWithTimeout
+    private suspend fun insertQuizzes(quizzes: List<Quiz>) =
+            withContext(Dispatchers.IO) {
+                // Ensure categories are in DB before looking up UIDs
+                val existingCategories = App.db.categoryDao().get()
+                if (existingCategories.isEmpty()) {
+                    // Force-fetch categories first
+                    Repository.categoryRepository.get()
                 }
 
-                onSuccess(data)
-            },
-            onFinish = {},
-            onTimeout = onError
-        )
-    }
-
-    suspend fun deleteByUid(uid: String, onSuccess: () -> Unit, onError: (Throwable) -> Unit) {
-        runWithTimeout(
-            block = {
-                getByUid(
-                    uid = uid,
-                    onSuccess = { quiz ->
-                        if (!quiz.expired) {
-                            onError(Exception("Quiz with uid ${quiz.uid} has not expired yet"))
-                            return@getByUid
+                val processed =
+                        quizzes.map { quiz ->
+                            val decoded =
+                                    quiz.copy(
+                                            question = quiz.question?.let { Utils.decodeHtml(it) },
+                                            correctAnswer =
+                                                    quiz.correctAnswer?.let {
+                                                        Utils.decodeHtml(it)
+                                                    },
+                                            incorrectAnswers =
+                                                    quiz.incorrectAnswers?.map {
+                                                        Utils.decodeHtml(it)
+                                                    },
+                                            category = quiz.category?.let { Utils.decodeHtml(it) },
+                                    )
+                            val categoryUid =
+                                    decoded.category?.let { name ->
+                                        App.db.categoryDao().getByName(name)?.uid
+                                    }
+                            decoded.copy(
+                                    uid = decoded.generateUid(),
+                                    mark = decoded.generateMark(),
+                                    categoryUid = categoryUid
+                            )
                         }
-
-                        App.db.quizDao().deleteByUid(quiz.uid)
-                        onSuccess()
-                    },
-                    onError = onError
-                )
-            },
-            onFinish = onSuccess,
-            onTimeout = onError
-        )
-    }
-
-    suspend fun truncate(onSuccess: () -> Unit, onError: (Throwable) -> Unit) {
-        runWithTimeout(
-            block = { App.db.quizDao().truncate() },
-            onFinish = onSuccess,
-            onTimeout = onError
-        )
-    }
-
-    suspend fun updateExpired(uid: String, onSuccess: () -> Unit, onError: (Throwable) -> Unit) {
-        runWithTimeout(
-            block = {
-                getByUid(
-                    uid = uid,
-                    onSuccess = {
-                        App.db.quizDao().updateExpired(it.uid)
-                        onSuccess()
-                    },
-                    onError = onError
-                )
-            },
-            onFinish = onSuccess,
-            onTimeout = onError
-        )
-    }
+                App.db.quizDao().insert(*processed.toTypedArray())
+            }
 }

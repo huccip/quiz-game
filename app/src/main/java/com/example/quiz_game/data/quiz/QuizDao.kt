@@ -13,8 +13,8 @@ interface QuizDao {
     @Query("SELECT * FROM quizzes")
     fun get(): List<Quiz>
 
-    @Query("SELECT * FROM quizzes WHERE category = :category")
-    fun getByCategory(category: String): List<Quiz>
+    @Query("SELECT * FROM quizzes WHERE categoryUid = :categoryUid")
+    fun getByCategoryUid(categoryUid: String): List<Quiz>
 
     @Query("SELECT * FROM quizzes WHERE uid = :uid")
     fun getByUid(uid: String): Quiz?

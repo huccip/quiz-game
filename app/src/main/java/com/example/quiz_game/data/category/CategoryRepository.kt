@@ -1,142 +1,69 @@
 package com.example.quiz_game.data.category
 
-import androidx.compose.ui.util.fastMap
 import com.example.quiz_game.App
 import com.example.quiz_game.data.Service
 import com.example.quiz_game.other.Utils
-import com.example.quiz_game.other.Utils.runWithTimeout
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
+import kotlinx.coroutines.withContext
 
 object CategoryRepository {
-    private val mutex = Mutex()
 
-    private suspend fun getRemote(): Boolean {
-        var success = false
-        runWithTimeout(
-            block = {
-                val response = Service.categoryService.get()
+    private val fetchMutex = Mutex()
 
-                if (response.isSuccessful) {
-                    val body = response.body()
+    suspend fun get(): List<Category> =
+        withContext(Dispatchers.IO) {
 
-                    body?.let {
-                        insert(
-                            *(it.triviaCategories.fastMap { category ->
-                                if (category.name != null) category.name = Utils.decodeHtml(category.name!!)
-                                category.uid = category.generateUid()
-                                category
-                            }).toTypedArray()
-                        )
-                        success = true
-                    }
-                }
-            },
-            onFinish = { },
-            onTimeout = { }
-        )
-        return success
-    }
+            println("test1234 CategoryRepo get()")
 
-    private suspend fun insert(vararg category: Category) {
-        runWithTimeout(
-            block = { App.db.categoryDao().insert(*category) },
-            onFinish = { },
-            onTimeout = { }
-        )
-    }
-
-    suspend fun get(onSuccess: (List<Category>) -> Unit, onError: (Throwable) -> Unit) {
-        runWithTimeout(
-            block = {
-                var data: List<Category>
-                var fetchError: Throwable? = null
-
-                mutex.withLock {
+            var data = App.db.categoryDao().get()
+            if (data.isEmpty()) {
+                fetchMutex.withLock {
+                    // Re-check after acquiring lock — another coroutine may
+                    // have
+                    // already populated the DB while we were waiting.
                     data = App.db.categoryDao().get()
-
                     if (data.isEmpty()) {
-                        val success = getRemote()
-                        if (success) {
-                            data = App.db.categoryDao().get()
-                        } else {
-                            fetchError = Exception("Failed to fetch categories from remote")
-                        }
+                        fetchRemote()
+                        data = App.db.categoryDao().get()
                     }
                 }
+            }
+            data
+        }
 
-                if (fetchError != null) {
-                    onError(fetchError)
-                } else {
-                    onSuccess(data)
+    private suspend fun fetchRemote() =
+        withContext(Dispatchers.IO) {
+            val response = Service.categoryService.get()
+            if (!response.isSuccessful)
+                throw Exception("Failed to fetch categories: ${response.code()}")
+            val body =
+                response.body() ?: throw Exception("Category response body is null")
+            val categories =
+                body.triviaCategories.map { cat ->
+                    cat.copy(
+                        name = cat.name?.let { Utils.decodeHtml(it) },
+                        uid = cat.generateUid()
+                    )
                 }
-            },
-            onFinish = {},
-            onTimeout = onError
-        )
-    }
+            App.db.categoryDao().insert(*categories.toTypedArray())
+        }
 
-    suspend fun getByUid(uid: String, onSuccess: (Category) -> Unit, onError: (Throwable) -> Unit) {
-        runWithTimeout(
-            block = {
-                val data = App.db.categoryDao().getByUid(uid)
+    suspend fun getByUid(uid: String): Category =
+        withContext(Dispatchers.IO) {
+            App.db.categoryDao().getByUid(uid)
+                ?: throw Exception("Category with uid $uid was not found")
+        }
 
-                if (data == null) {
-                    onError(Exception("Category with id $uid was not found"))
-                    return@runWithTimeout
-                }
+    suspend fun getById(id: Int): Category =
+        withContext(Dispatchers.IO) {
+            App.db.categoryDao().getById(id)
+                ?: throw Exception("Category with id $id was not found")
+        }
 
-                onSuccess(data)
-            },
-            onFinish = {},
-            onTimeout = onError
-        )
-    }
+    suspend fun getByName(name: String): Category? =
+        withContext(Dispatchers.IO) { App.db.categoryDao().getByName(name) }
 
-    suspend fun getById(id: Int, onSuccess: (Category) -> Unit, onError: (Throwable) -> Unit) {
-        runWithTimeout(
-            block = {
-                val data = App.db.categoryDao().getById(id)
-
-                if (data == null) {
-                    onError(Exception("Category with id $id was not found"))
-                    return@runWithTimeout
-                }
-
-                onSuccess(data)
-            },
-            onFinish = {},
-            onTimeout = onError
-        )
-    }
-
-    suspend fun getByName(
-        name: String,
-        onSuccess: (Category) -> Unit,
-        onError: (Throwable) -> Unit
-    ) {
-        runWithTimeout(
-            block = {
-                val data = App.db.categoryDao().getByName(name)
-
-                if (data == null) {
-                    onError(Exception("Category with name $name was not found"))
-                    return@runWithTimeout
-                }
-
-                onSuccess(data)
-            },
-            onFinish = {},
-            onTimeout = onError
-        )
-    }
-
-    suspend fun truncate(onSuccess: () -> Unit, onError: (Throwable) -> Unit) {
-        runWithTimeout(
-            block = { App.db.categoryDao().truncate() },
-            onFinish = onSuccess,
-            onTimeout = onError
-        )
-    }
+    suspend fun truncate() = withContext(Dispatchers.IO) { App.db.categoryDao().truncate() }
 }

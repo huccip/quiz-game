@@ -8,8 +8,9 @@ import com.example.quiz_game.other.Utils
 
 open class BaseActivity: ComponentActivity() {
     override fun attachBaseContext(newBase: Context) {
-        val lang = Repository.getUser()?.language ?: "en"
-        val context = LocaleHelper.wrap(newBase, lang)
-        super.attachBaseContext(if (lang != "en") context else newBase)
+        val lang = Repository.getUser()?.language
+        val context = lang?.let { LocaleHelper.wrap(newBase, lang) } ?: newBase
+
+        super.attachBaseContext(context)
     }
 }

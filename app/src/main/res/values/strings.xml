@@ -29,6 +29,12 @@
     <string name="onboard_language_no_internet_warning_message">No internet connection. Do you wish to continue without setting up your preferred language.</string>
     <string name="onboard_language_no_wifi_warning_message">You\'re not connected to Wi-Fi. Do you want to continue using mobile data?</string>
 
+    <string name="onboard_language_downloading">Downloading language model…</string>
+    <string name="onboard_language_slow_download">Still downloading, please stay connected…</string>
+    <string name="onboard_language_restarting">Applying language, restarting…</string>
+    <string name="onboard_language_download_failed">Download failed. Please check your connection.</string>
+    <string name="onboard_language_auto_retry">Will retry automatically when connection returns…</string>
+
     <string name="main_game_answer_state_idle">Waiting…</string>
     <string name="main_game_answer_state_picked">Confirm answer</string>
     <string name="main_game_answer_state_locked">Next question</string>

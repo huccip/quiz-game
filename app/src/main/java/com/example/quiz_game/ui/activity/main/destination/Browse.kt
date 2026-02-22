@@ -33,67 +33,88 @@ import com.example.quiz_game.ui.viewmodel.QuizState
 import com.example.quiz_game.ui.viewmodel.SessionAction
 import com.example.quiz_game.ui.viewmodel.SharedAction
 import com.example.quiz_game.ui.viewmodel.SharedState
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.first
 
 @Composable
 fun Browse(
-    modifier: Modifier = Modifier,
-    categoryState: CategoryState = CategoryState(),
-    sharedState: SharedState = SharedState(),
-    quizState: QuizState = QuizState(),
-    quizStateFlow: StateFlow<QuizState>? = null,
-    categoryAction: (CategoryAction) -> Unit = {},
-    quizAction: (QuizAction) -> Unit = {},
-    sharedAction: (SharedAction) -> Unit = {},
-    sessionAction: (SessionAction) -> Unit = {},
-    navController: NavController = rememberNavController()
+        modifier: Modifier = Modifier,
+        categoryState: CategoryState = CategoryState(),
+        sharedState: SharedState = SharedState(),
+        quizState: QuizState = QuizState(),
+        categoryAction: (CategoryAction) -> Unit = {},
+        quizAction: (QuizAction) -> Unit = {},
+        sharedAction: (SharedAction) -> Unit = {},
+        sessionAction: (SessionAction) -> Unit = {},
+        navController: NavController = rememberNavController(),
+        onError: (String) -> Unit = {}
 ) {
     val interactionSource = remember { MutableInteractionSource() }
     var selectedCategory by remember { mutableStateOf<Category?>(null) }
-
     var loading by rememberSaveable { mutableStateOf(false) }
+    var fetchStarted by remember { mutableStateOf(false) }
 
+    // Trigger fetch when category is selected
     LaunchedEffect(selectedCategory) {
         if (selectedCategory == null) return@LaunchedEffect
-        if (quizStateFlow == null) return@LaunchedEffect
-
         loading = true
+        fetchStarted = false
         quizAction(QuizAction.GetByCategory(categoryUid = selectedCategory!!.uid))
+    }
 
-        // Collect the flow and wait for quizzes to be available
-        quizStateFlow
-            .first { state ->
-                val quizzesForCategory =
-                    state.quizzes.fastFilter { it.category == selectedCategory!!.name }
-                // Wait until not executing AND we have the desired amount of quizzes for this category (check Constants.kt)
-                !state.executing && quizzesForCategory.count() == Constants.DEFAULT_QUIZ_AMOUNT
-            }
-            .let { state ->
-                val quizzesForCategory =
-                    state.quizzes.fastFilter { it.category == selectedCategory!!.name && !it.expired }
-                val sessionQuizzes = quizzesForCategory.take(Constants.DEFAULT_QUIZ_SESSION_AMOUNT)
+    // Track when the VM actually starts executing
+    LaunchedEffect(quizState.executing) {
+        if (quizState.executing) {
+            fetchStarted = true
+        }
+    }
 
-                loading = false
+    // React to fetch completion — only after it has actually started AND finished
+    LaunchedEffect(selectedCategory, quizState.executing, fetchStarted) {
+        if (selectedCategory == null) return@LaunchedEffect
+        if (!fetchStarted) return@LaunchedEffect // Fetch hasn't started yet
+        if (quizState.executing) return@LaunchedEffect // Still executing
 
-                // Initiate the session with only the session quizzes
-                sessionAction(
-                    SessionAction.InitiateSession(
+        loading = false
+
+        // Check for fetch errors first
+        if (quizState.errors.isNotEmpty()) {
+            onError("Failed to load quizzes: ${quizState.errors.first().message}")
+            selectedCategory = null
+            return@LaunchedEffect
+        }
+
+        // quizzes are already filtered by categoryUid from the repository
+        val sessionQuizzes =
+                quizState
+                        .quizzes
+                        .fastFilter { !it.expired }
+                        .take(Constants.DEFAULT_QUIZ_SESSION_AMOUNT)
+
+        if (sessionQuizzes.isEmpty()) {
+            onError("Not enough quizzes for this category. Please try another.")
+            selectedCategory = null
+            return@LaunchedEffect
+        }
+
+        // Initiate the session with only the session quizzes
+        sessionAction(
+                SessionAction.InitiateSession(
                         quizzesUids = sessionQuizzes.fastMap { it.uid },
                         maxScore = sessionQuizzes.sumOf { it.mark ?: 0 }
-                    )
                 )
+        )
 
-                // Navigate
-                sharedAction(
-                    SharedAction.Navigate(
+        // Navigate
+        sharedAction(
+                SharedAction.Navigate(
                         MainDestination.Game(
-                            quizzesUids = sessionQuizzes.map { eachQuiz -> eachQuiz.uid }
+                                quizzesUids = sessionQuizzes.map { eachQuiz -> eachQuiz.uid }
                         ),
                         navController
-                    )
                 )
-            }
+        )
+
+        // Reset to prevent double-firing
+        selectedCategory = null
     }
 
     if (loading) {
@@ -102,24 +123,22 @@ fun Browse(
         LazyColumn {
             items(items = categoryState.categories, key = { it.uid }) { category ->
                 ListItem(
-                    headlineContent = {
-                        Column {
-                            Text(
-                                category.name ?: "Undefined"
-                            )
-                            HorizontalDivider()
-                        }
-                    },
-                    modifier = modifier
-                        .fillMaxWidth()
-                        .scaleDownOnPress(
-                            interactionSource = interactionSource,
-                            scaleRatio = .3f,
-                        )
-                        .clickable(
-                            enabled = true,
-                            onClick = { selectedCategory = category }
-                        )
+                        headlineContent = {
+                            Column {
+                                Text(category.name ?: "Undefined")
+                                HorizontalDivider()
+                            }
+                        },
+                        modifier =
+                                modifier.fillMaxWidth()
+                                        .scaleDownOnPress(
+                                                interactionSource = interactionSource,
+                                                scaleRatio = .3f,
+                                        )
+                                        .clickable(
+                                                enabled = true,
+                                                onClick = { selectedCategory = category }
+                                        )
                 )
             }
         }

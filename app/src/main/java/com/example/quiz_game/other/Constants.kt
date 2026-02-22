@@ -6,6 +6,7 @@ object Constants {
     const val DEFAULT_QUIZ_AMOUNT = 50
     const val DEFAULT_QUIZ_SESSION_AMOUNT = 2
     const val DEFAULT_QUIZ_TIMER = 21 // seconds
+    const val DEFAULT_TRIVIA_API_RETRY_DELAY = 5000L // millis
     val SUPPORTED_LANGUAGES = arrayOf(
         TranslateLanguage.ARABIC to "مصر العربية" too "EG",
         TranslateLanguage.GERMAN to "Deutschland Deutsch" too "DE",
