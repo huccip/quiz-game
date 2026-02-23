@@ -18,8 +18,6 @@ object QuizRepository {
 
     suspend fun get(amount: Int = Constants.DEFAULT_QUIZ_AMOUNT): List<Quiz> =
             withContext(Dispatchers.IO) {
-                println("test1234 QuizRepo get()")
-
                 var data = App.db.quizDao().get()
 
                 if (data.filter { !it.expired }.size <= amount / 2) {

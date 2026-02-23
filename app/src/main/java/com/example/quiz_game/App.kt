@@ -16,7 +16,7 @@ import kotlinx.coroutines.cancel
 import java.util.Locale
 
 class App : Application() {
-    private val TAG = "test1234 App"
+
 
     companion object {
         val ioScope by lazy { CoroutineScope(Dispatchers.IO + SupervisorJob()) }

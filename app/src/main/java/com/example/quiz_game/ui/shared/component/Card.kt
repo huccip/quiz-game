@@ -34,36 +34,44 @@ import com.example.quiz_game.ui.shared.effect.scaleDownOnPress
 
 @Composable
 fun CardSelectable(
-    modifier: Modifier = Modifier,
-    selected: Boolean = false,
-    onSelect: () -> Unit,
-    content: @Composable (Modifier) -> Unit = {},
+        modifier: Modifier = Modifier,
+        selected: Boolean = false,
+        onSelect: () -> Unit,
+        content: @Composable (Modifier) -> Unit = {},
 ) {
-    var interactionSource = remember { MutableInteractionSource() }
+    val interactionSource = remember { MutableInteractionSource() }
     OutlinedCard(
-        onClick = { onSelect() },
-        colors = CardDefaults.outlinedCardColors(
-            containerColor = if (selected) MaterialTheme.colorScheme.primaryContainer else Color.Transparent,
-            contentColor = contentColorFor(
-                if (selected) MaterialTheme.colorScheme.primaryContainer
-                else Color.Transparent
-            ),
-        ),
-        border = _root_ide_package_.androidx.compose.foundation.BorderStroke(
-            width = 2.dp,
-            color = if (selected) contentColorFor(MaterialTheme.colorScheme.primaryContainer) else contentColorFor(
-                Color.Transparent
-            )
-        ),
-        interactionSource = interactionSource,
-        modifier = modifier
-            .fillMaxWidth()
-            .scaleDownOnPress(interactionSource = interactionSource, scaleRatio = .95f)
+            onClick = { onSelect() },
+            colors =
+                    CardDefaults.outlinedCardColors(
+                            containerColor =
+                                    if (selected) MaterialTheme.colorScheme.primaryContainer
+                                    else Color.Transparent,
+                            contentColor =
+                                    contentColorFor(
+                                            if (selected) MaterialTheme.colorScheme.primaryContainer
+                                            else Color.Transparent
+                                    ),
+                    ),
+            border =
+                    _root_ide_package_.androidx.compose.foundation.BorderStroke(
+                            width = 2.dp,
+                            color =
+                                    if (selected)
+                                            contentColorFor(
+                                                    MaterialTheme.colorScheme.primaryContainer
+                                            )
+                                    else contentColorFor(Color.Transparent)
+                    ),
+            interactionSource = interactionSource,
+            modifier =
+                    modifier.fillMaxWidth()
+                            .scaleDownOnPress(
+                                    interactionSource = interactionSource,
+                                    scaleRatio = .95f
+                            )
     ) {
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier.padding(15.dp)
-        ) {
+        Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.padding(15.dp)) {
             content(Modifier.weight(1f))
         }
     }
@@ -71,48 +79,46 @@ fun CardSelectable(
 
 @Composable
 fun CardButton(
-    modifier: Modifier = Modifier,
-    onClick: () -> Unit,
-    @StringRes buttonText: Int,
-    @StringRes contextualText: Int,
-    vararg subjectText: String,
-    @DrawableRes contextualIcon: Int? = null,
-    @DrawableRes buttonIcon: Int? = null,
+        modifier: Modifier = Modifier,
+        onClick: () -> Unit,
+        @StringRes buttonText: Int,
+        @StringRes contextualText: Int,
+        vararg subjectText: String,
+        @DrawableRes contextualIcon: Int? = null,
+        @DrawableRes buttonIcon: Int? = null,
 ) {
     OutlinedCard {
         Column(
-            horizontalAlignment = Alignment.CenterHorizontally,
-            modifier = modifier
-                .fillMaxWidth()
-                .padding(15.dp)
+                horizontalAlignment = Alignment.CenterHorizontally,
+                modifier = modifier.fillMaxWidth().padding(15.dp)
         ) {
             ButtonPrimary(
-                onClick = onClick,
-                modifier = Modifier.fillMaxWidth(),
-                content = {
-                    contextualIcon?.let {
-                        Icon(
-                            painter = painterResource(it),
-                            contentDescription = stringResource(contextualText)
+                    onClick = onClick,
+                    modifier = Modifier.fillMaxWidth(),
+                    content = {
+                        contextualIcon?.let {
+                            Icon(
+                                    painter = painterResource(it),
+                                    contentDescription = stringResource(contextualText)
+                            )
+                        }
+                        Spacer(Modifier.height(10.dp))
+                        TextBig(text = stringResource(contextualText))
+                        subjectText.onEach {
+                            Spacer(Modifier.height(5.dp))
+                            TextSmol(text = "- $it")
+                        }
+
+                        Spacer(Modifier.height(15.dp))
+
+                        ButtonPrimary(
+                                onClick = onClick,
+                                content = {
+                                    TextButton(text = stringResource(buttonText))
+                                    buttonIcon?.let { IconButton(painter = painterResource(it)) }
+                                }
                         )
                     }
-                    Spacer(Modifier.height(10.dp))
-                    TextBig(text = stringResource(contextualText))
-                    subjectText.onEach {
-                        Spacer(Modifier.height(5.dp))
-                        TextSmol(text = "- $it")
-                    }
-
-                    Spacer(Modifier.height(15.dp))
-
-                    ButtonPrimary(
-                        onClick = onClick,
-                        content = {
-                            TextButton(text = stringResource(buttonText))
-                            buttonIcon?.let { IconButton(painter = painterResource(it)) }
-                        }
-                    )
-                }
             )
         }
     }
@@ -120,27 +126,27 @@ fun CardButton(
 
 @Composable
 fun CardClickable(
-    modifier: Modifier = Modifier,
-    onClick: () -> Unit,
-    color: Color = MaterialTheme.colorScheme.surface,
-    content: @Composable () -> Unit
+        modifier: Modifier = Modifier,
+        onClick: () -> Unit,
+        color: Color = MaterialTheme.colorScheme.surface,
+        content: @Composable () -> Unit
 ) {
-    var interactionSource = remember { MutableInteractionSource() }
+    val interactionSource = remember { MutableInteractionSource() }
 
     Card(
-        modifier = modifier.scaleDownOnPress(
-            scaleRatio = .9f,
-            interactionSource = interactionSource
-        ),
-        onClick = onClick,
-        interactionSource = interactionSource,
-        colors = CardDefaults.cardColors(
-            containerColor = color,
-            contentColor = contentColorFor(color)
-        )
-    ) {
-        content()
-    }
+            modifier =
+                    modifier.scaleDownOnPress(
+                            scaleRatio = .9f,
+                            interactionSource = interactionSource
+                    ),
+            onClick = onClick,
+            interactionSource = interactionSource,
+            colors =
+                    CardDefaults.cardColors(
+                            containerColor = color,
+                            contentColor = contentColorFor(color)
+                    )
+    ) { content() }
 }
 
 @Preview(showBackground = true)
@@ -149,19 +155,17 @@ private fun CardWithCheckboxPrev() {
     var checked by rememberSaveable { mutableStateOf(false) }
     Preview {
         CardSelectable(
-            content = { modifier ->
-                Text("English", modifier = modifier)
+                content = { modifier ->
+                    Text("English", modifier = modifier)
 
-                if (checked) {
-                    IconButton(
-                        painter = painterResource(R.drawable.ic_check),
-                    )
-                }
-            },
-            onSelect = {
-                checked = !checked
-            },
-            selected = checked
+                    if (checked) {
+                        IconButton(
+                                painter = painterResource(R.drawable.ic_check),
+                        )
+                    }
+                },
+                onSelect = { checked = !checked },
+                selected = checked
         )
     }
 }

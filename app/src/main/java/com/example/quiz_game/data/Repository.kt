@@ -16,20 +16,18 @@ import kotlinx.serialization.json.Json
 
 object Repository {
 
-    private const val TAG = "Repository"
-
     suspend fun prepareTranslator(): Translator {
         val userLanguage =
-            getUser()?.language
-                ?: throw IllegalStateException(
-                    "Language is null, maybe the user has not set the language yet?"
-                )
+                getUser()?.language
+                        ?: throw IllegalStateException(
+                                "Language is null, maybe the user has not set the language yet?"
+                        )
 
         val translator =
-            Utils.prepareTranslator(
-                sourceLanguage = TranslateLanguage.ENGLISH,
-                targetLanguage = userLanguage
-            )
+                Utils.prepareTranslator(
+                        sourceLanguage = TranslateLanguage.ENGLISH,
+                        targetLanguage = userLanguage
+                )
 
         getUser()?.let { user ->
             user.translatorReady = true
@@ -52,7 +50,7 @@ object Repository {
             try {
                 Json.decodeFromString<User>(it)
             } catch (e: Exception) {
-                Log.e(TAG, "getUser: Could not retrieve user info $e")
+                Log.e("Repository", "getUser: Could not retrieve user info $e")
                 null
             }
         }

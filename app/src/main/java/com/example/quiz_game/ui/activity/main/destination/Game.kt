@@ -35,6 +35,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.util.fastFilter
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.example.quiz_game.data.quiz.Quiz
@@ -62,7 +63,7 @@ import kotlinx.coroutines.launch
 @Composable
 fun Game(
         modifier: Modifier = Modifier,
-        quizzesUids: List<String> = emptyList(), // FIXME: Probably won't need this anymore
+        quizzesUids: List<String> = emptyList(),
         quizState: StateFlow<QuizState>,
         quizAction: (QuizAction) -> Unit = {},
         sharedState: SharedState = SharedState(),
@@ -88,7 +89,7 @@ fun Game(
                             !quizState.executing && quizState.sessionQuizzes.isNotEmpty()
                         }
                         .let {
-                            currentQuizzes = it.sessionQuizzes
+                            currentQuizzes = it.sessionQuizzes.fastFilter { quiz -> !quiz.expired }
                             currentQuizState = it
                             loading = false
                         }
@@ -116,12 +117,7 @@ fun Game(
                     .let {
                         val activeSession = it.session!! // Safe because of filter above
                         currentSession = activeSession
-                        quizAction(
-                                QuizAction.GetBySession(
-                                        activeSession.quizzesUids!!,
-                                        sharedState.translator
-                                )
-                        )
+                        quizAction(QuizAction.GetBySession(activeSession.quizzesUids!!))
                         loading = false
                     }
         }

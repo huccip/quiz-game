@@ -34,6 +34,13 @@
     <string name="onboard_language_restarting">Applying language, restarting…</string>
     <string name="onboard_language_download_failed">Download failed. Please check your connection.</string>
     <string name="onboard_language_auto_retry">Will retry automatically when connection returns…</string>
+    <string name="onboard_language_internet_lost">Internet connection lost. Download was interrupted.</string>
+    <string name="onboard_language_continue_without">Continue without translation</string>
+    <string name="onboard_language_offline_title">You\'re offline</string>
+    <string name="onboard_language_offline_body">The translation model needs a download. Connect to the internet, or continue without translation — it will download automatically later.</string>
+    <string name="onboard_language_back_online_title">You\'re back online!</string>
+    <string name="onboard_language_back_online_body">Starting download…</string>
+    <string name="network_recovery_retry_action">Retry</string>
 
     <string name="main_game_answer_state_idle">Waiting…</string>
     <string name="main_game_answer_state_picked">Confirm answer</string>
@@ -201,4 +208,7 @@
     
     <string name="connectivity_offline">You are offline</string>
     <string name="connectivity_online">You\'re back online!</string>
+
+    <string name="onboard_guide_continue">Continue</string>
+    <string name="postgame_player_fallback">Player #0000</string>
 </resources>

@@ -1,16 +1,20 @@
 package com.example.quiz_game.ui.activity.main
 
+import android.app.Activity
+import android.content.Intent
 import android.os.Bundle
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.SnackbarResult
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -31,19 +35,22 @@ import com.example.quiz_game.AppDestination
 import com.example.quiz_game.BaseActivity
 import com.example.quiz_game.R
 import com.example.quiz_game.other.NetworkConnectivityObserver
+import com.example.quiz_game.other.NetworkRecoveryManager
+import com.example.quiz_game.other.TranslatorManager
+import com.example.quiz_game.other.TranslatorStatus
 import com.example.quiz_game.other.Utils
-import com.example.quiz_game.ui.activity.main.MainDestination.Home
 import com.example.quiz_game.ui.activity.main.destination.Browse
 import com.example.quiz_game.ui.activity.main.destination.Game
 import com.example.quiz_game.ui.activity.main.destination.Home
 import com.example.quiz_game.ui.activity.main.destination.PostGame
+import com.example.quiz_game.ui.activity.onboard.OnboardActivity
 import com.example.quiz_game.ui.activity.onboard.destination.Language
+import com.example.quiz_game.ui.shared.component.LoadingProgressiveLine
 import com.example.quiz_game.ui.theme.QuizgameTheme
 import com.example.quiz_game.ui.viewmodel.CategoryViewModel
 import com.example.quiz_game.ui.viewmodel.OnboardViewModel
 import com.example.quiz_game.ui.viewmodel.QuizViewModel
 import com.example.quiz_game.ui.viewmodel.SessionViewModel
-import com.example.quiz_game.ui.viewmodel.SharedAction
 import com.example.quiz_game.ui.viewmodel.SharedViewModel
 import kotlinx.coroutines.launch
 import kotlinx.serialization.Serializable
@@ -59,8 +66,6 @@ class MainActivity : BaseActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
-
-        println("test1234 MainActivity onCreate()")
 
         setContent {
             val navController = rememberNavController()
@@ -88,9 +93,42 @@ class MainActivity : BaseActivity() {
                             .observe()
                             .collectAsStateWithLifecycle(initialValue = initialNetworkStatus)
             var isInitialStatus by rememberSaveable { mutableStateOf(true) }
+            val pendingTasks by NetworkRecoveryManager.pendingTasks.collectAsStateWithLifecycle()
 
             val offlineMessage = stringResource(R.string.connectivity_offline)
             val onlineMessage = stringResource(R.string.connectivity_online)
+            val retryAction = stringResource(R.string.network_recovery_retry_action)
+
+            // Observe translator status for background download loading bar
+            val translatorStatus by TranslatorManager.status.collectAsStateWithLifecycle()
+            val isTranslatorDownloading =
+                    translatorStatus in
+                            listOf(
+                                    TranslatorStatus.Saving,
+                                    TranslatorStatus.Downloading,
+                                    TranslatorStatus.SlowDownload
+                            )
+
+            // Initialize translator + watch for background download completion
+            LaunchedEffect(Unit) {
+                // 1. Reset status & restore translator (must run BEFORE any restart check)
+                TranslatorManager.initIfReady()
+
+                // 2. Now observe: only FUTURE transitions to Restarting trigger restart
+                TranslatorManager.status.collect { status ->
+                    if (status == TranslatorStatus.Restarting) {
+                        val intent = Intent(context, OnboardActivity::class.java)
+                        intent.addFlags(
+                                Intent.FLAG_ACTIVITY_NEW_TASK or
+                                        Intent.FLAG_ACTIVITY_CLEAR_TASK or
+                                        Intent.FLAG_ACTIVITY_NO_ANIMATION
+                        )
+                        context.startActivity(intent)
+                        (context as? Activity)?.overridePendingTransition(0, 0)
+                        (context as? Activity)?.finishAffinity()
+                    }
+                }
+            }
 
             LaunchedEffect(networkStatus) {
                 if (isInitialStatus) {
@@ -106,28 +144,21 @@ class MainActivity : BaseActivity() {
                 } else {
                     if (networkStatus == NetworkConnectivityObserver.Status.Available) {
                         snackbarHostState.currentSnackbarData?.dismiss()
-                        snackbarHostState.showSnackbar(onlineMessage)
 
-                        sharedViewModel.onAction(
-                                SharedAction.PrepareTranslator(
-                                        language = onboardState.user.language ?: "",
-                                        context = context
-                                )
-                        )
-
-                        // val currentCategoryState = categoryViewModel.state.value
-                        // if (!currentCategoryState.executing &&
-                        //     currentCategoryState.categories.isEmpty()
-                        // ) {
-                        //     categoryViewModel.onAction(
-                        //         CategoryAction.GetAll(sharedState.translator)
-                        //     )
-                        // }
-
-                        // val currentQuizState = quizViewModel.state.value
-                        // if (!currentQuizState.executing) {
-                        //     quizViewModel.onAction(QuizAction.GetAll)
-                        // }
+                        // If there are pending tasks, offer to retry them
+                        if (pendingTasks.isNotEmpty()) {
+                            val result =
+                                    snackbarHostState.showSnackbar(
+                                            message = onlineMessage,
+                                            actionLabel = retryAction,
+                                            duration = SnackbarDuration.Long
+                                    )
+                            if (result == SnackbarResult.ActionPerformed) {
+                                NetworkRecoveryManager.retryAll()
+                            }
+                        } else {
+                            snackbarHostState.showSnackbar(onlineMessage)
+                        }
                     } else if (networkStatus == NetworkConnectivityObserver.Status.Lost ||
                                     networkStatus == NetworkConnectivityObserver.Status.Unavailable
                     ) {
@@ -145,72 +176,99 @@ class MainActivity : BaseActivity() {
                         modifier = Modifier.fillMaxSize(),
                         snackbarHost = { SnackbarHost(snackbarHostState) }
                 ) { innerPadding ->
-                    Box(
-                            Modifier.fillMaxSize().padding(paddingValues = innerPadding),
-                            contentAlignment = Alignment.Center
-                    ) {
-                        NavHost(navController = navController, startDestination = Home) {
-                            composable<Home> {
-                                Home(
-                                        quizState = quizState,
-                                        quizAction = quizViewModel::onAction,
-                                        categoryState = categoryState,
-                                        sessionState = sessionState,
-                                        sharedAction = sharedViewModel::onAction,
-                                        navController = navController,
-                                        sessionAction = sessionViewModel::onAction,
-                                        onError = onError
-                                )
-                            }
+                    Column(Modifier.fillMaxSize().padding(paddingValues = innerPadding)) {
+                        // Show loading bar when translator downloads in background
+                        if (isTranslatorDownloading) {
+                            val statusMessage =
+                                    when (translatorStatus) {
+                                        TranslatorStatus.Saving ->
+                                                stringResource(
+                                                        R.string.onboard_form_loading_subject
+                                                )
+                                        TranslatorStatus.Downloading ->
+                                                stringResource(
+                                                        R.string.onboard_language_downloading
+                                                )
+                                        TranslatorStatus.SlowDownload ->
+                                                stringResource(
+                                                        R.string.onboard_language_slow_download
+                                                )
+                                        else ->
+                                                stringResource(
+                                                        R.string.onboard_form_loading_subject
+                                                )
+                                    }
+                            LoadingProgressiveLine(
+                                    status = translatorStatus,
+                                    statusMessage = statusMessage
+                            )
+                        }
 
-                            composable<MainDestination.Game> {
-                                Game(
-                                        quizState = quizViewModel.state,
-                                        quizzesUids =
-                                                it.toRoute<MainDestination.Game>().quizzesUids,
-                                        sharedState = sharedState,
-                                        sharedAction = sharedViewModel::onAction,
-                                        quizAction = quizViewModel::onAction,
-                                        sessionState = sessionViewModel.state,
-                                        sessionAction = sessionViewModel::onAction,
-                                        navController = navController
-                                )
-                            }
+                        Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                            NavHost(
+                                    navController = navController,
+                                    startDestination = MainDestination.Home
+                            ) {
+                                composable<MainDestination.Home> {
+                                    Home(
+                                            quizState = quizState,
+                                            quizAction = quizViewModel::onAction,
+                                            categoryState = categoryState,
+                                            sessionState = sessionState,
+                                            sharedAction = sharedViewModel::onAction,
+                                            navController = navController,
+                                            sessionAction = sessionViewModel::onAction,
+                                            onError = onError
+                                    )
+                                }
 
-                            composable<MainDestination.Browse> {
-                                Browse(
-                                        quizState = quizState,
-                                        sharedState = sharedState,
-                                        categoryState = categoryState,
-                                        sharedAction = sharedViewModel::onAction,
-                                        navController = navController,
-                                        quizAction = quizViewModel::onAction,
-                                        categoryAction = categoryViewModel::onAction,
-                                        sessionAction = sessionViewModel::onAction,
-                                        onError = onError
-                                )
-                            }
+                                composable<MainDestination.Game> {
+                                    Game(
+                                            quizState = quizViewModel.state,
+                                            quizzesUids =
+                                                    it.toRoute<MainDestination.Game>().quizzesUids,
+                                            sharedAction = sharedViewModel::onAction,
+                                            quizAction = quizViewModel::onAction,
+                                            sessionState = sessionViewModel.state,
+                                            sessionAction = sessionViewModel::onAction,
+                                            navController = navController
+                                    )
+                                }
 
-                            composable<MainDestination.Language> {
-                                Language(
-                                        sharedState = sharedState,
-                                        sharedAction = sharedViewModel::onAction,
-                                        onboardState = onboardState,
-                                        onboardAction = onboardViewModel::onAction,
-                                        navController = navController,
-                                        fromOnboarding = false
-                                )
-                            }
+                                composable<MainDestination.Browse> {
+                                    Browse(
+                                            quizState = quizState,
+                                            categoryState = categoryState,
+                                            sharedAction = sharedViewModel::onAction,
+                                            navController = navController,
+                                            quizAction = quizViewModel::onAction,
+                                            categoryAction = categoryViewModel::onAction,
+                                            sessionAction = sessionViewModel::onAction,
+                                            onError = onError
+                                    )
+                                }
 
-                            composable<MainDestination.PostGame> {
-                                PostGame(
-                                        sharedAction = sharedViewModel::onAction,
-                                        navController = navController,
-                                        quizState = quizState,
-                                        quizAction = quizViewModel::onAction,
-                                        sessionState = sessionState,
-                                        sessionAction = sessionViewModel::onAction,
-                                )
+                                composable<MainDestination.Language> {
+                                    Language(
+                                            sharedState = sharedState,
+                                            sharedAction = sharedViewModel::onAction,
+                                            onboardState = onboardState,
+                                            onboardAction = onboardViewModel::onAction,
+                                            navController = navController,
+                                            fromOnboarding = false
+                                    )
+                                }
+
+                                composable<MainDestination.PostGame> {
+                                    PostGame(
+                                            sharedAction = sharedViewModel::onAction,
+                                            navController = navController,
+                                            quizState = quizState,
+                                            quizAction = quizViewModel::onAction,
+                                            sessionState = sessionState,
+                                            sessionAction = sessionViewModel::onAction,
+                                    )
+                                }
                             }
                         }
                     }
