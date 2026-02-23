@@ -35,14 +35,12 @@ import com.example.quiz_game.ui.shared.component.TextFieldPrimary
 import com.example.quiz_game.ui.viewmodel.OnboardAction
 import com.example.quiz_game.ui.viewmodel.SharedAction
 
-private const val TAG = "test1234 Form"
-
 @Composable
 fun Form(
-    modifier: Modifier = Modifier,
-    sharedAction: (SharedAction) -> Unit = {},
-    onboardAction: (OnboardAction) -> Unit = {},
-    navController: NavController = rememberNavController(),
+        modifier: Modifier = Modifier,
+        sharedAction: (SharedAction) -> Unit = {},
+        onboardAction: (OnboardAction) -> Unit = {},
+        navController: NavController = rememberNavController(),
 ) {
     var textfieldEnabled by rememberSaveable { mutableStateOf(true) }
     var usernameState by rememberSaveable { mutableStateOf("") }
@@ -61,58 +59,63 @@ fun Form(
         textfieldCleared = true
     }
 
-    val validationRules = arrayOf(
-        Regex("^.{0,10}$") to stringResource(R.string.onboard_name_textfield_max_characters),
-        Regex("^.{4,}$") to stringResource(R.string.onboard_name_textfield_min_characters),
-        Regex("^[\\p{L}0-9]+$") to stringResource(R.string.onboard_name_textfield_unallowed_characters)
-    )
+    val validationRules =
+            arrayOf(
+                    Regex("^.{0,10}$") to
+                            stringResource(R.string.onboard_name_textfield_max_characters),
+                    Regex("^.{4,}$") to
+                            stringResource(R.string.onboard_name_textfield_min_characters),
+                    Regex("^[\\p{L}0-9]+$") to
+                            stringResource(R.string.onboard_name_textfield_unallowed_characters)
+            )
 
     Column(modifier = modifier.padding(horizontal = 16.dp).wrapContentSize()) {
         TextFancy(
-            text = stringResource(
-                R.string.onboard_form_greet,
-                if (!buttonEnabled) "you" else usernameState
-            ),
+                text =
+                        stringResource(
+                                R.string.onboard_form_greet,
+                                if (!buttonEnabled) "you" else usernameState
+                        ),
         )
         Spacer(Modifier.height(5.dp))
         TextFancy(
-            text = stringResource(R.string.onboard_form_question),
-            color = MaterialTheme.colorScheme.primary,
-            fontWeight = FontWeight.Bold,
-            modifier = Modifier.wrapContentHeight()
+                text = stringResource(R.string.onboard_form_question),
+                color = MaterialTheme.colorScheme.primary,
+                fontWeight = FontWeight.Bold,
+                modifier = Modifier.wrapContentHeight()
         )
 
         Spacer(Modifier.height(25.dp))
 
         TextFieldPrimary(
-            modifier = Modifier.fillMaxWidth().shake(!buttonEnabled, Orientation.Horizontal),
-            enabled = textfieldEnabled,
-            placeholder = R.string.onboard_name_placeholder,
-            label = R.string.onboard_name_label,
-            trailingIcon = if (usernameState.isEmpty()) null else R.drawable.ic_erase,
-            isLast = true,
-            regex = validationRules,
-            onDone = { username -> onUpdateUsername(username) },
-            onTrailingIconClicked = onClear,
-            cleared = textfieldCleared,
-            onValid = { isValid, username ->
-                buttonEnabled = isValid
-                usernameState = username
-                textfieldCleared = false
-            }
+                modifier = Modifier.fillMaxWidth().shake(!buttonEnabled, Orientation.Horizontal),
+                enabled = textfieldEnabled,
+                placeholder = R.string.onboard_name_placeholder,
+                label = R.string.onboard_name_label,
+                trailingIcon = if (usernameState.isEmpty()) null else R.drawable.ic_erase,
+                isLast = true,
+                regex = validationRules,
+                onDone = { username -> onUpdateUsername(username) },
+                onTrailingIconClicked = onClear,
+                cleared = textfieldCleared,
+                onValid = { isValid, username ->
+                    buttonEnabled = isValid
+                    usernameState = username
+                    textfieldCleared = false
+                }
         )
 
         Spacer(Modifier.height(25.dp))
 
         Box(Modifier.fillMaxWidth(), contentAlignment = Alignment.CenterEnd) {
             ButtonPrimary(
-                onClick = { onUpdateUsername(usernameState) },
-                enabled = buttonEnabled,
-                color = MaterialTheme.colorScheme.primary
+                    onClick = { onUpdateUsername(usernameState) },
+                    enabled = buttonEnabled,
+                    color = MaterialTheme.colorScheme.primary
             ) {
                 TextButton(text = stringResource(R.string.onboard_form_submit))
                 IconButton(
-                    painter = painterResource(R.drawable.ic_arrow_forward),
+                        painter = painterResource(R.drawable.ic_arrow_forward),
                 )
             }
         }
@@ -122,7 +125,5 @@ fun Form(
 @Preview(showBackground = true)
 @Composable
 private fun FormPreview() {
-    com.example.quiz_game.ui.shared.component.Preview {
-        Form()
-    }
+    com.example.quiz_game.ui.shared.component.Preview { Form() }
 }

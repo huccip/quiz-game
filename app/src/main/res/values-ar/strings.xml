@@ -29,6 +29,20 @@
     <string name="onboard_language_no_internet_warning_message">لا يوجد اتصال بالإنترنت. يرجى الاتصال بالإنترنت لإعداد اللغة.</string>
     <string name="onboard_language_no_wifi_warning_message">أنت غير متصل بشبكة الواي فاي. هل تريد المتابعة باستخدام بيانات الجوال؟"</string>
 
+    <string name="onboard_language_downloading">جارٍ تحميل نموذج اللغة…</string>
+    <string name="onboard_language_slow_download">لا يزال التحميل جارياً، يرجى البقاء متصلاً…</string>
+    <string name="onboard_language_restarting">جارٍ تطبيق اللغة، إعادة التشغيل…</string>
+    <string name="onboard_language_download_failed">فشل التحميل. يرجى التحقق من اتصالك.</string>
+    <string name="onboard_language_auto_retry">ستتم إعادة المحاولة تلقائياً عند عودة الاتصال…</string>
+    <string name="onboard_language_internet_lost">انقطع الاتصال بالإنترنت. تم مقاطعة التحميل.</string>
+    <string name="onboard_language_continue_without">المتابعة بدون ترجمة</string>
+    <string name="onboard_language_offline_title">أنت غير متصل</string>
+    <string name="onboard_language_offline_body">نموذج الترجمة يحتاج إلى تحميل. اتصل بالإنترنت، أو تابع بدون ترجمة — سيتم التحميل تلقائياً لاحقاً.</string>
+    <string name="onboard_language_back_online_title">عدت متصلاً!</string>
+    <string name="onboard_language_back_online_body">جارٍ بدء التحميل…</string>
+    <string name="network_recovery_retry_action">إعادة المحاولة</string>
+
+
     <string name="main_game_answer_state_idle">في انتظار…</string>
     <string name="main_game_answer_state_picked">تأكيد الإجابة</string>
     <string name="main_game_answer_state_locked">السؤال التالي</string>

@@ -1,25 +1,17 @@
 package com.example.quiz_game.ui.activity.main.destination
 
 import android.util.Log
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountCircle
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.SuggestionChip
 import androidx.compose.material3.SuggestionChipDefaults
 import androidx.compose.material3.contentColorFor
@@ -32,7 +24,6 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringArrayResource
 import androidx.compose.ui.res.stringResource
@@ -43,12 +34,13 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.fastFilter
 import androidx.compose.ui.util.fastForEach
 import androidx.compose.ui.util.fastMap
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.example.quiz_game.R
 import com.example.quiz_game.data.Repository
-import com.example.quiz_game.data.category.Category
 import com.example.quiz_game.other.Constants
+import com.example.quiz_game.other.TranslatorManager
 import com.example.quiz_game.other.Utils
 import com.example.quiz_game.ui.activity.main.MainDestination
 import com.example.quiz_game.ui.shared.component.ButtonPrimary
@@ -61,9 +53,7 @@ import com.example.quiz_game.ui.shared.component.LoadingFullScreenLowOpacityWith
 import com.example.quiz_game.ui.shared.component.LoadingInfiniteLine
 import com.example.quiz_game.ui.shared.component.TextBerySmol
 import com.example.quiz_game.ui.shared.component.TextButton
-import com.example.quiz_game.ui.shared.component.TextFancy
 import com.example.quiz_game.ui.shared.component.TextRegular
-import com.example.quiz_game.ui.shared.component.TextSmol
 import com.example.quiz_game.ui.viewmodel.CategoryAction
 import com.example.quiz_game.ui.viewmodel.CategoryState
 import com.example.quiz_game.ui.viewmodel.QuizAction
@@ -73,24 +63,21 @@ import com.example.quiz_game.ui.viewmodel.QuoteState
 import com.example.quiz_game.ui.viewmodel.SessionAction
 import com.example.quiz_game.ui.viewmodel.SessionState
 import com.example.quiz_game.ui.viewmodel.SharedAction
-import com.example.quiz_game.ui.viewmodel.SharedState
-
-private const val TAG = "test1234 Home"
 
 @Composable
 fun Home(
-    modifier: Modifier = Modifier,
-    quizState: QuizState,
-    quizAction: (QuizAction) -> Unit = {},
-    categoryState: CategoryState = CategoryState(),
-    quoteState: QuoteState = QuoteState(),
-    quoteAction: (QuoteAction) -> Unit = {},
-    sharedAction: (SharedAction) -> Unit = {},
-    sessionState: SessionState = SessionState(),
-    sessionAction: (SessionAction) -> Unit = {},
-    categoryAction: (CategoryAction) -> Unit = {},
-    navController: NavController = rememberNavController(),
-    onError: (String) -> Unit = {}
+        modifier: Modifier = Modifier,
+        quizState: QuizState,
+        quizAction: (QuizAction) -> Unit = {},
+        categoryState: CategoryState = CategoryState(),
+        quoteState: QuoteState = QuoteState(),
+        quoteAction: (QuoteAction) -> Unit = {},
+        sharedAction: (SharedAction) -> Unit = {},
+        sessionState: SessionState = SessionState(),
+        sessionAction: (SessionAction) -> Unit = {},
+        categoryAction: (CategoryAction) -> Unit = {},
+        navController: NavController = rememberNavController(),
+        onError: (String) -> Unit = {}
 ) {
     var translated by remember { mutableStateOf("Undefined") }
     var selectedCountryCode by remember { mutableStateOf("Undefined") }
@@ -101,8 +88,7 @@ fun Home(
 
     LaunchedEffect(Unit) {
         val userLanguage = Repository.getUser()?.language
-        val supportedLanguage =
-            Constants.SUPPORTED_LANGUAGES.find { it.first == userLanguage }
+        val supportedLanguage = Constants.SUPPORTED_LANGUAGES.find { it.first == userLanguage }
 
         if (supportedLanguage != null) {
             val (_, nameAndCountry, country) = supportedLanguage
@@ -121,17 +107,17 @@ fun Home(
 
         if (!quizState.ready && quizState.errors.isNotEmpty()) {
             onError("Failed to load quizzes, reason : ${quizState.errors.joinToString()}.")
-            quizState.errors.fastForEach { e -> Log.e(TAG, "Home: ${e.message}") }
+            quizState.errors.fastForEach { e -> Log.e("Home", "Home: ${e.message}") }
             startGameTrigger = false
 
             return@LaunchedEffect
         }
 
         val sessionQuizzes =
-            quizState
-                .quizzes
-                .fastFilter { !it.expired }
-                .take(Constants.DEFAULT_QUIZ_SESSION_AMOUNT)
+                quizState
+                        .quizzes
+                        .fastFilter { !it.expired }
+                        .take(Constants.DEFAULT_QUIZ_SESSION_AMOUNT)
 
         if (sessionQuizzes.isEmpty()) {
             onError("We couldn't get quizzes. Please check your internet connection.")
@@ -141,10 +127,10 @@ fun Home(
 
         // Initiate a new session
         sessionAction(
-            SessionAction.InitiateSession(
-                quizzesUids = sessionQuizzes.fastMap { it.uid },
-                maxScore = sessionQuizzes.sumOf { it.mark ?: 0 }
-            )
+                SessionAction.InitiateSession(
+                        quizzesUids = sessionQuizzes.fastMap { it.uid },
+                        maxScore = sessionQuizzes.sumOf { it.mark ?: 0 }
+                )
         )
 
         // Navigate
@@ -158,131 +144,97 @@ fun Home(
     } else {
         if (confirmationDialog) {
             DialogYesOrNo(
-                modifier = Modifier.fillMaxWidth(),
-                title = R.string.dialog_discard_session_title,
-                text = R.string.dialog_discard_session_text,
-                icon = R.drawable.ic_warning,
-                buttonConfirmText = R.string.dialog_discard_session_confirm_button,
-                buttonDismissText = R.string.dialog_discard_session_dissmiss_button,
-                onConfirm = {
-                    currentSession?.let {
-                        sessionAction(SessionAction.EndSession(it.uid))
-                    }
+                    modifier = Modifier.fillMaxWidth(),
+                    title = R.string.dialog_discard_session_title,
+                    text = R.string.dialog_discard_session_text,
+                    icon = R.drawable.ic_warning,
+                    buttonConfirmText = R.string.dialog_discard_session_confirm_button,
+                    buttonDismissText = R.string.dialog_discard_session_dissmiss_button,
+                    onConfirm = {
+                        currentSession?.let { sessionAction(SessionAction.EndSession(it.uid)) }
 
-                    when (whereTo) {
-                        WhereTo.Start -> {
-                            sharedAction(
-                                SharedAction.Navigate(
-                                    MainDestination.Game(),
-                                    navController
+                        when (whereTo) {
+                            WhereTo.Start -> {
+                                sharedAction(
+                                        SharedAction.Navigate(MainDestination.Game(), navController)
                                 )
-                            )
+                            }
+                            WhereTo.Browse -> {
+                                sharedAction(
+                                        SharedAction.Navigate(MainDestination.Browse, navController)
+                                )
+                            }
                         }
 
-                        WhereTo.Browse -> {
-                            sharedAction(
-                                SharedAction.Navigate(
-                                    MainDestination.Browse,
-                                    navController
-                                )
-                            )
-                        }
-                    }
-
-                    confirmationDialog = false
-                },
-                onDismiss = { confirmationDialog = false }
+                        confirmationDialog = false
+                    },
+                    onDismiss = { confirmationDialog = false }
             )
         }
 
         Column(
-            horizontalAlignment = Alignment.CenterHorizontally,
+                horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             Row(
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
-                verticalAlignment = Alignment.CenterVertically
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    verticalAlignment = Alignment.CenterVertically
             ) {
                 ButtonPrimary(
-                    onClick = {
-                        if (currentSession == null ||
-                            currentSession.expiredAt != null
-                        ) {
-                            startGameTrigger = true
-                        } else {
-                            whereTo = WhereTo.Start
-                            confirmationDialog = true
+                        onClick = {
+                            if (currentSession == null || currentSession.expiredAt != null) {
+                                startGameTrigger = true
+                            } else {
+                                whereTo = WhereTo.Start
+                                confirmationDialog = true
+                            }
                         }
-                    }
                 ) { TextButton(text = stringResource(R.string.home_button_start)) }
 
                 if (currentSession != null && currentSession.expiredAt == null) {
                     ButtonPrimary(
-                        onClick = {
+                            onClick = {
+                                sharedAction(
+                                        SharedAction.Navigate(
+                                                MainDestination.Game(
+                                                        quizzesUids = currentSession.quizzesUids
+                                                                        ?: emptyList()
+                                                ),
+                                                navController
+                                        )
+                                )
+                            }
+                    ) { TextButton(text = stringResource(R.string.home_button_resume)) }
+                }
+            }
+            ButtonSecondary(
+                    onClick = {
+                        if (currentSession == null || currentSession.expiredAt != null) {
                             sharedAction(
-                                SharedAction.Navigate(
-                                    MainDestination.Game(
-                                        quizzesUids =
-                                            currentSession
-                                                .quizzesUids
-                                                ?: emptyList()
-                                    ),
-                                    navController
-                                )
+                                    SharedAction.Navigate(MainDestination.Browse, navController)
                             )
+
+                            return@ButtonSecondary
                         }
-                    ) {
-                        TextButton(
-                            text =
-                                stringResource(
-                                    R.string.home_button_resume
-                                )
-                        )
-                    }
-                }
-            }
-            ButtonSecondary(
-                onClick = {
-                    if (currentSession == null ||
-                        currentSession.expiredAt != null
-                    ) {
-                        sharedAction(
-                            SharedAction.Navigate(
-                                MainDestination.Browse,
-                                navController
-                            )
-                        )
 
-                        return@ButtonSecondary
+                        whereTo = WhereTo.Browse
+                        confirmationDialog = true
                     }
-
-                    whereTo = WhereTo.Browse
-                    confirmationDialog = true
-                }
             ) {
                 TextButton(
-                    text = stringResource(R.string.home_button_browse),
-                    textDecoration = TextDecoration.Underline
+                        text = stringResource(R.string.home_button_browse),
+                        textDecoration = TextDecoration.Underline
                 )
-                IconButton(
-                    painter = painterResource(R.drawable.ic_arrow_north_east)
-                )
+                IconButton(painter = painterResource(R.drawable.ic_arrow_north_east))
             }
 
             ButtonSecondary(
-                onClick = {
-                    sharedAction(
-                        SharedAction.Navigate(
-                            MainDestination.Language,
-                            navController
-                        )
-                    )
-                }
+                    onClick = {
+                        sharedAction(SharedAction.Navigate(MainDestination.Language, navController))
+                    }
             ) {
-                IconButton(
-                    model = Utils.countryFlag(countryCode = selectedCountryCode)
-                )
+                IconButton(model = Utils.countryFlag(countryCode = selectedCountryCode))
                 TextButton(
-                    text = translated,
+                        text = translated,
                 )
             }
         }
@@ -290,14 +242,15 @@ fun Home(
 }
 
 @Composable
-private fun GreetingSection(sharedState: SharedState = SharedState()) {
+private fun GreetingSection() {
+    val translator by TranslatorManager.translator.collectAsStateWithLifecycle()
     var greetingMessage by rememberSaveable { mutableStateOf("") }
-    LaunchedEffect(sharedState.translator) {
-        greetingMessage = Utils.greetingBasedOnTimezone(translator = sharedState.translator)
+    LaunchedEffect(translator) {
+        greetingMessage = Utils.greetingBasedOnTimezone(translator = translator)
     }
     LayoutSectionHeadline(
-        title = "$greetingMessage ${Repository.getUser()?.username}",
-        leadingIcon = R.drawable.ic_wave
+            title = "$greetingMessage ${Repository.getUser()?.username}",
+            leadingIcon = R.drawable.ic_wave
     )
 }
 
@@ -306,9 +259,9 @@ private fun QuoteCard(quoteState: QuoteState, onAuthorClick: (String?) -> Unit) 
     val padding = 10.dp
 
     CardClickable(
-        onClick = { onAuthorClick(quoteState.quote?.author) },
-        color = MaterialTheme.colorScheme.secondaryContainer,
-        modifier = Modifier.fillMaxWidth()
+            onClick = { onAuthorClick(quoteState.quote?.author) },
+            color = MaterialTheme.colorScheme.secondaryContainer,
+            modifier = Modifier.fillMaxWidth()
     ) {
         if (quoteState.executing) {
             Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
@@ -318,258 +271,55 @@ private fun QuoteCard(quoteState: QuoteState, onAuthorClick: (String?) -> Unit) 
         }
 
         Column(
-            Modifier
-                .fillMaxWidth()
-                .padding(vertical = padding),
-            verticalArrangement = Arrangement.spacedBy(10.dp)
+                Modifier.fillMaxWidth().padding(vertical = padding),
+                verticalArrangement = Arrangement.spacedBy(10.dp)
         ) {
             Row(
-                horizontalArrangement = Arrangement.spacedBy(1.dp),
-                modifier = Modifier.padding(horizontal = padding)
+                    horizontalArrangement = Arrangement.spacedBy(1.dp),
+                    modifier = Modifier.padding(horizontal = padding)
             ) {
                 IconButton(
-                    painter = painterResource(R.drawable.ic_feather),
-                    tint = MaterialTheme.colorScheme.primary
+                        painter = painterResource(R.drawable.ic_feather),
+                        tint = MaterialTheme.colorScheme.primary
                 )
 
                 TextBerySmol(
-                    text = stringResource(R.string.home_quote_label),
-                    fontWeight = FontWeight.ExtraBold,
-                    color = MaterialTheme.colorScheme.primary,
-                    modifier = Modifier.padding(horizontal = padding)
+                        text = stringResource(R.string.home_quote_label),
+                        fontWeight = FontWeight.ExtraBold,
+                        color = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier.padding(horizontal = padding)
                 )
             }
 
             TextRegular(
-                text =
-                    if (quoteState.quote?.quote != null)
-                        "\"${quoteState.quote.quote}\""
-                    else stringResource(R.string.home_quote_not_found),
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = padding),
-                textAlign = TextAlign.Start
+                    text =
+                            if (quoteState.quote?.quote != null) "\"${quoteState.quote.quote}\""
+                            else stringResource(R.string.home_quote_not_found),
+                    modifier = Modifier.fillMaxWidth().padding(horizontal = padding),
+                    textAlign = TextAlign.Start
             )
 
             if (!quoteState.quote?.author.isNullOrBlank()) {
                 SuggestionChip(
-                    onClick = { onAuthorClick(quoteState.quote?.author) },
-                    modifier = Modifier.padding(horizontal = padding),
-                    label = {
-                        TextBerySmol(
-                            text = quoteState.quote?.author ?: "",
-                            color =
-                                contentColorFor(
-                                    MaterialTheme.colorScheme
-                                        .surface
-                                )
-                        )
-                    },
-                    icon = {
-                        IconButton(
-                            imageVector = Icons.Default.AccountCircle
-                        )
-                    },
-                    border = null,
-                    colors =
-                        SuggestionChipDefaults.suggestionChipColors(
-                            containerColor =
-                                MaterialTheme.colorScheme.surface,
-                            labelColor =
-                                contentColorFor(
-                                    MaterialTheme.colorScheme
-                                        .surface
-                                )
-                        ),
-                    shape = RoundedCornerShape(100)
+                        onClick = { onAuthorClick(quoteState.quote?.author) },
+                        modifier = Modifier.padding(horizontal = padding),
+                        label = {
+                            TextBerySmol(
+                                    text = quoteState.quote?.author ?: "",
+                                    color = contentColorFor(MaterialTheme.colorScheme.surface)
+                            )
+                        },
+                        icon = { IconButton(imageVector = Icons.Default.AccountCircle) },
+                        border = null,
+                        colors =
+                                SuggestionChipDefaults.suggestionChipColors(
+                                        containerColor = MaterialTheme.colorScheme.surface,
+                                        labelColor =
+                                                contentColorFor(MaterialTheme.colorScheme.surface)
+                                ),
+                        shape = RoundedCornerShape(100)
                 )
             }
-        }
-    }
-}
-
-@Composable
-private fun ResumeGameSection(
-    modifier: Modifier = Modifier,
-    sessionState: SessionState,
-    categoryState: CategoryState = CategoryState(),
-    onResume: () -> Unit = {}
-) {
-    val padding = 10.dp
-    //    val activeCategory =
-    //        categoryState.categories.fastFirstOrNull { it.uid ==
-    // sessionState.session.categoryUid
-    // }
-    val hasActiveSession =
-        sessionState.session?.createdAt != null && sessionState.session?.expiredAt == null
-
-    if (hasActiveSession) {
-        CardClickable(
-            onClick = {
-                //                onResume(
-                //                    sessionState.session.quizzesUids!!,
-                //                    sessionState.session.categoryUid
-                //                )
-            },
-            color = MaterialTheme.colorScheme.tertiary
-        ) {
-            Row(
-                horizontalArrangement = Arrangement.spacedBy(1.dp),
-                modifier =
-                    Modifier
-                        .padding(horizontal = padding)
-                        .padding(top = padding)
-            ) {
-                IconButton(
-                    painter = painterResource(R.drawable.ic_live),
-                    tint = contentColorFor(MaterialTheme.colorScheme.tertiary)
-                )
-
-                TextBerySmol(
-                    text = "Resume",
-                    fontWeight = FontWeight.ExtraBold,
-                    color = contentColorFor(MaterialTheme.colorScheme.tertiary),
-                    modifier = Modifier
-                        .padding(horizontal = padding)
-                        .weight(1f)
-                )
-            }
-
-            Spacer(Modifier.height(10.dp))
-
-            CardClickable(
-                onClick = {
-                    //                    onResume(
-                    //
-                    // sessionState.session.quizzesUids!!,
-                    //                        sessionState.session.categoryUid
-                    //                    )
-                },
-                modifier =
-                    Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = padding)
-                        .padding(bottom = padding),
-                color = MaterialTheme.colorScheme.surface
-            ) {
-                Column(
-                    modifier = Modifier.padding(padding),
-                    verticalArrangement = Arrangement.spacedBy(10.dp)
-                ) {
-                    //                    activeCategory?.let {
-                    //                        TextRegular(text = it.name!!)
-                    //                    }
-                    TextSmol(
-                        text = "1 question remaining (out of 3)",
-                        color = MaterialTheme.colorScheme.onSurface
-                    )
-                    TextSmol(
-                        text = "Pending score: 2 / 5",
-                        color = MaterialTheme.colorScheme.onSurface
-                    )
-                }
-            }
-        }
-    }
-}
-
-@Composable
-private fun FeaturedCategoriesSection(
-    activeSessionCategoryUid: String? = null,
-    categories: List<Category>,
-    onCategoryClick: (Category) -> Unit = {},
-    onBrowseClick: () -> Unit = {},
-) {
-    val featuredCategories =
-        remember(categories) {
-            buildList {
-                addAll(
-                    categories
-                        .shuffled()
-                        .fastFilter { it.uid != activeSessionCategoryUid }
-                        .take(6)
-                )
-            }
-        }
-
-    LayoutSectionHeadline(
-        title = stringResource(R.string.home_featured_title),
-        leadingIcon = R.drawable.ic_fire,
-        actionText = stringResource(R.string.home_featured_subtitle),
-        actionIcon = R.drawable.ic_arrow_forward,
-        onClick = onBrowseClick
-    )
-
-    Spacer(Modifier.height(10.dp))
-
-    Column(
-        verticalArrangement = Arrangement.spacedBy(10.dp),
-        modifier = Modifier.fillMaxWidth()
-    ) {
-        featuredCategories.fastForEach { category ->
-            if (category.id != null) {
-                FeaturedCategoryItem(
-                    modifier = Modifier.fillMaxWidth(),
-                    category = category,
-                    onClick = onCategoryClick,
-                    isActive = category.uid == activeSessionCategoryUid
-                )
-            }
-        }
-    }
-}
-
-@Composable
-private fun StartButton(modifier: Modifier = Modifier, onClick: () -> Unit) {
-    Button(
-        onClick = onClick,
-        modifier
-            .fillMaxWidth()
-            .background(color = MaterialTheme.colorScheme.primaryContainer),
-        colors =
-            ButtonDefaults.buttonColors(
-                containerColor = Color.Transparent,
-            )
-    ) {
-        TextFancy(
-            text = stringResource(R.string.home_button_start),
-            color = contentColorFor(MaterialTheme.colorScheme.primaryContainer),
-            fontWeight = FontWeight.Bold
-        )
-    }
-}
-
-@Composable
-fun FeaturedCategoryItem(
-    modifier: Modifier = Modifier,
-    category: Category,
-    isActive: Boolean = false,
-    onClick: (Category) -> Unit = {}
-) {
-    OutlinedCard(
-        modifier = modifier,
-        onClick = { onClick(category) },
-        colors = CardDefaults.outlinedCardColors(containerColor = Color.Transparent),
-        border =
-            CardDefaults.outlinedCardBorder(
-                enabled = true,
-            )
-    ) {
-        Row(
-            horizontalArrangement = Arrangement.spacedBy(30.dp),
-            verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier.padding(PaddingValues(20.dp)),
-        ) {
-            IconButton(painter = painterResource(R.drawable.ic_fire))
-            TextRegular(
-                text = category.name ?: "Undefined",
-                modifier = Modifier.weight(1f)
-            )
-            if (isActive)
-                IconButton(
-                    painter = painterResource(R.drawable.ic_live),
-                    tint = MaterialTheme.colorScheme.error
-                )
         }
     }
 }

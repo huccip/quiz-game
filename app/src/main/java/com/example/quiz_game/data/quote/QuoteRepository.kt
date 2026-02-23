@@ -1,8 +1,13 @@
 package com.example.quiz_game.data.quote
 
+import android.content.Context
+import android.content.Intent
+import android.net.Uri
 import com.example.quiz_game.data.Service
 
 object QuoteRepository {
+
+    private const val REPORT_EMAIL = "quiz-app.report@yopmail.com"
 
     enum class ReportType {
         Nudity,
@@ -19,7 +24,19 @@ object QuoteRepository {
         return response.body() ?: throw Exception("Quote was not found")
     }
 
-    suspend fun report(type: ReportType) {
-        // TODO: update report function
+    fun report(context: Context, type: ReportType) {
+        val intent =
+                Intent(Intent.ACTION_SENDTO).apply {
+                    data = Uri.parse("mailto:")
+                    putExtra(Intent.EXTRA_EMAIL, arrayOf(REPORT_EMAIL))
+                    putExtra(Intent.EXTRA_SUBJECT, "Quote Report: ${type.name}")
+                    putExtra(
+                            Intent.EXTRA_TEXT,
+                            "I would like to report this quote for the following reason: ${type.name}"
+                    )
+                }
+        if (intent.resolveActivity(context.packageManager) != null) {
+            context.startActivity(intent)
+        }
     }
 }
