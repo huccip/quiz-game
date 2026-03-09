@@ -4,6 +4,7 @@ import android.os.Bundle
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -11,6 +12,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -24,6 +26,7 @@ import com.example.quiz_game.ui.theme.QuizgameTheme
 import com.example.quiz_game.ui.viewmodel.OnboardViewModel
 import com.example.quiz_game.ui.viewmodel.SharedViewModel
 import kotlinx.serialization.Serializable
+import androidx.core.graphics.toColorInt
 
 class OnboardActivity : BaseActivity() {
 

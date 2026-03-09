@@ -1,15 +1,21 @@
 package com.example.quiz_game.ui.activity.onboard.destination
 
+import android.content.res.Configuration
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
+import androidx.compose.animation.scaleIn
+import androidx.compose.animation.scaleOut
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
 import androidx.compose.animation.togetherWith
+import androidx.compose.foundation.background
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -21,6 +27,8 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Card
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -32,10 +40,13 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.scale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
@@ -47,29 +58,30 @@ import com.example.quiz_game.other.TranslatorStatus
 import com.example.quiz_game.other.Utils
 import com.example.quiz_game.ui.activity.onboard.OnboardDestination
 import com.example.quiz_game.ui.shared.component.ButtonPrimary
-import com.example.quiz_game.ui.shared.component.ButtonSecondary
 import com.example.quiz_game.ui.shared.component.CardSelectable
 import com.example.quiz_game.ui.shared.component.DialogYesOrNo
 import com.example.quiz_game.ui.shared.component.IconButton
 import com.example.quiz_game.ui.shared.component.LoadingProgressiveLine
-import com.example.quiz_game.ui.shared.component.TextBerySmol
-import com.example.quiz_game.ui.shared.component.TextButton
-import com.example.quiz_game.ui.shared.component.TextSmol
+import com.example.quiz_game.ui.shared.component.Preview
+import com.example.quiz_game.ui.shared.component.ScreenHeader
 import com.example.quiz_game.ui.viewmodel.OnboardAction
 import com.example.quiz_game.ui.viewmodel.OnboardState
 import com.example.quiz_game.ui.viewmodel.SharedAction
 import com.example.quiz_game.ui.viewmodel.SharedState
+import com.example.quiz_game.ui.theme.Indigo100
+import com.example.quiz_game.ui.theme.Indigo600
+import com.example.quiz_game.ui.theme.Neutral50
 import kotlinx.coroutines.delay
 
 @Composable
 fun Language(
-        modifier: Modifier = Modifier,
-        onboardAction: (OnboardAction) -> Unit = {},
-        sharedAction: (SharedAction) -> Unit = {},
-        onboardState: OnboardState = OnboardState(),
-        sharedState: SharedState = SharedState(),
-        navController: NavController = rememberNavController(),
-        fromOnboarding: Boolean = true
+    modifier: Modifier = Modifier,
+    onboardAction: (OnboardAction) -> Unit = {},
+    sharedAction: (SharedAction) -> Unit = {},
+    onboardState: OnboardState = OnboardState(),
+    sharedState: SharedState = SharedState(),
+    navController: NavController = rememberNavController(),
+    fromOnboarding: Boolean = true
 ) {
     val context = LocalContext.current
     var showHasNoWifiOnWarning by rememberSaveable { mutableStateOf(false) }
@@ -110,71 +122,75 @@ fun Language(
         // Active download in progress
         sharedState.executing || onboardState.executing -> {
             val statusMessage =
-                    when (translatorStatus) {
-                        TranslatorStatus.Saving ->
-                                stringResource(R.string.onboard_form_loading_subject)
-                        TranslatorStatus.Downloading ->
-                                stringResource(R.string.onboard_language_downloading)
-                        TranslatorStatus.SlowDownload ->
-                                stringResource(R.string.onboard_language_slow_download)
-                        TranslatorStatus.Restarting ->
-                                stringResource(R.string.onboard_language_restarting)
-                        else -> stringResource(R.string.onboard_form_loading_subject)
-                    }
+                when (translatorStatus) {
+                    TranslatorStatus.Saving ->
+                        stringResource(R.string.onboard_form_loading_subject)
+
+                    TranslatorStatus.Downloading ->
+                        stringResource(R.string.onboard_language_downloading)
+
+                    TranslatorStatus.SlowDownload ->
+                        stringResource(R.string.onboard_language_slow_download)
+
+                    TranslatorStatus.Restarting ->
+                        stringResource(R.string.onboard_language_restarting)
+
+                    else -> stringResource(R.string.onboard_form_loading_subject)
+                }
             LoadingProgressiveLine(status = translatorStatus, statusMessage = statusMessage)
         }
 
         // Internet lost during download (timeout or disconnection)
         translatorStatus == TranslatorStatus.InternetLost -> {
             OfflineStateSection(
-                    title = stringResource(R.string.onboard_language_internet_lost),
-                    subtitle = stringResource(R.string.onboard_language_auto_retry),
-                    onContinueWithout = {
-                        TranslatorManager.skipForNow(selectedLanguage)
-                        if (fromOnboarding) {
-                            navController.navigate(OnboardDestination.Form)
-                        } else {
-                            navController.popBackStack()
+                title = stringResource(R.string.onboard_language_internet_lost),
+                subtitle = stringResource(R.string.onboard_language_auto_retry),
+                onContinueWithout = {
+                    TranslatorManager.skipForNow(selectedLanguage)
+                    if (fromOnboarding) {
+                        navController.navigate(OnboardDestination.Form)
+                    } else {
+                        navController.popBackStack()
+                    }
+                },
+                onRetry =
+                    if (selectedLanguage.isNotEmpty()) {
+                        {
+                            sharedAction(
+                                SharedAction.PrepareTranslator(
+                                    language = selectedLanguage,
+                                    context = context
+                                )
+                            )
                         }
-                    },
-                    onRetry =
-                            if (selectedLanguage.isNotEmpty()) {
-                                {
-                                    sharedAction(
-                                            SharedAction.PrepareTranslator(
-                                                    language = selectedLanguage,
-                                                    context = context
-                                            )
-                                    )
-                                }
-                            } else null
+                    } else null
             )
         }
 
         // Generic download failure (non-network)
         translatorStatus == TranslatorStatus.Failed -> {
             OfflineStateSection(
-                    title = stringResource(R.string.onboard_language_download_failed),
-                    subtitle = null,
-                    onContinueWithout = {
-                        TranslatorManager.skipForNow(selectedLanguage)
-                        if (fromOnboarding) {
-                            navController.navigate(OnboardDestination.Form)
-                        } else {
-                            navController.popBackStack()
+                title = stringResource(R.string.onboard_language_download_failed),
+                subtitle = null,
+                onContinueWithout = {
+                    TranslatorManager.skipForNow(selectedLanguage)
+                    if (fromOnboarding) {
+                        navController.navigate(OnboardDestination.Form)
+                    } else {
+                        navController.popBackStack()
+                    }
+                },
+                onRetry =
+                    if (selectedLanguage.isNotEmpty()) {
+                        {
+                            sharedAction(
+                                SharedAction.PrepareTranslator(
+                                    language = selectedLanguage,
+                                    context = context
+                                )
+                            )
                         }
-                    },
-                    onRetry =
-                            if (selectedLanguage.isNotEmpty()) {
-                                {
-                                    sharedAction(
-                                            SharedAction.PrepareTranslator(
-                                                    language = selectedLanguage,
-                                                    context = context
-                                            )
-                                    )
-                                }
-                            } else null
+                    } else null
             )
         }
 
@@ -182,132 +198,161 @@ fun Language(
         !onboardState.user.language.isNullOrEmpty() && fromOnboarding -> {
             // Already picked, auto-navigate is handled elsewhere
         }
+
         else -> {
             when {
                 showHasNoWifiOnWarning -> {
                     DialogYesOrNo(
-                            title = R.string.generic_warning_message,
-                            text = R.string.onboard_language_no_wifi_warning_message,
-                            buttonConfirmText =
-                                    R.string.onboard_language_no_wifi_warning_positive_button,
-                            buttonDismissText =
-                                    R.string.onboard_language_no_wifi_warning_negative_button,
-                            icon = R.drawable.ic_no_wifi,
-                            onConfirm = {
-                                sharedAction(
-                                        SharedAction.PrepareTranslator(
-                                                language = selectedLanguage,
-                                                context = context
-                                        )
+                        title = R.string.generic_warning_message,
+                        text = R.string.onboard_language_no_wifi_warning_message,
+                        buttonConfirmText =
+                            R.string.onboard_language_no_wifi_warning_positive_button,
+                        buttonDismissText =
+                            R.string.onboard_language_no_wifi_warning_negative_button,
+                        icon = R.drawable.ic_no_wifi,
+                        onConfirm = {
+                            sharedAction(
+                                SharedAction.PrepareTranslator(
+                                    language = selectedLanguage,
+                                    context = context
                                 )
-                                showHasNoWifiOnWarning = false
-                            },
-                            onDismiss = { showHasNoWifiOnWarning = false }
+                            )
+                            showHasNoWifiOnWarning = false
+                        },
+                        onDismiss = { showHasNoWifiOnWarning = false }
                     )
                 }
+
                 else -> {
-                    Column {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .background(MaterialTheme.colorScheme.background)
+                    ) {
                         // Inline offline notice — replaces the old dialog
                         AnimatedVisibility(
-                                visible = showOfflineNotice,
-                                enter = fadeIn() + slideInVertically(),
-                                exit = fadeOut() + slideOutVertically()
+                            visible = showOfflineNotice,
+                            enter = fadeIn() + slideInVertically(),
+                            exit = fadeOut() + slideOutVertically()
                         ) {
                             OfflineNoticeBanner(
-                                    isBackOnline = isBackOnline,
-                                    onContinueWithout = {
-                                        showOfflineNotice = false
-                                        isBackOnline = false
-                                        TranslatorManager.skipForNow(selectedLanguage)
-                                        if (fromOnboarding) {
-                                            navController.navigate(OnboardDestination.Form)
-                                        } else {
-                                            navController.popBackStack()
-                                        }
+                                isBackOnline = isBackOnline,
+                                onContinueWithout = {
+                                    showOfflineNotice = false
+                                    isBackOnline = false
+                                    TranslatorManager.skipForNow(selectedLanguage)
+                                    if (fromOnboarding) {
+                                        navController.navigate(OnboardDestination.Form)
+                                    } else {
+                                        navController.popBackStack()
                                     }
+                                }
                             )
                         }
 
+                        // ── Scrollable language list ──
                         LazyColumn(
-                                verticalArrangement = Arrangement.spacedBy(10.dp),
-                                contentPadding = PaddingValues(10.dp),
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .weight(1f),
+                            contentPadding = PaddingValues(
+                                start = 20.dp,
+                                end = 20.dp,
+                                top = 24.dp,
+                                bottom = 16.dp
+                            ),
+                            verticalArrangement = Arrangement.spacedBy(12.dp)
                         ) {
+                            // ── Screen header ──
                             item {
-                                Box(
-                                        Modifier.fillMaxWidth(),
-                                        contentAlignment = Alignment.CenterEnd
-                                ) {
-                                    ButtonSecondary(
-                                            enabled = selectedLanguage.isNotEmpty(),
-                                            onClick = {
-                                                if (!Utils.hasInternet()) {
-                                                    // Show inline offline notice instead of dialog
-                                                    showOfflineNotice = true
-                                                } else if (!Utils.hasWifiOn()) {
-                                                    showHasNoWifiOnWarning = true
-                                                } else {
-                                                    sharedAction(
-                                                            SharedAction.PrepareTranslator(
-                                                                    language = selectedLanguage,
-                                                                    context = context
-                                                            )
-                                                    )
-                                                }
-                                            }
-                                    ) {
-                                        Text(
-                                                text =
-                                                        stringResource(
-                                                                R.string
-                                                                        .onboard_language_next_button
-                                                        )
-                                        )
-                                        IconButton(
-                                                painter =
-                                                        painterResource(
-                                                                R.drawable.ic_arrow_forward
-                                                        ),
-                                        )
-                                    }
-                                }
+                                ScreenHeader(
+                                    title = stringResource(R.string.onboard_language_welcome_title),
+                                    subtitle = stringResource(R.string.onboard_language_subtitle),
+                                    showTitle = fromOnboarding,
+                                    modifier = Modifier.padding(bottom = 12.dp)
+                                )
                             }
-                            items(items = Constants.SUPPORTED_LANGUAGES, key = { it.hashCode() }) {
+
+                            items(
+                                items = Constants.SUPPORTED_LANGUAGES,
+                                key = { it.hashCode() }
+                            ) {
                                 val (language, country, countryCode) = it
                                 CardSelectable(
-                                        selected = selectedLanguage == language,
-                                        onSelect = { selectedLanguage = language },
-                                        content = { modifier ->
-                                            Row(
-                                                    verticalAlignment = Alignment.CenterVertically,
-                                                    modifier = modifier
+                                    selected = selectedLanguage == language,
+                                    onSelect = { selectedLanguage = language },
+                                    showCheckmark = true,
+                                    content = { contentModifier ->
+                                        Row(
+                                            verticalAlignment = Alignment.CenterVertically,
+                                            modifier = contentModifier
+                                        ) {
+                                            Card(
+                                                shape = RoundedCornerShape(8.dp),
+                                                modifier = Modifier.size(
+                                                    height = 38.dp,
+                                                    width = 50.dp
+                                                )
                                             ) {
                                                 IconButton(
-                                                        model =
-                                                                Utils.countryFlag(
-                                                                        countryCode = countryCode
-                                                                )
+                                                    modifier = Modifier.fillMaxSize(),
+                                                    model = Utils.countryFlag(countryCode = countryCode),
                                                 )
-                                                Spacer(modifier = Modifier.width(8.dp))
-                                                Column(modifier = Modifier.weight(1f)) {
-                                                    TextSmol(
-                                                            text = country.split(" ").first(),
-                                                            color =
-                                                                    MaterialTheme.colorScheme
-                                                                            .onSurface
-                                                    )
-                                                    TextBerySmol(text = country.split(" ").last())
-                                                }
-                                                if (selectedLanguage == language) {
-                                                    IconButton(
-                                                            painter =
-                                                                    painterResource(
-                                                                            R.drawable.ic_pin
-                                                                    ),
-                                                    )
-                                                }
                                             }
+
+                                            Spacer(modifier = Modifier.width(14.dp))
+
+                                            Text(
+                                                text = country.split(" ").last(),
+                                                style = MaterialTheme.typography.titleMedium,
+                                                color = if (selectedLanguage == language) {
+                                                    if (isSystemInDarkTheme()) Indigo100 else Indigo600
+                                                } else {
+                                                    MaterialTheme.colorScheme.onSurface
+                                                }
+                                            )
                                         }
+                                    }
                                 )
+                            }
+                        }
+
+                        // ── Sticky bottom CTA ──
+                        AnimatedVisibility(
+                            visible = selectedLanguage.isNotEmpty(),
+                            enter = fadeIn() + slideInVertically { it },
+                            exit = fadeOut() + slideOutVertically { it }
+                        ) {
+                            Box(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .background(MaterialTheme.colorScheme.background)
+                                    .padding(horizontal = 20.dp, vertical = 16.dp)
+                            ) {
+                                ButtonPrimary(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    onClick = {
+                                        if (!Utils.hasInternet()) {
+                                            // Show inline offline notice instead of dialog
+                                            showOfflineNotice = true
+                                        } else if (!Utils.hasWifiOn()) {
+                                            showHasNoWifiOnWarning = true
+                                        } else {
+                                            sharedAction(
+                                                SharedAction.PrepareTranslator(
+                                                    language = selectedLanguage,
+                                                    context = context
+                                                )
+                                            )
+                                        }
+                                    }
+                                ) {
+                                    Text(
+                                        text = stringResource(R.string.onboard_language_next_button),
+                                        style = MaterialTheme.typography.titleMedium,
+                                        fontWeight = FontWeight.SemiBold
+                                    )
+                                }
                             }
                         }
                     }
@@ -325,64 +370,69 @@ fun Language(
 @Composable
 private fun OfflineNoticeBanner(isBackOnline: Boolean, onContinueWithout: () -> Unit) {
     Column(
-            modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 12.dp),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(8.dp)
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp, vertical = 12.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
         AnimatedContent(
-                targetState = isBackOnline,
-                transitionSpec = { fadeIn() togetherWith fadeOut() },
-                label = "banner_state"
+            targetState = isBackOnline,
+            transitionSpec = { fadeIn() togetherWith fadeOut() },
+            label = "banner_state"
         ) { online ->
             Column(
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.spacedBy(8.dp),
-                    modifier = Modifier.fillMaxWidth()
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.spacedBy(8.dp),
+                modifier = Modifier.fillMaxWidth()
             ) {
                 if (online) {
                     // ✅ Back online state
                     Icon(
-                            painter = painterResource(R.drawable.ic_check),
-                            contentDescription = null,
-                            modifier = Modifier.size(32.dp),
-                            tint = MaterialTheme.colorScheme.primary
+                        painter = painterResource(R.drawable.ic_check),
+                        contentDescription = null,
+                        modifier = Modifier.size(32.dp),
+                        tint = MaterialTheme.colorScheme.primary
                     )
                     Text(
-                            text = stringResource(R.string.onboard_language_back_online_title),
-                            style = MaterialTheme.typography.titleSmall,
-                            color = MaterialTheme.colorScheme.primary,
-                            textAlign = TextAlign.Center
-                    )
-                    Text(
-                            text = stringResource(R.string.onboard_language_back_online_body),
-                            style = MaterialTheme.typography.bodySmall,
-                            textAlign = TextAlign.Center,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        text = stringResource(R.string.onboard_language_back_online_title),
+                        style = MaterialTheme.typography.titleSmall,
+                        color = MaterialTheme.colorScheme.primary,
+                        textAlign = TextAlign.Center
                     )
                 } else {
                     // ❌ Offline state
                     Icon(
-                            painter = painterResource(R.drawable.ic_no_internet),
-                            contentDescription = null,
-                            modifier = Modifier.size(32.dp),
-                            tint = MaterialTheme.colorScheme.error
+                        painter = painterResource(R.drawable.ic_no_internet),
+                        contentDescription = null,
+                        modifier = Modifier.size(32.dp),
+                        tint = MaterialTheme.colorScheme.error
                     )
                     Text(
-                            text = stringResource(R.string.onboard_language_offline_title),
-                            style = MaterialTheme.typography.titleSmall,
-                            color = MaterialTheme.colorScheme.error,
-                            textAlign = TextAlign.Center
+                        text = stringResource(R.string.onboard_language_offline_title),
+                        style = MaterialTheme.typography.titleSmall,
+                        color = MaterialTheme.colorScheme.error,
+                        textAlign = TextAlign.Center
                     )
                     Text(
-                            text = stringResource(R.string.onboard_language_offline_body),
-                            style = MaterialTheme.typography.bodySmall,
-                            textAlign = TextAlign.Center,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        text = stringResource(R.string.onboard_language_offline_body),
+                        style = MaterialTheme.typography.bodySmall,
+                        textAlign = TextAlign.Center,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                     Spacer(Modifier.height(4.dp))
-                    ButtonPrimary(onClick = onContinueWithout) {
-                        TextButton(
-                                text = stringResource(R.string.onboard_language_continue_without)
+                    ButtonPrimary(
+                        onClick = onContinueWithout,
+                        color = MaterialTheme.colorScheme.tertiary
+                    ) {
+                        Text(
+                            text = stringResource(R.string.onboard_language_continue_without),
+                            style = MaterialTheme.typography.bodySmall,
+                            fontWeight = FontWeight.Medium
+                        )
+                        IconButton(
+                            painter = painterResource(R.drawable.ic_arrow_forward),
+                            tint = MaterialTheme.colorScheme.surface
                         )
                     }
                 }
@@ -397,47 +447,123 @@ private fun OfflineNoticeBanner(isBackOnline: Boolean, onContinueWithout: () -> 
  */
 @Composable
 private fun OfflineStateSection(
-        title: String,
-        subtitle: String?,
-        onContinueWithout: () -> Unit,
-        onRetry: (() -> Unit)? = null
+    title: String,
+    subtitle: String?,
+    onContinueWithout: () -> Unit,
+    onRetry: (() -> Unit)? = null
 ) {
     Column(
-            modifier = Modifier.fillMaxSize().padding(32.dp),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(32.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center
     ) {
         Icon(
-                painter = painterResource(R.drawable.ic_no_internet),
-                contentDescription = null,
-                modifier = Modifier.size(48.dp),
-                tint = MaterialTheme.colorScheme.error
+            painter = painterResource(R.drawable.ic_no_internet),
+            contentDescription = null,
+            modifier = Modifier.size(52.dp),
+            tint = MaterialTheme.colorScheme.onSurface
         )
         Spacer(Modifier.height(16.dp))
         Text(
-                text = title,
-                style = MaterialTheme.typography.titleMedium,
-                color = MaterialTheme.colorScheme.error,
-                textAlign = TextAlign.Center
+            text = title,
+            style = MaterialTheme.typography.titleLarge,
+            fontWeight = FontWeight.Bold,
+            textAlign = TextAlign.Center
         )
         if (subtitle != null) {
             Spacer(Modifier.height(8.dp))
             Text(
-                    text = subtitle,
-                    style = MaterialTheme.typography.bodySmall,
-                    textAlign = TextAlign.Center,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                text = subtitle,
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.Medium,
+                textAlign = TextAlign.Center,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
             )
         }
-        Spacer(Modifier.height(24.dp))
-        if (onRetry != null) {
-            ButtonSecondary(onClick = onRetry) {
-                Text(text = stringResource(R.string.onboard_form_error_button))
+
+        Spacer(Modifier.height(32.dp))
+
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            modifier = Modifier.width(IntrinsicSize.Max)
+        ) {
+            ButtonPrimary(
+                onClick = onContinueWithout,
+                color = MaterialTheme.colorScheme.primary,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text(
+                    text = stringResource(R.string.onboard_language_continue_without),
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Normal
+                )
+                IconButton(
+                    modifier = Modifier.scale(1.2f),
+                    painter = painterResource(R.drawable.ic_arrow_forward),
+                    tint = MaterialTheme.colorScheme.surface
+                )
             }
+
             Spacer(Modifier.height(8.dp))
+
+            if (onRetry != null) {
+                ButtonPrimary(
+                    onClick = onRetry,
+                    modifier = Modifier.fillMaxWidth(),
+                    color = MaterialTheme.colorScheme.primaryContainer
+                ) {
+                    Text(
+                        text = stringResource(R.string.onboard_form_error_button),
+                        color = MaterialTheme.colorScheme.primary,
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.Normal
+                    )
+                    IconButton(
+                        modifier = Modifier.scale(1.2f),
+                        painter = painterResource(R.drawable.ic_retry),
+                        tint = MaterialTheme.colorScheme.primary,
+                    )
+                }
+            }
         }
-        ButtonPrimary(onClick = onContinueWithout) {
-            TextButton(text = stringResource(R.string.onboard_language_continue_without))
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun OfflineStateSectionPreview() {
+    Preview {
+        OfflineStateSection(
+            title = "Could not set up your language.",
+            subtitle = "It could be Google downloading servers or it could be a failing internet connection either way we apologize for the inconvenience",
+            onContinueWithout = {},
+            onRetry = {}
+        )
+    }
+}
+
+@Preview(showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES)
+@Composable
+private fun OfflineNoticeBannerPreview() {
+    Preview {
+        OfflineNoticeBanner(isBackOnline = false, onContinueWithout = {})
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun LanguagePreview() {
+    Preview {
+        Box(
+            Modifier
+                .fillMaxSize()
+                //.background(color = Color("#a4b0be".toColorInt()))
+                .padding(16.dp),
+            contentAlignment = Alignment.Center
+        ) {
+            Language()
         }
     }
 }

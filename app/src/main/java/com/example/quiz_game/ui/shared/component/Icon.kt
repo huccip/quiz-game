@@ -11,9 +11,12 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import coil3.compose.AsyncImage
+import com.example.quiz_game.R
 
 @Composable
 fun IconButton(
@@ -48,7 +51,10 @@ fun IconButton(
     model?.let {
         AsyncImage(
             model = model,
-            contentDescription = null,
+            contentDescription = contentDescription,
+            error = painterResource(R.drawable.default_image_placeholder),
+            placeholder = painterResource(R.drawable.default_image_placeholder),
+            contentScale = ContentScale.Crop,
             modifier = modifier.size(iconSize)
         )
     }

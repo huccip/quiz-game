@@ -20,7 +20,9 @@
     <string name="onboard_avatar_hint">Pick your hero legend and let\'s begin the grind 🔥</string>
     <string name="onboard_button_letsgo">Let\'s go!</string>
 
-    <string name="onboard_language_next_button">Form</string>
+    <string name="onboard_language_next_button">Continue</string>
+    <string name="onboard_language_welcome_title">Welcome!</string>
+    <string name="onboard_language_subtitle">Select a language to begin</string>
     <string name="onboard_language_no_internet_warning_positive_button">Yes, continue</string>
     <string name="onboard_language_no_internet_warning_negative_button">Cancel</string>
     <string name="onboard_language_no_wifi_warning_positive_button">Yes, use mobile data</string>
@@ -56,7 +58,7 @@
     <string name="home_quote_not_found">"No quote available today. Check back later!"</string>
 
     <string name="loading_title">Hold on, loading your </string>
-    <string name="loading_title_variator_1">One sec...</string>
+    <string name="loading_title_variator_1">One sec…</string>
     <string-array name="home_loading_subjects">
         <item>quiz list</item>
         <item>trivia</item>
