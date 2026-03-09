@@ -20,7 +20,9 @@
     <string name="onboard_avatar_hint">اختر أسطورة بطلك ودعنا نبدأ الطحن 🔥</string>
     <string name="onboard_button_letsgo">هيا بنا!</string>
 
-    <string name="onboard_language_next_button">تعريف الهوية</string>
+    <string name="onboard_language_next_button">المتابعة</string>
+    <string name="onboard_language_welcome_title">مرحباً بك!</string>
+    <string name="onboard_language_subtitle">اختر لغة للبدء</string>
     <string name="onboard_language_no_internet_warning_positive_button">نعم، تابع</string>
     <string name="onboard_language_no_internet_warning_negative_button">إلغاء</string>
     <string name="onboard_language_no_wifi_warning_positive_button">نعم، استخدم بيانات الجوال</string>
@@ -210,4 +212,7 @@
     
     <string name="connectivity_offline">أنت غير متصل بالإنترنت</string>
     <string name="connectivity_online">أنت متصل بالإنترنت الآن!</string>
+
+    <string name="onboard_guide_continue">المتابعة</string>
+    <string name="postgame_player_fallback">لاعب #0000</string>
 </resources>

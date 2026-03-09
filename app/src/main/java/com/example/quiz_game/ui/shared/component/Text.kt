@@ -72,6 +72,25 @@ fun TextRegular(
 }
 
 @Composable
+fun TextMedium(
+    modifier: Modifier = Modifier,
+    text: String,
+    color: Color = MaterialTheme.colorScheme.onSurface,
+    textAlign: TextAlign = TextAlign.Start,
+    fontWeight: FontWeight = FontWeight.Medium,
+) {
+    Text(
+        modifier = modifier,
+        text = text,
+        textAlign = textAlign,
+        color = color,
+        style = MaterialTheme.typography.titleMedium,
+        //fontFamily = FontFamily(Font(R.font.regular)),
+        fontWeight = fontWeight
+    )
+}
+
+@Composable
 fun TextSmol(
     modifier: Modifier = Modifier,
     text: String,

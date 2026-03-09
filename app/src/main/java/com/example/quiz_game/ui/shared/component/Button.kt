@@ -41,6 +41,7 @@ import com.example.quiz_game.ui.activity.main.destination.AnsweredState
 import com.example.quiz_game.ui.shared.effect.alphaOutOnPress
 import com.example.quiz_game.ui.shared.effect.bounceOnPress
 import com.example.quiz_game.ui.shared.effect.scaleDownOnPress
+import com.example.quiz_game.ui.theme.Indigo600
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
@@ -85,43 +86,42 @@ fun ButtonPrimary(
     modifier: Modifier = Modifier,
     onClick: () -> Unit = {},
     enabled: Boolean = true,
-    color: Color = MaterialTheme.colorScheme.onSurface,
-    contentColor: Color = MaterialTheme.colorScheme.surface,
+    color: Color = Indigo600,
+    contentColor: Color = Color.White,
     content: @Composable () -> Unit = {}
 ) {
     val interactionSource = remember { MutableInteractionSource() }
 
-    OutlinedCard(
-        shape = RoundedCornerShape(8.dp),
-        border = BorderStroke(1.dp, color),
-        modifier = modifier.scaleDownOnPress(.8f, interactionSource),
+    Button(
+        onClick = onClick,
+        enabled = enabled,
+        shape = RoundedCornerShape(50),
+        colors = ButtonDefaults.buttonColors(
+            containerColor = color,
+            contentColor = contentColor,
+            disabledContainerColor = color.copy(alpha = 0.4f),
+            disabledContentColor = contentColor.copy(alpha = 0.6f)
+        ),
+        elevation = ButtonDefaults.buttonElevation(
+            defaultElevation = 6.dp,
+            pressedElevation = 2.dp,
+            focusedElevation = 4.dp,
+            hoveredElevation = 8.dp,
+        ),
+        interactionSource = interactionSource,
+        modifier = modifier
+            .height(52.dp)
+            .scaleDownOnPress(.95f, interactionSource),
+        contentPadding = PaddingValues(horizontal = 24.dp, vertical = 0.dp)
     ) {
-        Button(
-            onClick = onClick,
-            enabled = enabled,
-            shape = RoundedCornerShape(6.dp),
-            colors = ButtonDefaults.buttonColors(
-                containerColor = color,
-                contentColor = contentColor
-            ),
-            elevation = ButtonDefaults.buttonElevation(
-                defaultElevation = 0.dp,
-                pressedElevation = 0.dp,
-                focusedElevation = 0.dp,
-                hoveredElevation = 0.dp,
-            ),
-            interactionSource = interactionSource,
-            modifier = modifier.padding(vertical = 2.dp, horizontal = 6.dp),
-        ) {
-            Row(
-                modifier = Modifier.height(IntrinsicSize.Min),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(12.dp),
-                content = {
-                    content()
-                }
-            )
-        }
+        Row(
+            modifier = Modifier.height(IntrinsicSize.Min),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(12.dp),
+            content = {
+                content()
+            }
+        )
     }
 }
 
