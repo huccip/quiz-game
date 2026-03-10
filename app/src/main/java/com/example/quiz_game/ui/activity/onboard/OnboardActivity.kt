@@ -4,15 +4,12 @@ import android.os.Bundle
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.getValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -26,7 +23,6 @@ import com.example.quiz_game.ui.theme.QuizgameTheme
 import com.example.quiz_game.ui.viewmodel.OnboardViewModel
 import com.example.quiz_game.ui.viewmodel.SharedViewModel
 import kotlinx.serialization.Serializable
-import androidx.core.graphics.toColorInt
 
 class OnboardActivity : BaseActivity() {
 
@@ -44,47 +40,40 @@ class OnboardActivity : BaseActivity() {
 
             QuizgameTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    Box(
-                        Modifier
-                            .fillMaxSize()
-                            .padding(innerPadding),
-                        contentAlignment = Alignment.Center
-                    ) {
+                    Box(Modifier.fillMaxSize().padding(innerPadding)) {
                         NavHost(
-                            navController = navController,
-                            startDestination =
-                                when {
-                                    onboardState.user.language == null ->
-                                        OnboardDestination.Language
-
-                                    onboardState.user.username == null ->
-                                        OnboardDestination.Form
-
-                                    else -> OnboardDestination.Guide
-                                }
+                                navController = navController,
+                                startDestination =
+                                        when {
+                                            onboardState.user.language == null ->
+                                                    OnboardDestination.Language
+                                            onboardState.user.username == null ->
+                                                    OnboardDestination.Form
+                                            else -> OnboardDestination.Guide
+                                        }
                         ) {
                             composable<OnboardDestination.Form> {
                                 Form(
-                                    sharedAction = sharedViewModel::onAction,
-                                    onboardAction = onboardViewModel::onAction,
-                                    navController = navController
+                                        sharedAction = sharedViewModel::onAction,
+                                        onboardAction = onboardViewModel::onAction,
+                                        navController = navController
                                 )
                             }
 
                             composable<OnboardDestination.Guide> {
                                 Guide(
-                                    sharedAction = sharedViewModel::onAction,
-                                    onboardAction = onboardViewModel::onAction
+                                        sharedAction = sharedViewModel::onAction,
+                                        onboardAction = onboardViewModel::onAction
                                 )
                             }
 
                             composable<OnboardDestination.Language> {
                                 Language(
-                                    onboardState = onboardState,
-                                    sharedState = sharedState,
-                                    navController = navController,
-                                    sharedAction = sharedViewModel::onAction,
-                                    onboardAction = onboardViewModel::onAction,
+                                        onboardState = onboardState,
+                                        sharedState = sharedState,
+                                        navController = navController,
+                                        sharedAction = sharedViewModel::onAction,
+                                        onboardAction = onboardViewModel::onAction,
                                 )
                             }
                         }
@@ -96,12 +85,9 @@ class OnboardActivity : BaseActivity() {
 }
 
 sealed interface OnboardDestination : AppDestination {
-    @Serializable
-    data object Form : OnboardDestination
+    @Serializable data object Form : OnboardDestination
 
-    @Serializable
-    data object Guide : OnboardDestination
+    @Serializable data object Guide : OnboardDestination
 
-    @Serializable
-    data object Language : OnboardDestination
+    @Serializable data object Language : OnboardDestination
 }
