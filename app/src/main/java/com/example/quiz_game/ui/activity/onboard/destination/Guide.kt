@@ -1,6 +1,9 @@
 package com.example.quiz_game.ui.activity.onboard.destination
 
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
@@ -22,14 +25,16 @@ fun Guide(
 ) {
     val context = LocalContext.current
 
-    ButtonPrimary(
-            onClick = {
-                sharedAction(SharedAction.StartActivity(context, MainActivity::class.java))
+    Box(modifier = modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+        ButtonPrimary(
+                onClick = {
+                    sharedAction(SharedAction.StartActivity(context, MainActivity::class.java))
 
-                App.userPrefs.edit {
-                    putBoolean(User.KEY_ONBOARDED, true)
-                    commit()
+                    App.userPrefs.edit {
+                        putBoolean(User.KEY_ONBOARDED, true)
+                        commit()
+                    }
                 }
-            }
-    ) { TextButton(text = stringResource(R.string.onboard_guide_continue)) }
+        ) { TextButton(text = stringResource(R.string.onboard_guide_continue)) }
+    }
 }

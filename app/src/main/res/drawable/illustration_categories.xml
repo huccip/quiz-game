@@ -1,0 +1,208 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:aapt="http://schemas.android.com/aapt"
+    android:width="240dp"
+    android:height="180dp"
+    android:viewportWidth="240"
+    android:viewportHeight="180">
+
+    <!-- ===== OUTER AMBIENT GLOW ===== -->
+    <path android:pathData="M120,90m-90,0a90,90 0,1,1 180,0a90,90 0,1,1 -180,0">
+        <aapt:attr name="android:fillColor">
+            <gradient
+                android:type="radial"
+                android:centerX="120"
+                android:centerY="90"
+                android:gradientRadius="90">
+                <item android:offset="0" android:color="#338B5CF6"/>
+                <item android:offset="0.5" android:color="#1A6366F1"/>
+                <item android:offset="1" android:color="#00000000"/>
+            </gradient>
+        </aapt:attr>
+    </path>
+
+    <!-- ===== INNER GLOW ===== -->
+    <path android:pathData="M120,90m-50,0a50,50 0,1,1 100,0a50,50 0,1,1 -100,0">
+        <aapt:attr name="android:fillColor">
+            <gradient
+                android:type="radial"
+                android:centerX="120"
+                android:centerY="90"
+                android:gradientRadius="50">
+                <item android:offset="0" android:color="#448B5CF6"/>
+                <item android:offset="1" android:color="#00000000"/>
+            </gradient>
+        </aapt:attr>
+    </path>
+
+    <!-- ===== CENTRAL GRID — 4 CATEGORY TILES ===== -->
+    <!-- Top-left tile (indigo) -->
+    <path android:pathData="M88,60 L112,60 Q114,60 114,62 L114,86 Q114,88 112,88 L88,88 Q86,88 86,86 L86,62 Q86,60 88,60 Z">
+        <aapt:attr name="android:fillColor">
+            <gradient
+                android:type="linear"
+                android:startX="86"
+                android:startY="60"
+                android:endX="114"
+                android:endY="88">
+                <item android:offset="0" android:color="#FF6366F1"/>
+                <item android:offset="1" android:color="#FF4F46E5"/>
+            </gradient>
+        </aapt:attr>
+    </path>
+    <!-- Icon in top-left: brain/lightbulb dot -->
+    <path android:pathData="M100,74m-5,0a5,5 0,1,1 10,0a5,5 0,1,1 -10,0"
+        android:fillColor="#C7D2FE" android:fillAlpha="0.8"/>
+    <path android:pathData="M100,68 L100,65"
+        android:strokeColor="#C7D2FE" android:strokeWidth="1.5" android:strokeAlpha="0.6"/>
+
+    <!-- Top-right tile (cyan) -->
+    <path android:pathData="M128,60 L152,60 Q154,60 154,62 L154,86 Q154,88 152,88 L128,88 Q126,88 126,86 L126,62 Q126,60 128,60 Z">
+        <aapt:attr name="android:fillColor">
+            <gradient
+                android:type="linear"
+                android:startX="126"
+                android:startY="60"
+                android:endX="154"
+                android:endY="88">
+                <item android:offset="0" android:color="#FF06B6D4"/>
+                <item android:offset="1" android:color="#FF0891B2"/>
+            </gradient>
+        </aapt:attr>
+    </path>
+    <!-- Icon in top-right: atom/science circles -->
+    <path android:pathData="M140,74m-4,0a4,4 0,1,1 8,0a4,4 0,1,1 -8,0"
+        android:fillColor="#A5F3FC" android:fillAlpha="0.8"/>
+    <path android:pathData="M140,74m-8,0a8,4 0,1,1 16,0a8,4 0,1,1 -16,0"
+        android:strokeColor="#A5F3FC" android:strokeWidth="0.8" android:fillColor="#00000000" android:strokeAlpha="0.5"/>
+
+    <!-- Bottom-left tile (purple) -->
+    <path android:pathData="M88,100 L112,100 Q114,100 114,102 L114,126 Q114,128 112,128 L88,128 Q86,128 86,126 L86,102 Q86,100 88,100 Z">
+        <aapt:attr name="android:fillColor">
+            <gradient
+                android:type="linear"
+                android:startX="86"
+                android:startY="100"
+                android:endX="114"
+                android:endY="128">
+                <item android:offset="0" android:color="#FF8B5CF6"/>
+                <item android:offset="1" android:color="#FF7C3AED"/>
+            </gradient>
+        </aapt:attr>
+    </path>
+    <!-- Icon in bottom-left: book/pages -->
+    <path android:pathData="M94,108 L106,108 L106,122 L100,119 L94,122 Z"
+        android:strokeColor="#DDD6FE" android:strokeWidth="1.2" android:fillColor="#00000000" android:strokeAlpha="0.7"/>
+
+    <!-- Bottom-right tile (teal) -->
+    <path android:pathData="M128,100 L152,100 Q154,100 154,102 L154,126 Q154,128 152,128 L128,128 Q126,128 126,126 L126,102 Q126,100 128,100 Z">
+        <aapt:attr name="android:fillColor">
+            <gradient
+                android:type="linear"
+                android:startX="126"
+                android:startY="100"
+                android:endX="154"
+                android:endY="128">
+                <item android:offset="0" android:color="#FF0D9488"/>
+                <item android:offset="1" android:color="#FF0F766E"/>
+            </gradient>
+        </aapt:attr>
+    </path>
+    <!-- Icon in bottom-right: globe dot -->
+    <path android:pathData="M140,114m-5,0a5,5 0,1,1 10,0a5,5 0,1,1 -10,0"
+        android:strokeColor="#99F6E4" android:strokeWidth="1" android:fillColor="#00000000" android:strokeAlpha="0.7"/>
+    <path android:pathData="M135,114 L145,114"
+        android:strokeColor="#99F6E4" android:strokeWidth="0.8" android:strokeAlpha="0.5"/>
+    <path android:pathData="M140,109 L140,119"
+        android:strokeColor="#99F6E4" android:strokeWidth="0.8" android:strokeAlpha="0.5"/>
+
+    <!-- ===== ORBITAL RING ===== -->
+    <group
+        android:pivotX="120"
+        android:pivotY="94"
+        android:rotation="18">
+        <path
+            android:pathData="M120,94m-65,0a65,30 0,1,1 130,0a65,30 0,1,1 -130,0"
+            android:strokeColor="#6366F1"
+            android:strokeWidth="1"
+            android:fillColor="#00000000"
+            android:strokeAlpha="0.3"/>
+    </group>
+
+    <!-- ===== ORBITAL RING 2 ===== -->
+    <group
+        android:pivotX="120"
+        android:pivotY="94"
+        android:rotation="-12">
+        <path
+            android:pathData="M120,94m-58,0a58,26 0,1,1 116,0a58,26 0,1,1 -116,0"
+            android:strokeColor="#06B6D4"
+            android:strokeWidth="0.8"
+            android:fillColor="#00000000"
+            android:strokeAlpha="0.25"/>
+    </group>
+
+    <!-- ===== FLOATING ORBS ===== -->
+    <path android:pathData="M55,45m-8,0a8,8 0,1,1 16,0a8,8 0,1,1 -16,0">
+        <aapt:attr name="android:fillColor">
+            <gradient android:type="radial"
+                android:centerX="55" android:centerY="45"
+                android:gradientRadius="8">
+                <item android:offset="0" android:color="#CCA78BFA"/>
+                <item android:offset="1" android:color="#668B5CF6"/>
+            </gradient>
+        </aapt:attr>
+    </path>
+    <path android:pathData="M190,55m-7,0a7,7 0,1,1 14,0a7,7 0,1,1 -14,0">
+        <aapt:attr name="android:fillColor">
+            <gradient android:type="radial"
+                android:centerX="190" android:centerY="55"
+                android:gradientRadius="7">
+                <item android:offset="0" android:color="#CC22D3EE"/>
+                <item android:offset="1" android:color="#6606B6D4"/>
+            </gradient>
+        </aapt:attr>
+    </path>
+    <path android:pathData="M45,140m-6,0a6,6 0,1,1 12,0a6,6 0,1,1 -12,0">
+        <aapt:attr name="android:fillColor">
+            <gradient android:type="radial"
+                android:centerX="45" android:centerY="140"
+                android:gradientRadius="6">
+                <item android:offset="0" android:color="#CC0D9488"/>
+                <item android:offset="1" android:color="#660D9488"/>
+            </gradient>
+        </aapt:attr>
+    </path>
+    <path android:pathData="M200,130m-5,0a5,5 0,1,1 10,0a5,5 0,1,1 -10,0"
+        android:fillColor="#818CF8" android:fillAlpha="0.5"/>
+
+    <!-- Tiny accent dots -->
+    <path android:pathData="M70,155m-3,0a3,3 0,1,1 6,0a3,3 0,1,1 -6,0"
+        android:fillColor="#67E8F9" android:fillAlpha="0.5"/>
+    <path android:pathData="M175,155m-2,0a2,2 0,1,1 4,0a2,2 0,1,1 -4,0"
+        android:fillColor="#A78BFA" android:fillAlpha="0.45"/>
+    <path android:pathData="M30,90m-2,0a2,2 0,1,1 4,0a2,2 0,1,1 -4,0"
+        android:fillColor="#22D3EE" android:fillAlpha="0.5"/>
+    <path android:pathData="M210,85m-2,0a2,2 0,1,1 4,0a2,2 0,1,1 -4,0"
+        android:fillColor="#C4B5FD" android:fillAlpha="0.6"/>
+    <path android:pathData="M160,30m-2,0a2,2 0,1,1 4,0a2,2 0,1,1 -4,0"
+        android:fillColor="#818CF8" android:fillAlpha="0.4"/>
+    <path android:pathData="M80,30m-2,0a2,2 0,1,1 4,0a2,2 0,1,1 -4,0"
+        android:fillColor="#0D9488" android:fillAlpha="0.5"/>
+
+    <!-- ===== SPARKLE STARS ===== -->
+    <path android:pathData="M65,80 L67,74 L69,80 L75,82 L69,84 L67,90 L65,84 L59,82 Z"
+        android:fillColor="#A78BFA" android:fillAlpha="0.7"/>
+    <path android:pathData="M178,100 L179.5,96 L181,100 L185,101.5 L181,103 L179.5,107 L178,103 L174,101.5 Z"
+        android:fillColor="#22D3EE" android:fillAlpha="0.6"/>
+    <path android:pathData="M120,150 L121,147.5 L122,150 L124.5,151 L122,152 L121,154.5 L120,152 L117.5,151 Z"
+        android:fillColor="#6366F1" android:fillAlpha="0.5"/>
+    <path android:pathData="M155,42 L156,40 L157,42 L159,43 L157,44 L156,46 L155,44 L153,43 Z"
+        android:fillColor="#67E8F9" android:fillAlpha="0.6"/>
+
+    <!-- ===== QUESTION MARK (floating, subtle) ===== -->
+    <path android:pathData="M68,110 Q68,105 72,103 Q76,101 78,104 Q80,107 75,110"
+        android:strokeColor="#A78BFA" android:strokeWidth="1.5" android:fillColor="#00000000" android:strokeAlpha="0.4"/>
+    <path android:pathData="M75,114m-1,0a1,1 0,1,1 2,0a1,1 0,1,1 -2,0"
+        android:fillColor="#A78BFA" android:fillAlpha="0.4"/>
+
+</vector>

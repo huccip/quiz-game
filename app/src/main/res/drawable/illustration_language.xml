@@ -1,0 +1,155 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:aapt="http://schemas.android.com/aapt"
+    android:width="240dp"
+    android:height="180dp"
+    android:viewportWidth="240"
+    android:viewportHeight="180">
+
+    <!-- ===== OUTER AMBIENT GLOW ===== -->
+    <path android:pathData="M120,90m-90,0a90,90 0,1,1 180,0a90,90 0,1,1 -180,0">
+        <aapt:attr name="android:fillColor">
+            <gradient
+                android:type="radial"
+                android:centerX="120"
+                android:centerY="90"
+                android:gradientRadius="90">
+                <item android:offset="0" android:color="#330D9488"/>
+                <item android:offset="0.5" android:color="#1A6366F1"/>
+                <item android:offset="1" android:color="#00000000"/>
+            </gradient>
+        </aapt:attr>
+    </path>
+
+    <!-- ===== INNER GLOW ===== -->
+    <path android:pathData="M120,90m-45,0a45,45 0,1,1 90,0a45,45 0,1,1 -90,0">
+        <aapt:attr name="android:fillColor">
+            <gradient
+                android:type="radial"
+                android:centerX="120"
+                android:centerY="90"
+                android:gradientRadius="45">
+                <item android:offset="0" android:color="#440D9488"/>
+                <item android:offset="1" android:color="#00000000"/>
+            </gradient>
+        </aapt:attr>
+    </path>
+
+    <!-- ===== GLOBE CIRCLE ===== -->
+    <path
+        android:pathData="M120,90m-35,0a35,35 0,1,1 70,0a35,35 0,1,1 -70,0"
+        android:strokeColor="#6366F1"
+        android:strokeWidth="2"
+        android:fillColor="#00000000"
+        android:strokeAlpha="0.5"/>
+
+    <!-- Globe equator -->
+    <path android:pathData="M85,90 L155,90"
+        android:strokeColor="#6366F1"
+        android:strokeWidth="1"
+        android:strokeAlpha="0.3"/>
+
+    <!-- Globe vertical meridian -->
+    <path android:pathData="M120,55 Q135,72.5 135,90 Q135,107.5 120,125 Q105,107.5 105,90 Q105,72.5 120,55"
+        android:strokeColor="#6366F1"
+        android:strokeWidth="1"
+        android:fillColor="#00000000"
+        android:strokeAlpha="0.3"/>
+
+    <!-- Globe latitude lines -->
+    <path android:pathData="M91,72 Q120,66 149,72"
+        android:strokeColor="#6366F1"
+        android:strokeWidth="0.8"
+        android:fillColor="#00000000"
+        android:strokeAlpha="0.25"/>
+    <path android:pathData="M91,108 Q120,114 149,108"
+        android:strokeColor="#6366F1"
+        android:strokeWidth="0.8"
+        android:fillColor="#00000000"
+        android:strokeAlpha="0.25"/>
+
+    <!-- ===== ORBITAL RING (tilted) ===== -->
+    <group android:pivotX="120" android:pivotY="90" android:rotation="20">
+        <path
+            android:pathData="M120,90m-55,0a55,25 0,1,1 110,0a55,25 0,1,1 -110,0"
+            android:strokeColor="#06B6D4"
+            android:strokeWidth="1.2"
+            android:fillColor="#00000000"
+            android:strokeAlpha="0.4"/>
+    </group>
+
+    <!-- ===== ORBITAL RING 2 (opposite tilt) ===== -->
+    <group android:pivotX="120" android:pivotY="90" android:rotation="-15">
+        <path
+            android:pathData="M120,90m-50,0a50,22 0,1,1 100,0a50,22 0,1,1 -100,0"
+            android:strokeColor="#8B5CF6"
+            android:strokeWidth="0.8"
+            android:fillColor="#00000000"
+            android:strokeAlpha="0.3"/>
+    </group>
+
+    <!-- ===== SPEECH BUBBLE 1 (top-right) ===== -->
+    <path android:pathData="M165,40 Q165,32 173,32 L195,32 Q203,32 203,40 L203,52 Q203,60 195,60 L180,60 L175,66 L177,60 L173,60 Q165,60 165,52 Z"
+        android:strokeColor="#22D3EE"
+        android:strokeWidth="1.5"
+        android:fillColor="#00000000"
+        android:strokeAlpha="0.5"/>
+    <!-- Text lines in bubble -->
+    <path android:pathData="M172,43 L196,43"
+        android:strokeColor="#22D3EE" android:strokeWidth="1.5" android:strokeAlpha="0.3"/>
+    <path android:pathData="M172,49 L190,49"
+        android:strokeColor="#22D3EE" android:strokeWidth="1.5" android:strokeAlpha="0.25"/>
+
+    <!-- ===== SPEECH BUBBLE 2 (bottom-left) ===== -->
+    <path android:pathData="M30,110 Q30,103 37,103 L62,103 Q69,103 69,110 L69,120 Q69,127 62,127 L45,127 L40,132 L42,127 L37,127 Q30,127 30,120 Z"
+        android:strokeColor="#A78BFA"
+        android:strokeWidth="1.3"
+        android:fillColor="#00000000"
+        android:strokeAlpha="0.45"/>
+    <path android:pathData="M37,111 L62,111"
+        android:strokeColor="#A78BFA" android:strokeWidth="1.2" android:strokeAlpha="0.25"/>
+    <path android:pathData="M37,117 L55,117"
+        android:strokeColor="#A78BFA" android:strokeWidth="1.2" android:strokeAlpha="0.2"/>
+
+    <!-- ===== FLOATING ORBS ===== -->
+    <path android:pathData="M55,50m-8,0a8,8 0,1,1 16,0a8,8 0,1,1 -16,0">
+        <aapt:attr name="android:fillColor">
+            <gradient android:type="radial"
+                android:centerX="55" android:centerY="50"
+                android:gradientRadius="8">
+                <item android:offset="0" android:color="#CC0D9488"/>
+                <item android:offset="1" android:color="#660D9488"/>
+            </gradient>
+        </aapt:attr>
+    </path>
+    <path android:pathData="M195,120m-7,0a7,7 0,1,1 14,0a7,7 0,1,1 -14,0">
+        <aapt:attr name="android:fillColor">
+            <gradient android:type="radial"
+                android:centerX="195" android:centerY="120"
+                android:gradientRadius="7">
+                <item android:offset="0" android:color="#CC818CF8"/>
+                <item android:offset="1" android:color="#66818CF8"/>
+            </gradient>
+        </aapt:attr>
+    </path>
+
+    <!-- Small accent orbs -->
+    <path android:pathData="M40,145m-4,0a4,4 0,1,1 8,0a4,4 0,1,1 -8,0"
+        android:fillColor="#67E8F9" android:fillAlpha="0.5"/>
+    <path android:pathData="M210,50m-3,0a3,3 0,1,1 6,0a3,3 0,1,1 -6,0"
+        android:fillColor="#A78BFA" android:fillAlpha="0.6"/>
+    <path android:pathData="M170,150m-3,0a3,3 0,1,1 6,0a3,3 0,1,1 -6,0"
+        android:fillColor="#06B6D4" android:fillAlpha="0.5"/>
+    <path android:pathData="M90,155m-2,0a2,2 0,1,1 4,0a2,2 0,1,1 -4,0"
+        android:fillColor="#818CF8" android:fillAlpha="0.4"/>
+    <path android:pathData="M30,75m-2,0a2,2 0,1,1 4,0a2,2 0,1,1 -4,0"
+        android:fillColor="#22D3EE" android:fillAlpha="0.5"/>
+
+    <!-- ===== SPARKLE STARS ===== -->
+    <path android:pathData="M150,30 L151.5,25.5 L153,30 L157.5,31.5 L153,33 L151.5,37.5 L150,33 L145.5,31.5 Z"
+        android:fillColor="#67E8F9" android:fillAlpha="0.7"/>
+    <path android:pathData="M78,130 L79,127 L80,130 L83,131 L80,132 L79,135 L78,132 L75,131 Z"
+        android:fillColor="#A78BFA" android:fillAlpha="0.6"/>
+    <path android:pathData="M210,90 L211,87.5 L212,90 L214.5,91 L212,92 L211,94.5 L210,92 L207.5,91 Z"
+        android:fillColor="#818CF8" android:fillAlpha="0.5"/>
+
+</vector>
