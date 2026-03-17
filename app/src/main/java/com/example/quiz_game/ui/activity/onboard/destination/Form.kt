@@ -44,146 +44,153 @@ import com.example.quiz_game.ui.viewmodel.SharedAction
 
 @Composable
 fun Form(
-        modifier: Modifier = Modifier,
-        sharedAction: (SharedAction) -> Unit = {},
-        onboardAction: (OnboardAction) -> Unit = {},
-        navController: NavController = rememberNavController(),
+    modifier: Modifier = Modifier,
+    sharedAction: (SharedAction) -> Unit = {},
+    onboardAction: (OnboardAction) -> Unit = {},
+    navController: NavController = rememberNavController(),
 ) {
-        var textfieldEnabled by rememberSaveable { mutableStateOf(true) }
-        var usernameState by rememberSaveable { mutableStateOf("") }
-        var buttonEnabled by rememberSaveable { mutableStateOf(true) }
-        var textfieldCleared by rememberSaveable { mutableStateOf(false) }
+    var textfieldEnabled by rememberSaveable { mutableStateOf(true) }
+    var usernameState by rememberSaveable { mutableStateOf("") }
+    var buttonEnabled by rememberSaveable { mutableStateOf(true) }
+    var textfieldCleared by rememberSaveable { mutableStateOf(false) }
 
-        val onUpdateUsername: (String) -> Unit = { username ->
-                textfieldEnabled = false
-                buttonEnabled = false
-                sharedAction(SharedAction.Navigate(OnboardDestination.Guide, navController))
-                onboardAction(OnboardAction.UpdateUsername(username))
-        }
+    val onUpdateUsername: (String) -> Unit = { username ->
+        textfieldEnabled = false
+        buttonEnabled = false
+        sharedAction(SharedAction.Navigate(OnboardDestination.Guide, navController))
+        onboardAction(OnboardAction.UpdateUsername(username))
+    }
 
-        val onClear: () -> Unit = {
-                usernameState = ""
-                textfieldCleared = true
-        }
+    val onClear: () -> Unit = {
+        usernameState = ""
+        textfieldCleared = true
+    }
 
-        val validationRules =
-                arrayOf(
-                        Regex("^.{0,10}$") to
-                                stringResource(R.string.onboard_name_textfield_max_characters),
-                        Regex("^.{4,}$") to
-                                stringResource(R.string.onboard_name_textfield_min_characters),
-                        Regex("^[\\p{L}0-9]+$") to
-                                stringResource(R.string.onboard_name_textfield_unallowed_characters)
+    val validationRules =
+        arrayOf(
+            Regex("^.{0,10}$") to
+                    stringResource(R.string.onboard_name_textfield_max_characters),
+            Regex("^.{4,}$") to
+                    stringResource(R.string.onboard_name_textfield_min_characters),
+            Regex("^[\\p{L}0-9]+$") to
+                    stringResource(R.string.onboard_name_textfield_unallowed_characters)
+        )
+
+    Column(
+        modifier =
+            modifier
+                    .fillMaxSize()
+                    .background(MaterialTheme.colorScheme.background)
+                    .imePadding()
+    ) {
+        // ── Scrollable content ──
+        Column(modifier = Modifier
+                .weight(1f)
+                .verticalScroll(rememberScrollState())) {
+            // ── Edge-to-edge illustration (no horizontal padding) ──
+            Image(
+                painter = painterResource(R.drawable.illustration_form),
+                contentDescription = null,
+                contentScale = ContentScale.Fit,
+                modifier = Modifier
+                        .fillMaxWidth()
+                        .height(220.dp)
+            )
+
+            // ── Padded content below illustration ──
+            Column(modifier = Modifier.padding(horizontal = 20.dp)) {
+                Spacer(Modifier.height(24.dp))
+
+                // ── Header (title + subtitle only, no illustration) ──
+                ScreenHeader(
+                    title =
+                        stringResource(
+                            R.string.onboard_form_greet,
+                            if (!buttonEnabled) "you" else usernameState
+                        ),
+                    subtitle = stringResource(R.string.onboard_form_question),
                 )
 
-        Column(
-                modifier =
-                        modifier.fillMaxSize()
-                                .background(MaterialTheme.colorScheme.background)
-                                .imePadding()
-        ) {
-                // ── Scrollable content ──
-                Column(modifier = Modifier.weight(1f).verticalScroll(rememberScrollState())) {
-                        // ── Edge-to-edge illustration (no horizontal padding) ──
-                        Image(
-                                painter = painterResource(R.drawable.illustration_form),
-                                contentDescription = null,
-                                contentScale = ContentScale.Fit,
-                                modifier = Modifier.fillMaxWidth().height(220.dp)
-                        )
+                Spacer(Modifier.height(36.dp))
 
-                        // ── Padded content below illustration ──
-                        Column(modifier = Modifier.padding(horizontal = 20.dp)) {
-                                Spacer(Modifier.height(24.dp))
+                // ── Nickname text field ──
+                TextFieldPrimary(
+                    modifier =
+                        Modifier
+                                .fillMaxWidth()
+                                .shake(
+                                        !buttonEnabled,
+                                        Orientation.Horizontal
+                                ),
+                    enabled = textfieldEnabled,
+                    placeholder = R.string.onboard_name_placeholder,
+                    label = R.string.onboard_name_label,
+                    trailingIcon =
+                        if (usernameState.isEmpty()) null
+                        else R.drawable.ic_erase,
+                    isLast = true,
+                    regex = validationRules,
+                    onDone = { username -> onUpdateUsername(username) },
+                    onTrailingIconClicked = onClear,
+                    cleared = textfieldCleared,
+                    onValid = { isValid, username ->
+                        buttonEnabled = isValid
+                        usernameState = username
+                        textfieldCleared = false
+                    }
+                )
 
-                                // ── Header (title + subtitle only, no illustration) ──
-                                ScreenHeader(
-                                        title =
-                                                stringResource(
-                                                        R.string.onboard_form_greet,
-                                                        if (!buttonEnabled) "you" else usernameState
-                                                ),
-                                        subtitle = stringResource(R.string.onboard_form_question),
-                                )
-
-                                Spacer(Modifier.height(36.dp))
-
-                                // ── Nickname text field ──
-                                TextFieldPrimary(
-                                        modifier =
-                                                Modifier.fillMaxWidth()
-                                                        .shake(
-                                                                !buttonEnabled,
-                                                                Orientation.Horizontal
-                                                        ),
-                                        enabled = textfieldEnabled,
-                                        placeholder = R.string.onboard_name_placeholder,
-                                        label = R.string.onboard_name_label,
-                                        trailingIcon =
-                                                if (usernameState.isEmpty()) null
-                                                else R.drawable.ic_erase,
-                                        isLast = true,
-                                        regex = validationRules,
-                                        onDone = { username -> onUpdateUsername(username) },
-                                        onTrailingIconClicked = onClear,
-                                        cleared = textfieldCleared,
-                                        onValid = { isValid, username ->
-                                                buttonEnabled = isValid
-                                                usernameState = username
-                                                textfieldCleared = false
-                                        }
-                                )
-
-                                // ── Character counter hint ──
-                                if (usernameState.isNotEmpty() && usernameState.length < 4) {
-                                        Spacer(Modifier.height(4.dp))
-                                        Text(
-                                                text = "${usernameState.length}/4",
-                                                style = MaterialTheme.typography.bodySmall,
-                                                color =
-                                                        MaterialTheme.colorScheme.onSurfaceVariant
-                                                                .copy(alpha = 0.6f),
-                                                modifier = Modifier.padding(start = 4.dp)
-                                        )
-                                }
-
-                                Spacer(Modifier.height(24.dp))
-                        }
+                // ── Character counter hint ──
+                if (usernameState.isNotEmpty() && usernameState.length < 4) {
+                    Spacer(Modifier.height(4.dp))
+                    Text(
+                        text = "${usernameState.length}/4",
+                        style = MaterialTheme.typography.bodySmall,
+                        color =
+                            MaterialTheme.colorScheme.onSurfaceVariant
+                                .copy(alpha = 0.6f),
+                        modifier = Modifier.padding(start = 4.dp)
+                    )
                 }
 
-                // ── Sticky bottom CTA ──
-                AnimatedVisibility(
-                        visible = true,
-                        enter = fadeIn() + slideInVertically { it / 2 },
-                ) {
-                        Box(
-                                modifier =
-                                        Modifier.fillMaxWidth()
-                                                .background(MaterialTheme.colorScheme.background)
-                                                .padding(horizontal = 20.dp, vertical = 16.dp)
-                        ) {
-                                ButtonPrimary(
-                                        onClick = { onUpdateUsername(usernameState) },
-                                        enabled = buttonEnabled,
-                                        modifier = Modifier.fillMaxWidth()
-                                ) {
-                                        TextButton(
-                                                text = stringResource(R.string.onboard_form_submit)
-                                        )
-                                        IconButton(
-                                                painter =
-                                                        painterResource(
-                                                                R.drawable.ic_arrow_forward
-                                                        ),
-                                        )
-                                }
-                        }
-                }
+                Spacer(Modifier.height(24.dp))
+            }
         }
+
+        // ── Sticky bottom CTA ──
+        AnimatedVisibility(
+            visible = true,
+            enter = fadeIn() + slideInVertically { it / 2 },
+        ) {
+            Box(
+                modifier =
+                    Modifier
+                            .fillMaxWidth()
+                            .background(MaterialTheme.colorScheme.background)
+                            .padding(horizontal = 20.dp, vertical = 16.dp)
+            ) {
+                ButtonPrimary(
+                    onClick = { onUpdateUsername(usernameState) },
+                    enabled = buttonEnabled,
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    TextButton(
+                        text = stringResource(R.string.onboard_form_submit)
+                    )
+                    IconButton(
+                        painter =
+                            painterResource(
+                                R.drawable.ic_arrow_forward
+                            ),
+                    )
+                }
+            }
+        }
+    }
 }
 
 @Preview(showBackground = true)
 @Composable
 private fun FormPreview() {
-        com.example.quiz_game.ui.shared.component.Preview { Form() }
+    com.example.quiz_game.ui.shared.component.Preview { Form() }
 }
