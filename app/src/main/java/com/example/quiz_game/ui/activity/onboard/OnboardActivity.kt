@@ -40,40 +40,44 @@ class OnboardActivity : BaseActivity() {
 
             QuizgameTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    Box(Modifier.fillMaxSize().padding(innerPadding)) {
+                    Box(Modifier
+                        .fillMaxSize()
+                        .padding(innerPadding)) {
                         NavHost(
-                                navController = navController,
-                                startDestination =
-                                        when {
-                                            onboardState.user.language == null ->
-                                                    OnboardDestination.Language
-                                            onboardState.user.username == null ->
-                                                    OnboardDestination.Form
-                                            else -> OnboardDestination.Guide
-                                        }
+                            navController = navController,
+                            startDestination =
+                                when {
+                                    onboardState.user.language == null ->
+                                        OnboardDestination.Language
+
+                                    onboardState.user.username == null ->
+                                        OnboardDestination.Form
+
+                                    else -> OnboardDestination.Guide
+                                }
                         ) {
                             composable<OnboardDestination.Form> {
                                 Form(
-                                        sharedAction = sharedViewModel::onAction,
-                                        onboardAction = onboardViewModel::onAction,
-                                        navController = navController
+                                    sharedAction = sharedViewModel::onAction,
+                                    onboardAction = onboardViewModel::onAction,
+                                    navController = navController
                                 )
                             }
 
                             composable<OnboardDestination.Guide> {
                                 Guide(
-                                        sharedAction = sharedViewModel::onAction,
-                                        onboardAction = onboardViewModel::onAction
+                                    sharedAction = sharedViewModel::onAction,
+                                    onboardAction = onboardViewModel::onAction
                                 )
                             }
 
                             composable<OnboardDestination.Language> {
                                 Language(
-                                        onboardState = onboardState,
-                                        sharedState = sharedState,
-                                        navController = navController,
-                                        sharedAction = sharedViewModel::onAction,
-                                        onboardAction = onboardViewModel::onAction,
+                                    onboardState = onboardState,
+                                    sharedState = sharedState,
+                                    navController = navController,
+                                    sharedAction = sharedViewModel::onAction,
+                                    onboardAction = onboardViewModel::onAction,
                                 )
                             }
                         }
@@ -85,9 +89,12 @@ class OnboardActivity : BaseActivity() {
 }
 
 sealed interface OnboardDestination : AppDestination {
-    @Serializable data object Form : OnboardDestination
+    @Serializable
+    data object Form : OnboardDestination
 
-    @Serializable data object Guide : OnboardDestination
+    @Serializable
+    data object Guide : OnboardDestination
 
-    @Serializable data object Language : OnboardDestination
+    @Serializable
+    data object Language : OnboardDestination
 }

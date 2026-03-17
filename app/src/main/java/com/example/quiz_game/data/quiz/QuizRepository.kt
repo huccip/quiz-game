@@ -116,6 +116,14 @@ object QuizRepository {
                 App.db.quizDao().updateExpired(quiz.uid)
             }
 
+    suspend fun getUnexpiredCounts(): Map<String, Int> =
+            withContext(Dispatchers.IO) {
+                App.db.quizDao().get()
+                        .filter { !it.expired && it.categoryUid != null }
+                        .groupBy { it.categoryUid!! }
+                        .mapValues { it.value.size }
+            }
+
     private suspend fun fetchRemote(amount: Int, category: Int? = null) =
             withContext(Dispatchers.IO) {
                 var currentAmount = amount

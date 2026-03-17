@@ -19,22 +19,22 @@ import com.example.quiz_game.ui.viewmodel.SharedAction
 
 @Composable
 fun Guide(
-        modifier: Modifier = Modifier,
-        onboardAction: (OnboardAction) -> Unit = {},
-        sharedAction: (SharedAction) -> Unit = {}
+    modifier: Modifier = Modifier,
+    onboardAction: (OnboardAction) -> Unit = {},
+    sharedAction: (SharedAction) -> Unit = {}
 ) {
     val context = LocalContext.current
 
     Box(modifier = modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
         ButtonPrimary(
-                onClick = {
-                    sharedAction(SharedAction.StartActivity(context, MainActivity::class.java))
+            onClick = {
+                sharedAction(SharedAction.StartActivity(context, MainActivity::class.java))
 
-                    App.userPrefs.edit {
-                        putBoolean(User.KEY_ONBOARDED, true)
-                        commit()
-                    }
+                App.userPrefs.edit {
+                    putBoolean(User.KEY_ONBOARDED, true)
+                    commit()
                 }
+            }
         ) { TextButton(text = stringResource(R.string.onboard_guide_continue)) }
     }
 }

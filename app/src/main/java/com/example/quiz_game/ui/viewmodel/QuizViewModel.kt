@@ -64,6 +64,12 @@ class QuizViewModel : ViewModel() {
                                             .awaitAll()
                             state.value = state.value.copy(sessionQuizzes = quizzes)
                         }
+                is QuizAction.GetUnexpiredCounts ->
+                        execute {
+                            // Calculates counts based on local DB locally-fetched quizzes
+                            val counts = Repository.quizRepository.getUnexpiredCounts()
+                            state.value = state.value.copy(unexpiredCounts = counts)
+                        }
                 is QuizAction.DeleteByUid -> {
                     Repository.quizRepository.deleteByUid(uid = action.uid)
                 }
@@ -116,7 +122,8 @@ data class QuizState(
         val errors: List<Throwable> = emptyList(),
         val quizzes: List<Quiz> = emptyList(),
         val sessionQuizzes: List<Quiz> = emptyList(),
-        val quiz: Quiz = Quiz()
+        val quiz: Quiz = Quiz(),
+        val unexpiredCounts: Map<String, Int> = emptyMap()
 )
 
 sealed interface QuizAction {
@@ -126,4 +133,5 @@ sealed interface QuizAction {
     data class GetBySession(val uids: List<String>) : QuizAction
     data class DeleteByUid(val uid: String) : QuizAction
     data class UpdateExpired(val uid: String) : QuizAction
+    data object GetUnexpiredCounts : QuizAction
 }

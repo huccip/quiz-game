@@ -86,12 +86,12 @@ class MainActivity : BaseActivity() {
             }
             val connectivityObserver = remember { NetworkConnectivityObserver(context) }
             val initialNetworkStatus =
-                    if (Utils.hasInternet()) NetworkConnectivityObserver.Status.Available
-                    else NetworkConnectivityObserver.Status.Unavailable
+                if (Utils.hasInternet()) NetworkConnectivityObserver.Status.Available
+                else NetworkConnectivityObserver.Status.Unavailable
             val networkStatus by
-                    connectivityObserver
-                            .observe()
-                            .collectAsStateWithLifecycle(initialValue = initialNetworkStatus)
+            connectivityObserver
+                .observe()
+                .collectAsStateWithLifecycle(initialValue = initialNetworkStatus)
             var isInitialStatus by rememberSaveable { mutableStateOf(true) }
             val pendingTasks by NetworkRecoveryManager.pendingTasks.collectAsStateWithLifecycle()
 
@@ -102,12 +102,12 @@ class MainActivity : BaseActivity() {
             // Observe translator status for background download loading bar
             val translatorStatus by TranslatorManager.status.collectAsStateWithLifecycle()
             val isTranslatorDownloading =
-                    translatorStatus in
-                            listOf(
-                                    TranslatorStatus.Saving,
-                                    TranslatorStatus.Downloading,
-                                    TranslatorStatus.SlowDownload
-                            )
+                translatorStatus in
+                        listOf(
+                            TranslatorStatus.Saving,
+                            TranslatorStatus.Downloading,
+                            TranslatorStatus.SlowDownload
+                        )
 
             // Initialize translator + watch for background download completion
             LaunchedEffect(Unit) {
@@ -119,9 +119,9 @@ class MainActivity : BaseActivity() {
                     if (status == TranslatorStatus.Restarting) {
                         val intent = Intent(context, OnboardActivity::class.java)
                         intent.addFlags(
-                                Intent.FLAG_ACTIVITY_NEW_TASK or
-                                        Intent.FLAG_ACTIVITY_CLEAR_TASK or
-                                        Intent.FLAG_ACTIVITY_NO_ANIMATION
+                            Intent.FLAG_ACTIVITY_NEW_TASK or
+                                    Intent.FLAG_ACTIVITY_CLEAR_TASK or
+                                    Intent.FLAG_ACTIVITY_NO_ANIMATION
                         )
                         context.startActivity(intent)
                         (context as? Activity)?.overridePendingTransition(0, 0)
@@ -134,11 +134,11 @@ class MainActivity : BaseActivity() {
                 if (isInitialStatus) {
                     isInitialStatus = false
                     if (networkStatus == NetworkConnectivityObserver.Status.Lost ||
-                                    networkStatus == NetworkConnectivityObserver.Status.Unavailable
+                        networkStatus == NetworkConnectivityObserver.Status.Unavailable
                     ) {
                         snackbarHostState.showSnackbar(
-                                offlineMessage,
-                                duration = SnackbarDuration.Indefinite
+                            offlineMessage,
+                            duration = SnackbarDuration.Indefinite
                         )
                     }
                 } else {
@@ -148,11 +148,11 @@ class MainActivity : BaseActivity() {
                         // If there are pending tasks, offer to retry them
                         if (pendingTasks.isNotEmpty()) {
                             val result =
-                                    snackbarHostState.showSnackbar(
-                                            message = onlineMessage,
-                                            actionLabel = retryAction,
-                                            duration = SnackbarDuration.Long
-                                    )
+                                snackbarHostState.showSnackbar(
+                                    message = onlineMessage,
+                                    actionLabel = retryAction,
+                                    duration = SnackbarDuration.Long
+                                )
                             if (result == SnackbarResult.ActionPerformed) {
                                 NetworkRecoveryManager.retryAll()
                             }
@@ -160,12 +160,12 @@ class MainActivity : BaseActivity() {
                             snackbarHostState.showSnackbar(onlineMessage)
                         }
                     } else if (networkStatus == NetworkConnectivityObserver.Status.Lost ||
-                                    networkStatus == NetworkConnectivityObserver.Status.Unavailable
+                        networkStatus == NetworkConnectivityObserver.Status.Unavailable
                     ) {
                         snackbarHostState.showSnackbar(
-                                offlineMessage,
-                                duration = SnackbarDuration.Indefinite,
-                                withDismissAction = true
+                            offlineMessage,
+                            duration = SnackbarDuration.Indefinite,
+                            withDismissAction = true
                         )
                     }
                 }
@@ -173,100 +173,106 @@ class MainActivity : BaseActivity() {
 
             QuizgameTheme {
                 Scaffold(
-                        modifier = Modifier.fillMaxSize(),
-                        snackbarHost = { SnackbarHost(snackbarHostState) }
+                    modifier = Modifier.fillMaxSize(),
+                    snackbarHost = { SnackbarHost(snackbarHostState) }
                 ) { innerPadding ->
-                    Column(Modifier.fillMaxSize().padding(paddingValues = innerPadding)) {
+                    Column(Modifier
+                        .fillMaxSize()
+                        .padding(paddingValues = innerPadding)) {
                         // Show loading bar when translator downloads in background
                         if (isTranslatorDownloading) {
                             val statusMessage =
-                                    when (translatorStatus) {
-                                        TranslatorStatus.Saving ->
-                                                stringResource(
-                                                        R.string.onboard_form_loading_subject
-                                                )
-                                        TranslatorStatus.Downloading ->
-                                                stringResource(
-                                                        R.string.onboard_language_downloading
-                                                )
-                                        TranslatorStatus.SlowDownload ->
-                                                stringResource(
-                                                        R.string.onboard_language_slow_download
-                                                )
-                                        else ->
-                                                stringResource(
-                                                        R.string.onboard_form_loading_subject
-                                                )
-                                    }
+                                when (translatorStatus) {
+                                    TranslatorStatus.Saving ->
+                                        stringResource(
+                                            R.string.onboard_form_loading_subject
+                                        )
+
+                                    TranslatorStatus.Downloading ->
+                                        stringResource(
+                                            R.string.onboard_language_downloading
+                                        )
+
+                                    TranslatorStatus.SlowDownload ->
+                                        stringResource(
+                                            R.string.onboard_language_slow_download
+                                        )
+
+                                    else ->
+                                        stringResource(
+                                            R.string.onboard_form_loading_subject
+                                        )
+                                }
                             LoadingProgressiveLine(
-                                    status = translatorStatus,
-                                    statusMessage = statusMessage
+                                status = translatorStatus,
+                                statusMessage = statusMessage
                             )
                         }
 
                         Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                             NavHost(
-                                    navController = navController,
-                                    startDestination = MainDestination.Home
+                                navController = navController,
+                                startDestination = MainDestination.Home
                             ) {
                                 composable<MainDestination.Home> {
                                     Home(
-                                            quizState = quizState,
-                                            quizAction = quizViewModel::onAction,
-                                            categoryState = categoryState,
-                                            sessionState = sessionState,
-                                            sharedAction = sharedViewModel::onAction,
-                                            navController = navController,
-                                            sessionAction = sessionViewModel::onAction,
-                                            onError = onError
+                                        quizState = quizState,
+                                        quizAction = quizViewModel::onAction,
+                                        categoryState = categoryState,
+                                        sessionState = sessionState,
+                                        sharedAction = sharedViewModel::onAction,
+                                        navController = navController,
+                                        sessionAction = sessionViewModel::onAction,
+                                        onError = onError
                                     )
                                 }
 
                                 composable<MainDestination.Game> {
                                     Game(
-                                            quizState = quizViewModel.state,
-                                            quizzesUids =
-                                                    it.toRoute<MainDestination.Game>().quizzesUids,
-                                            sharedAction = sharedViewModel::onAction,
-                                            quizAction = quizViewModel::onAction,
-                                            sessionState = sessionViewModel.state,
-                                            sessionAction = sessionViewModel::onAction,
-                                            navController = navController
+                                        quizState = quizViewModel.state,
+                                        quizzesUids =
+                                            it.toRoute<MainDestination.Game>().quizzesUids,
+                                        sharedAction = sharedViewModel::onAction,
+                                        quizAction = quizViewModel::onAction,
+                                        sessionState = sessionViewModel.state,
+                                        sessionAction = sessionViewModel::onAction,
+                                        navController = navController
                                     )
                                 }
 
                                 composable<MainDestination.Browse> {
                                     Browse(
-                                            quizState = quizState,
-                                            categoryState = categoryState,
-                                            sharedAction = sharedViewModel::onAction,
-                                            navController = navController,
-                                            quizAction = quizViewModel::onAction,
-                                            categoryAction = categoryViewModel::onAction,
-                                            sessionAction = sessionViewModel::onAction,
-                                            onError = onError
+                                        quizState = quizState,
+                                        categoryState = categoryState,
+                                        sessionState = sessionState,
+                                        sharedAction = sharedViewModel::onAction,
+                                        navController = navController,
+                                        quizAction = quizViewModel::onAction,
+                                        categoryAction = categoryViewModel::onAction,
+                                        sessionAction = sessionViewModel::onAction,
+                                        onError = onError
                                     )
                                 }
 
                                 composable<MainDestination.Language> {
                                     Language(
-                                            sharedState = sharedState,
-                                            sharedAction = sharedViewModel::onAction,
-                                            onboardState = onboardState,
-                                            onboardAction = onboardViewModel::onAction,
-                                            navController = navController,
-                                            fromOnboarding = false
+                                        sharedState = sharedState,
+                                        sharedAction = sharedViewModel::onAction,
+                                        onboardState = onboardState,
+                                        onboardAction = onboardViewModel::onAction,
+                                        navController = navController,
+                                        fromOnboarding = false
                                     )
                                 }
 
                                 composable<MainDestination.PostGame> {
                                     PostGame(
-                                            sharedAction = sharedViewModel::onAction,
-                                            navController = navController,
-                                            quizState = quizState,
-                                            quizAction = quizViewModel::onAction,
-                                            sessionState = sessionState,
-                                            sessionAction = sessionViewModel::onAction,
+                                        sharedAction = sharedViewModel::onAction,
+                                        navController = navController,
+                                        quizState = quizState,
+                                        quizAction = quizViewModel::onAction,
+                                        sessionState = sessionState,
+                                        sessionAction = sessionViewModel::onAction,
                                     )
                                 }
                             }
@@ -279,14 +285,18 @@ class MainActivity : BaseActivity() {
 }
 
 sealed interface MainDestination : AppDestination {
-    @Serializable data object Home : MainDestination
+    @Serializable
+    data object Home : MainDestination
 
     @Serializable
     data class Game(val quizzesUids: List<String> = emptyList<String>()) : MainDestination
 
-    @Serializable data object Browse : MainDestination
+    @Serializable
+    data object Browse : MainDestination
 
-    @Serializable data object Language : MainDestination
+    @Serializable
+    data object Language : MainDestination
 
-    @Serializable data object PostGame : MainDestination
+    @Serializable
+    data object PostGame : MainDestination
 }

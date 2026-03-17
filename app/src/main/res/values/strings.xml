@@ -52,7 +52,7 @@
     <string name="home_button_resume">Resume</string>
     <string name="home_button_browse">Browse all categories</string>
     <string name="home_greeting_subtitle">Good to see you!</string>
-    <string name="home_featured_title">Featured</string>
+    <string name="home_featured_title">Categories</string>
     <string name="home_featured_subtitle">See more</string>
     <string name="home_quote_label">Today\'s wisdom</string>
     <string name="home_quote_not_found">"No quote available today. Check back later!"</string>
@@ -213,4 +213,42 @@
 
     <string name="onboard_guide_continue">Continue</string>
     <string name="postgame_player_fallback">Player #0000</string>
+
+    <string name="home_title_resume_journey">Resume Journey</string>
+    <string name="home_title_play_now">Play Now</string>
+    <string name="home_action_resume">Resume \u25B6</string>
+    <string name="home_action_new_game">New Game</string>
+    <string name="home_action_play_now">Play Now \u25B6</string>
+    <string name="home_title_featured_categories">Featured Categories</string>
+    <string name="home_action_browse_all">Browse all \u2197</string>
+    <string name="home_categories_empty_message">No categories available yet.</string>
+    <string name="category_short_9">General</string>
+    <string name="category_short_10">Books</string>
+    <string name="category_short_11">Movies</string>
+    <string name="category_short_12">Music</string>
+    <string name="category_short_13">Musicals</string>
+    <string name="category_short_14">Series</string>
+    <string name="category_short_15">Video Games</string>
+    <string name="category_short_16">Board Games</string>
+    <string name="category_short_17">Nature</string>
+    <string name="category_short_18">Computers</string>
+    <string name="category_short_19">Math</string>
+    <string name="category_short_20">Mythology</string>
+    <string name="category_short_21">Sports</string>
+    <string name="category_short_22">Geography</string>
+    <string name="category_short_23">History</string>
+    <string name="category_short_24">Politics</string>
+    <string name="category_short_25">Art</string>
+    <string name="category_short_26">Celebrities</string>
+    <string name="category_short_27">Animals</string>
+    <string name="category_short_28">Vehicles</string>
+    <string name="category_short_29">Comics</string>
+    <string name="category_short_30">Gadgets</string>
+    <string name="category_short_31">Anime</string>
+    <string name="category_short_32">Cartoons</string>
+    <string name="browse_search_placeholder">Search categories…</string>
+    <string name="browse_sort_default">Default</string>
+    <string name="browse_sort_a_z">A-Z</string>
+    <string name="browse_sort_z_a">Z-A</string>
+    <string name="browse_available_quizzes">%d Available</string>
 </resources>

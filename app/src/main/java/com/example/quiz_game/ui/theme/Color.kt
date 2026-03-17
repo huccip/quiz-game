@@ -20,3 +20,10 @@ val Indigo50  = Color(0xFFEEF2FF)
 val Neutral50  = Color(0xFFF8F9FA)
 val Neutral400 = Color(0xFF9CA3AF)
 val Neutral900 = Color(0xFF111827)
+
+// ── Semantic game action colors ─────────────────────────────────────────
+// Used for the "New Game" button — positive/ready-to-go signal, not an error
+val NewGameGreen         = Color(0xFF16A34A) // Forest green — content color (text/stroke)
+val NewGameGreenContainer = Color(0xFFDCFCE7) // Pale mint — container for light theme
+val NewGameGreenDark      = Color(0xFF4ADE80) // Soft lime — content color for dark theme
+val NewGameGreenDarkContainer = Color(0xFF14532D) // Deep forest — container for dark theme

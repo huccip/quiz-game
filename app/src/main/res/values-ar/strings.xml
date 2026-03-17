@@ -215,4 +215,42 @@
 
     <string name="onboard_guide_continue">المتابعة</string>
     <string name="postgame_player_fallback">لاعب #0000</string>
+
+    <string name="home_title_resume_journey">استكمال الرحلة</string>
+    <string name="home_title_play_now">العب الآن</string>
+    <string name="home_action_resume">استئناف \u25C0</string>
+    <string name="home_action_new_game">لعبة جديدة</string>
+    <string name="home_action_play_now">العب الآن \u25C0</string>
+    <string name="home_title_featured_categories">الفئات المميزة</string>
+    <string name="home_action_browse_all">تصفح الكل \u2196</string>
+    <string name="home_categories_empty_message">لا توجد فئات متاحة بعد.</string>
+    <string name="category_short_9">عامة</string>
+    <string name="category_short_10">كتب</string>
+    <string name="category_short_11">أفلام</string>
+    <string name="category_short_12">موسيقى</string>
+    <string name="category_short_13">مسرحيات</string>
+    <string name="category_short_14">مسلسلات</string>
+    <string name="category_short_15">ألعاب فيديو</string>
+    <string name="category_short_16">ألعاب طاولة</string>
+    <string name="category_short_17">طبيعة</string>
+    <string name="category_short_18">حواسيب</string>
+    <string name="category_short_19">رياضيات</string>
+    <string name="category_short_20">أساطير</string>
+    <string name="category_short_21">رياضة</string>
+    <string name="category_short_22">جغرافيا</string>
+    <string name="category_short_23">تاريخ</string>
+    <string name="category_short_24">سياسة</string>
+    <string name="category_short_25">فن</string>
+    <string name="category_short_26">مشاهير</string>
+    <string name="category_short_27">حيوانات</string>
+    <string name="category_short_28">مركبات</string>
+    <string name="category_short_29">قصص مصورة</string>
+    <string name="category_short_30">أجهزة</string>
+    <string name="category_short_31">أنمي</string>
+    <string name="category_short_32">رسوم متحركة</string>
+    <string name="browse_search_placeholder">البحث في الفئات…</string>
+    <string name="browse_sort_default">الافتراضي</string>
+    <string name="browse_sort_a_z">أ-ي</string>
+    <string name="browse_sort_z_a">ي-أ</string>
+    <string name="browse_available_quizzes">%d متاح</string>
 </resources>

@@ -60,159 +60,169 @@ import kotlin.random.Random
 /** showcasing game terminated session stats */
 @Composable
 fun PostGame(
-        modifier: Modifier = Modifier,
-        sharedAction: (SharedAction) -> Unit = {},
-        quizAction: (QuizAction) -> Unit = {},
-        quizState: QuizState = QuizState(),
-        sessionState: SessionState = SessionState(),
-        sessionAction: (SessionAction) -> Unit = {},
-        navController: NavController = rememberNavController()
+    modifier: Modifier = Modifier,
+    sharedAction: (SharedAction) -> Unit = {},
+    quizAction: (QuizAction) -> Unit = {},
+    quizState: QuizState = QuizState(),
+    sessionState: SessionState = SessionState(),
+    sessionAction: (SessionAction) -> Unit = {},
+    navController: NavController = rememberNavController()
 ) {
-        val sweepAngle = remember { Animatable(0f) }
+    val sweepAngle = remember { Animatable(0f) }
 
-        val score = sessionState.session?.score ?: -1
-        val maxScore = sessionState.session?.maxScore ?: -1
-        val achievements = sessionState.session?.achievements ?: emptyList()
-        val nickname =
-                App.userPrefs.getString("nickname", null)
-                        ?: stringResource(R.string.postgame_player_fallback)
+    val score = sessionState.session?.score ?: -1
+    val maxScore = sessionState.session?.maxScore ?: -1
+    val achievements = sessionState.session?.achievements ?: emptyList()
+    val nickname =
+        App.userPrefs.getString("nickname", null)
+            ?: stringResource(R.string.postgame_player_fallback)
 
-        LaunchedEffect(sessionState) {
-                val target =
-                        if (maxScore > 0) {
-                                ((score.toFloat().coerceAtLeast(0f) / maxScore.toFloat()) * 360f)
-                                        .coerceIn(0f, 360f)
-                        } else {
-                                0f
-                        }
-                sweepAngle.animateTo(
-                        target,
-                        animationSpec = tween(durationMillis = 1500, easing = FastOutSlowInEasing)
+    LaunchedEffect(sessionState) {
+        val target =
+            if (maxScore > 0) {
+                ((score.toFloat().coerceAtLeast(0f) / maxScore.toFloat()) * 360f)
+                    .coerceIn(0f, 360f)
+            } else {
+                0f
+            }
+        sweepAngle.animateTo(
+            target,
+            animationSpec = tween(durationMillis = 1500, easing = FastOutSlowInEasing)
+        )
+    }
+
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        modifier = Modifier
+                .verticalScroll(rememberScrollState())
+                .padding(16.dp)
+    ) {
+        Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
+            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                TextFancy(
+                    text = nickname,
+                    color = MaterialTheme.colorScheme.primary
                 )
+                TextSmol(text = "$score / $maxScore")
+            }
+
+            Canvas(modifier = Modifier
+                    .size(200.dp)
+                    .align(Alignment.BottomCenter)) {
+                val correctAngle = sweepAngle.value
+
+                // Draw background (gray) arc first - full circle
+                drawArc(
+                    color = Color.Gray,
+                    startAngle = -90f,
+                    sweepAngle = 360f,
+                    useCenter = false,
+                    style = Stroke(10f)
+                )
+
+                // Draw foreground (green) arc on top - representing correct score
+                drawArc(
+                    color = Color.Green,
+                    startAngle = -90f,
+                    sweepAngle = correctAngle,
+                    useCenter = false,
+                    style = Stroke(10f)
+                )
+            }
         }
 
-        Column(
-                horizontalAlignment = Alignment.CenterHorizontally,
-                modifier = Modifier.verticalScroll(rememberScrollState()).padding(16.dp)
-        ) {
-                Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
-                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                                TextFancy(
-                                        text = nickname,
-                                        color = MaterialTheme.colorScheme.primary
-                                )
-                                TextSmol(text = "$score / $maxScore")
-                        }
+        Spacer(modifier = Modifier.height(16.dp))
+        HorizontalDivider(color = Color.Gray, thickness = 2.dp)
+        Spacer(modifier = Modifier.height(16.dp))
 
-                        Canvas(modifier = Modifier.size(200.dp).align(Alignment.BottomCenter)) {
-                                val correctAngle = sweepAngle.value
-
-                                // Draw background (gray) arc first - full circle
-                                drawArc(
-                                        color = Color.Gray,
-                                        startAngle = -90f,
-                                        sweepAngle = 360f,
-                                        useCenter = false,
-                                        style = Stroke(10f)
-                                )
-
-                                // Draw foreground (green) arc on top - representing correct score
-                                drawArc(
-                                        color = Color.Green,
-                                        startAngle = -90f,
-                                        sweepAngle = correctAngle,
-                                        useCenter = false,
-                                        style = Stroke(10f)
-                                )
-                        }
+        Column {
+            achievements.forEach { achievement ->
+                AnimatedVisibility(
+                    visible = true,
+                    enter =
+                        scaleIn(
+                            animationSpec =
+                                spring(
+                                    Spring.DampingRatioLowBouncy,
+                                    stiffness =
+                                        Spring.StiffnessMedium
+                                ),
+                            initialScale = 0f
+                        )
+                ) {
+                    TrophyCard(achievement = achievement)
+                    Spacer(modifier = Modifier.height(8.dp))
                 }
-
-                Spacer(modifier = Modifier.height(16.dp))
-                HorizontalDivider(color = Color.Gray, thickness = 2.dp)
-                Spacer(modifier = Modifier.height(16.dp))
-
-                Column {
-                        achievements.forEach { achievement ->
-                                AnimatedVisibility(
-                                        visible = true,
-                                        enter =
-                                                scaleIn(
-                                                        animationSpec =
-                                                                spring(
-                                                                        Spring.DampingRatioLowBouncy,
-                                                                        stiffness =
-                                                                                Spring.StiffnessMedium
-                                                                ),
-                                                        initialScale = 0f
-                                                )
-                                ) {
-                                        TrophyCard(achievement = achievement)
-                                        Spacer(modifier = Modifier.height(8.dp))
-                                }
-                        }
-                }
-
-                Spacer(modifier = Modifier.height(16.dp))
-                HorizontalDivider(color = Color.Gray, thickness = 2.dp)
-                Spacer(modifier = Modifier.height(16.dp))
-
-                ButtonPrimary(
-                        modifier = Modifier.fillMaxWidth(),
-                        onClick = {
-                                sharedAction(
-                                        SharedAction.Navigate(MainDestination.Home, navController)
-                                )
-                        }
-                ) { TextButton(text = stringResource(R.string.postgame_button_navigate_home)) }
+            }
         }
+
+        Spacer(modifier = Modifier.height(16.dp))
+        HorizontalDivider(color = Color.Gray, thickness = 2.dp)
+        Spacer(modifier = Modifier.height(16.dp))
+
+        ButtonPrimary(
+            modifier = Modifier.fillMaxWidth(),
+            onClick = {
+                sharedAction(
+                    SharedAction.Navigate(MainDestination.Home, navController)
+                )
+            }
+        ) { TextButton(text = stringResource(R.string.postgame_button_navigate_home)) }
+    }
 }
 
 @Composable
 fun TrophyCard(modifier: Modifier = Modifier, achievement: Int) {
-        val (iconRes, descriptionRes) = achievementIcon(achievement)
+    val (iconRes, descriptionRes) = achievementIcon(achievement)
 
-        val scale by
-                animateFloatAsState(
-                        targetValue = 1f,
-                        animationSpec = tween(durationMillis = 500, easing = FastOutSlowInEasing)
-                )
+    val scale by
+    animateFloatAsState(
+        targetValue = 1f,
+        animationSpec = tween(durationMillis = 500, easing = FastOutSlowInEasing)
+    )
 
-        val rotation by
-                animateFloatAsState(
-                        targetValue =
-                                arrayOf(Random.nextFloat() * 2f + 3f, Random.nextFloat() * 2f - 3f)
-                                        .random(),
-                        animationSpec = tween(durationMillis = 1000, easing = FastOutSlowInEasing)
-                )
+    val rotation by
+    animateFloatAsState(
+        targetValue =
+            arrayOf(Random.nextFloat() * 2f + 3f, Random.nextFloat() * 2f - 3f)
+                .random(),
+        animationSpec = tween(durationMillis = 1000, easing = FastOutSlowInEasing)
+    )
 
-        Card(
-                modifier =
-                        modifier.fillMaxWidth()
-                                .padding(8.dp)
-                                .graphicsLayer(
-                                        scaleX = scale,
-                                        scaleY = scale,
-                                        rotationZ = rotation
-                                ),
-                elevation = CardDefaults.cardElevation(defaultElevation = 8.dp),
-                shape = RoundedCornerShape(16.dp),
+    Card(
+        modifier =
+            modifier
+                    .fillMaxWidth()
+                    .padding(8.dp)
+                    .graphicsLayer(
+                            scaleX = scale,
+                            scaleY = scale,
+                            rotationZ = rotation
+                    ),
+        elevation = CardDefaults.cardElevation(defaultElevation = 8.dp),
+        shape = RoundedCornerShape(16.dp),
+    ) {
+        Row(
+            modifier = Modifier
+                    .padding(16.dp)
+                    .fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically
         ) {
-                Row(
-                        modifier = Modifier.padding(16.dp).fillMaxWidth(),
-                        verticalAlignment = Alignment.CenterVertically
-                ) {
-                        Image(
-                                painter = painterResource(id = iconRes),
-                                contentDescription = stringResource(descriptionRes),
-                                modifier = Modifier.size(40.dp).clip(CircleShape).padding(8.dp)
-                        )
+            Image(
+                painter = painterResource(id = iconRes),
+                contentDescription = stringResource(descriptionRes),
+                modifier = Modifier
+                        .size(40.dp)
+                        .clip(CircleShape)
+                        .padding(8.dp)
+            )
 
-                        Spacer(modifier = Modifier.width(12.dp))
+            Spacer(modifier = Modifier.width(12.dp))
 
-                        Column {
-                                TextButton(text = stringResource(achievement))
-                                TextSmol(text = stringResource(descriptionRes))
-                        }
-                }
+            Column {
+                TextButton(text = stringResource(achievement))
+                TextSmol(text = stringResource(descriptionRes))
+            }
         }
+    }
 }
