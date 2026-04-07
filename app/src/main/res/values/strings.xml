@@ -250,5 +250,11 @@
     <string name="browse_sort_default">Default</string>
     <string name="browse_sort_a_z">A-Z</string>
     <string name="browse_sort_z_a">Z-A</string>
+    <string name="browse_sort_count_high">Most quizzes</string>
+    <string name="browse_sort_count_low">Least quizzes</string>
     <string name="browse_available_quizzes">%d Available</string>
+    <string name="browse_no_quizzes">Tap to download</string>
+    <string name="browse_no_results">No results for \"%s\"</string>
+    <string name="browse_resume_title">You have an active quiz!</string>
+    <string name="browse_resume_button">Resume</string>
 </resources>

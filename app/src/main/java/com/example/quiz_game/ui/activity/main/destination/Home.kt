@@ -1,5 +1,6 @@
 package com.example.quiz_game.ui.activity.main.destination
 
+import android.icu.util.Calendar
 import android.util.Log
 import androidx.annotation.DrawableRes
 import androidx.compose.foundation.Image
@@ -15,6 +16,7 @@ import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -52,7 +54,9 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.util.fastFilter
@@ -68,6 +72,7 @@ import com.example.quiz_game.other.Constants
 import com.example.quiz_game.other.TranslatorManager
 import com.example.quiz_game.other.Utils
 import com.example.quiz_game.ui.activity.main.MainDestination
+import com.example.quiz_game.ui.shared.component.CardClickable
 import com.example.quiz_game.ui.shared.component.DialogYesOrNo
 import com.example.quiz_game.ui.shared.component.IconButton
 import com.example.quiz_game.ui.shared.component.LoadingInfiniteLine
@@ -451,7 +456,7 @@ private fun GreetingSection() {
 
     // Reflect the time of day — mirrors the hour ranges in Utils.greetingBasedOnTimezone
     val currentHour =
-        android.icu.util.Calendar.getInstance().get(android.icu.util.Calendar.HOUR_OF_DAY)
+        Calendar.getInstance().get(Calendar.HOUR_OF_DAY)
     val timeOfDayEmoji = when (currentHour) {
         in 0..11 -> "🌤️"  // morning
         in 12..17 -> "☀️"  // afternoon
@@ -690,10 +695,8 @@ private fun FeaturedCategoriesSection(
                 horizontalArrangement = Arrangement.spacedBy(16.dp)
             ) {
                 items(items = categories, key = { it.uid }) { category ->
-                    val iconRes = category.toIconRes()
                     FeaturedCategoryCard(
                         category = category,
-                        imageRes = iconRes,
                         onClick = { onCategoryClick(category) }
                     )
                 }
@@ -705,60 +708,41 @@ private fun FeaturedCategoriesSection(
 @Composable
 private fun FeaturedCategoryCard(
     category: Category,
-    @DrawableRes imageRes: Int,
     onClick: () -> Unit
 ) {
-    val borderColor = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.15f)
-    val interactionSource = remember { MutableInteractionSource() }
+    val screenWidth = LocalConfiguration.current.screenWidthDp.dp
+    val cardWidth = screenWidth * 0.45f
 
-    Box(
+    CardClickable(
         modifier = Modifier
-            .size(
-                width = 130.dp,
-                height = 150.dp
-            ) // Adjusted to look like portrait cards from Mockup
-            .scaleDownOnPress(.95f, interactionSource)
-            .clip(RoundedCornerShape(16.dp))
-            .background(MaterialTheme.colorScheme.surfaceVariant)
-            .clickable(
-                interactionSource = interactionSource,
-                indication = LocalIndication.current,
-                onClick = onClick
-            )
-            .drawBehind {
-                drawRoundRect(
-                    color = borderColor,
-                    cornerRadius = CornerRadius(16.dp.toPx()),
-                    style = Stroke(width = 1.dp.toPx())
-                )
-            }
+            .width(cardWidth),
+        color = MaterialTheme.colorScheme.surfaceVariant,
+        onClick = onClick
     ) {
-        Column(modifier = Modifier.fillMaxSize()) {
-            // Top Image Half
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(9.dp)
+        ) {
             Image(
-                painter = painterResource(imageRes),
+                painter = painterResource(category.toIconRes()),
                 contentDescription = null,
-                contentScale = ContentScale.Crop,
+                contentScale = ContentScale.FillBounds,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .weight(1f)
+                    .aspectRatio(3 / 2.5f)
+                    .clip(RoundedCornerShape(8.dp))
             )
-            // Bottom Text Half
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(12.dp),
-                contentAlignment = Alignment.CenterStart
-            ) {
-                Text(
-                    text = category.toShortName(),
-                    style = MaterialTheme.typography.titleSmall,
-                    fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis
-                )
-            }
+
+            Spacer(Modifier.height(12.dp))
+
+            Text(
+                text = category.toShortName(),
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                maxLines = 1
+            )
         }
     }
 }
