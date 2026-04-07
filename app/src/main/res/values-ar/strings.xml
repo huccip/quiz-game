@@ -252,5 +252,11 @@
     <string name="browse_sort_default">الافتراضي</string>
     <string name="browse_sort_a_z">أ-ي</string>
     <string name="browse_sort_z_a">ي-أ</string>
+    <string name="browse_sort_count_high">الأكثر اختبارات</string>
+    <string name="browse_sort_count_low">الأقل اختبارات</string>
     <string name="browse_available_quizzes">%d متاح</string>
+    <string name="browse_no_quizzes">اضغط للتحميل</string>
+    <string name="browse_no_results">لا توجد نتائج لـ \"%s\"</string>
+    <string name="browse_resume_title">لديك اختبار نشط!</string>
+    <string name="browse_resume_button">استئناف</string>
 </resources>
