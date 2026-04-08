@@ -778,32 +778,4 @@ fun Category.toShortName(): String {
     }
 }
 
-fun Category.toIconRes(): Int {
-    return when (id) {
-        9 -> R.drawable.img_category_general
-        10 -> R.drawable.img_category_books
-        11 -> R.drawable.img_category_movies
-        12 -> R.drawable.img_category_music
-        13 -> R.drawable.img_category_musicals
-        14 -> R.drawable.img_category_series
-        15 -> R.drawable.img_category_video_games
-        16 -> R.drawable.img_category_board_games
-        17 -> R.drawable.img_category_nature
-        18 -> R.drawable.img_category_computers
-        19 -> R.drawable.img_category_math
-        20 -> R.drawable.img_category_mythology
-        21 -> R.drawable.img_category_sports
-        22 -> R.drawable.img_category_geography
-        23 -> R.drawable.img_category_history
-        24 -> R.drawable.img_category_politics
-        25 -> R.drawable.img_category_history
-        26 -> R.drawable.img_category_movies
-        27 -> R.drawable.img_category_animals
-        28 -> R.drawable.img_category_general
-        29 -> R.drawable.img_category_books
-        30 -> R.drawable.img_category_computers
-        31 -> R.drawable.img_category_movies
-        32 -> R.drawable.img_category_movies
-        else -> R.drawable.img_category_general
-    }
-}
+fun Category.toIconRes(): Int = Utils.categoryImageRes(id)

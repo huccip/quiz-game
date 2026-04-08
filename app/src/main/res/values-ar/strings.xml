@@ -82,48 +82,43 @@
 
     <string name="guide_button_finish">فهمت!</string>
 
-    <string name="achievements_new_record">رقم قياسي جديد!!</string>
+    <string name="achievements_new_record">رقم قياسي جديد!</string>
     <string name="achievements_no_mistakes">العبقري</string>
-    <string name="achievements_one_mistake">الناس يخطئون، وهذا أمر طبيعي</string>
-    <string name="achievements_two_mistakes">خدعتني مرة عار عليك، خدعتني مرتين عار علي</string>
-    <string name="achievements_ten_mistakes">لا تستسلم الآن، يمكنك فعلها</string>
-    <string name="achievements_twenty_mistakes">نعم… حظاً أوفر في المرة القادمة</string>
+    <string name="achievements_one_mistake">شبه مثالي</string>
+    <string name="achievements_two_mistakes">قريب جداً</string>
+    <string name="achievements_rough_session">جلسة صعبة</string>
+    <string name="achievements_first_session">الخطوات الأولى</string>
     <string name="achievements_empty" />
 
-    <string name="achievements_detailed_new_record">لقد حطمت أفضل رقم قياسي سابق لك! تفتح هذه البطاقة عندما تسجل رقماً قياسياً شخصياً جديداً.</string>
-    <string name="achievements_detailed_no_mistakes">انتصار بلا عيوب! تُمنح هذه البطاقة لإكمال التحدي بأكمله دون خطأ واحد.</string>
-    <string name="achievements_detailed_one_mistake">مجرد عثرة واحدة، لكن الكمال كان في متناول اليد. تُمنح لإكمال اللعبة بخطأ واحد فقط.</string>
-    <string name="achievements_detailed_two_mistakes">تشغيل شبه مثالي - تعثرت مرتين، لكنك لا تزال واقفاً بقوة. تُظهر هذه البطاقة مرونتك بخطأين فقط.</string>
-    <string name="achievements_detailed_ten_mistakes">يتعثر الجميع بين الحين والآخر. يعكس هذا الإنجاز إصرارك، حتى بعد عشرة أخطاء.</string>
-    <string name="achievements_detailed_twenty_mistakes">لقد مررنا جميعاً بأيام صعبة. هذه الشارة تذكير بأن السقوط عشرين مرة هو مجرد عشرين فرصة للنهوض.</string>
+    <string name="achievements_detailed_new_record">لقد حطمت رقمك القياسي السابق! رقم شخصي جديد تم تسجيله.</string>
+    <string name="achievements_detailed_no_mistakes">انتصار بلا أخطاء — ولا إجابة خاطئة واحدة. طاقة عبقرية حقيقية.</string>
+    <string name="achievements_detailed_one_mistake">خطأ واحد فقط، لكن الكمال كان في متناول اليد.</string>
+    <string name="achievements_detailed_two_mistakes">تشغيل شبه مثالي — تعثرت مرتين، لكنك لا تزال واقفاً بقوة.</string>
+    <string name="achievements_detailed_rough_session">الجميع يمر بأيام صعبة. استمر في المحاولة — الجولة القادمة لك.</string>
+    <string name="achievements_detailed_first_session">كل أسطورة تبدأ من مكان ما. مرحباً بك في رحلة الاختبار!</string>
 
     <string name="achievement_timelapse_quick_thinker">مفكر سريع</string>
-    <string name="achievement_timelapse_detailed_quick_thinker">أكملت اختباراً في أقل من دقيقة! سرعة وذكاء مجتمعان!</string>
+    <string name="achievement_timelapse_detailed_quick_thinker">أنهيت جلسة في أقل من دقيقة. سرعة وذكاء في آنٍ واحد!</string>
 
     <string name="achievement_timelapse_casual_cruiser">متجول عادي</string>
-    <string name="achievement_timelapse_detailed_casual_cruiser">قضيت أكثر من 5 دقائق في جلسة اختبار واحدة. أنت لست في عجلة من أمرك - ذكي وثابت!</string>
-
-    <string name="achievement_timelapse_steady_strategist">استراتيجي ثابت</string>
-    <string name="achievement_timelapse_detailed_steady_strategist">لعبت جلسة اختبار تستغرق أكثر من 10 دقائق. هذا تفكير عميق!</string>
+    <string name="achievement_timelapse_detailed_casual_cruiser">أمضيت من 1 إلى 10 دقائق في الجلسة. مدروس وثابت — مختبر موثوق.</string>
 
     <string name="achievement_timelapse_brain_marathoner">عداء الدماغ</string>
-    <string name="achievement_timelapse_detailed_brain_marathoner">بقيت نشطاً في اختبار واحد لأكثر من 20 دقيقة. يجب أن يكون دماغك يتعرق!</string>
-
-    <string name="achievement_timelapse_quiz_zen_master">خبير زين الاختبارات</string>
-    <string name="achievement_timelapse_detailed_quiz_zen_master">لقد حللت الاختبارات بهدوء لأكثر من 30 دقيقة دفعة واحدة. السلام العقلي يلتقي بالأداء.</string>
-
-    <string name="achievement_timelapse_time_bender">ثني الوقت</string>
-    <string name="achievement_timelapse_detailed_time_bender">أكثر من 45 دقيقة في جلسة اختبار؟ هل تقوم بتحويل الوقت أم أنك منغمس جداً؟</string>
+    <string name="achievement_timelapse_detailed_brain_marathoner">استمررت من 10 إلى 30 دقيقة متواصلة. دماغك يعمل بكامل طاقته!</string>
 
     <string name="achievement_timelapse_eternal_quizzer">مختبر أبدي</string>
-    <string name="achievement_timelapse_detailed_eternal_quizzer">مرت ساعة وما زلت قوياً. هذا هو التفاني في الاختبارات في أبهى صوره!</string>
+    <string name="achievement_timelapse_detailed_eternal_quizzer">أكثر من 30 دقيقة وأنت لا تزال مستمراً. هذا هو الإخلاص الحقيقي للاختبارات.</string>
 
     <string name="dialog_discard_session_confirm_button">نعم. ابدأ جلسة جديدة</string>
     <string name="dialog_discard_session_dissmiss_button">لا</string>
     <string name="dialog_discard_session_title">تحذير</string>
     <string name="dialog_discard_session_text">هل أنت متأكد أنك تريد بدء جلسة جديدة؟ سيتم تجاهل الجلسة السابقة</string>
 
-    <string name="postgame_button_navigate_home">إعادة التشغيل</string>
+    <string name="postgame_button_navigate_home">العودة إلى الرئيسية</string>
+    <string name="postgame_title">اكتملت الجلسة</string>
+    <string name="postgame_score_label">النتيجة</string>
+    <string name="postgame_achievements_title">الإنجازات</string>
+    <string name="postgame_achievements_empty">لا إنجازات هذه الجلسة. استمر في اللعب!</string>
 
     <!-- Guide Screen -->
     <string name="guide_welcome_title">مرحباً بك في لعبة الاختبار!</string>

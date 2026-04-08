@@ -87,7 +87,12 @@ class SessionViewModel : ViewModel() {
                                         val currentSession = state.value.session ?: return@launch
                                         val achievements = mutableListOf<Int>()
 
-                                        // record trophies
+                                        // first session ever
+                                        if (state.value.sessions.isEmpty()) {
+                                                achievements.add(R.string.achievements_first_session)
+                                        }
+
+                                        // new high score
                                         currentSession.score?.let {
                                                 if (it > App.userPrefs.getInt("high_score", 0)) {
                                                         achievements.add(
@@ -100,43 +105,34 @@ class SessionViewModel : ViewModel() {
                                                 }
                                         }
 
-                                        // mistakes trophies
-                                        achievements.add(
-                                                when (action.incorrectlyAnswered) {
-                                                        0 -> R.string.achievements_no_mistakes
-                                                        1 -> R.string.achievements_one_mistake
-                                                        2 -> R.string.achievements_two_mistakes
-                                                        10 -> R.string.achievements_ten_mistakes
-                                                        20 -> R.string.achievements_ten_mistakes
-                                                        else -> R.string.achievements_empty
-                                                }
-                                        )
+                                        // mistake-based achievement
+                                        val mistakeAchievement = when {
+                                                action.incorrectlyAnswered == 0 ->
+                                                        R.string.achievements_no_mistakes
+                                                action.incorrectlyAnswered == 1 ->
+                                                        R.string.achievements_one_mistake
+                                                action.incorrectlyAnswered == 2 ->
+                                                        R.string.achievements_two_mistakes
+                                                action.incorrectlyAnswered >= 10 ->
+                                                        R.string.achievements_rough_session
+                                                (currentSession.score ?: 0) == 0 ->
+                                                        R.string.achievements_rough_session
+                                                else -> null
+                                        }
+                                        mistakeAchievement?.let { achievements.add(it) }
 
-                                        // timelapse trophies
+                                        // timelapse achievement (4 tiers)
                                         currentSession.timelapse?.let {
                                                 achievements.add(
                                                         when (it) {
                                                                 in 0..59_999L ->
-                                                                        R.string
-                                                                                .achievement_timelapse_quick_thinker
+                                                                        R.string.achievement_timelapse_quick_thinker
                                                                 in 60_000L..599_999L ->
-                                                                        R.string
-                                                                                .achievement_timelapse_casual_cruiser
-                                                                in 600_000L..1_199_999L ->
-                                                                        R.string
-                                                                                .achievement_timelapse_steady_strategist
-                                                                in 1_200_000L..1_799_999L ->
-                                                                        R.string
-                                                                                .achievement_timelapse_brain_marathoner
-                                                                in 1_800_000L..2_699_999L ->
-                                                                        R.string
-                                                                                .achievement_timelapse_quiz_zen_master
-                                                                in 2_700_000L..3_599_999L ->
-                                                                        R.string
-                                                                                .achievement_timelapse_time_bender
+                                                                        R.string.achievement_timelapse_casual_cruiser
+                                                                in 600_000L..1_799_999L ->
+                                                                        R.string.achievement_timelapse_brain_marathoner
                                                                 else ->
-                                                                        R.string
-                                                                                .achievement_timelapse_eternal_quizzer
+                                                                        R.string.achievement_timelapse_eternal_quizzer
                                                         }
                                                 )
                                         }
