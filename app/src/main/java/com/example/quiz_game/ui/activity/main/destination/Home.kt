@@ -1,6 +1,5 @@
 package com.example.quiz_game.ui.activity.main.destination
 
-import android.icu.util.Calendar
 import android.util.Log
 import androidx.annotation.DrawableRes
 import androidx.compose.foundation.Image
@@ -12,12 +11,10 @@ import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -43,22 +40,20 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.CornerRadius
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringArrayResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.compose.ui.util.fastFilter
 import androidx.compose.ui.util.fastForEach
 import androidx.compose.ui.util.fastMap
@@ -90,7 +85,6 @@ import com.example.quiz_game.ui.viewmodel.QuoteState
 import com.example.quiz_game.ui.viewmodel.SessionAction
 import com.example.quiz_game.ui.viewmodel.SessionState
 import com.example.quiz_game.ui.viewmodel.SharedAction
-
 
 
 // Magic number extraction
@@ -318,15 +312,15 @@ fun Home(
                         .padding(bottom = 90.dp) // Leave space for sticky language button
                 ) {
                     Column(modifier = Modifier.padding(horizontal = 24.dp)) {
-                        Spacer(Modifier.height(32.dp))
+                        Spacer(Modifier.height(28.dp))
 
                         // ── 2. Greeting Section ──
                         GreetingSection()
-                        Spacer(Modifier.height(32.dp))
+                        Spacer(Modifier.height(20.dp))
 
                         // ── 3. Quote Section ──
                         QuoteSection(quoteState = quoteState)
-                        Spacer(Modifier.height(32.dp))
+                        Spacer(Modifier.height(20.dp))
 
                         // ── 4. Play Now Section ──
                         val hasActiveSession =
@@ -353,10 +347,10 @@ fun Home(
                                 }
                             }
                         )
-                        Spacer(Modifier.height(32.dp))
+                        Spacer(Modifier.height(24.dp))
                     }
 
-                    // ── 5. Featured Categories ──
+                    // ── 5. Recommended Categories ──
                     val hasActiveSession =
                         currentSession != null && currentSession.expiredAt == null
                     FeaturedCategoriesSection(
@@ -445,6 +439,42 @@ fun Home(
 // ─────────────────────────────────────────────────────────────────────────────
 
 @Composable
+private fun SectionTitle(
+    title: String,
+    @DrawableRes iconRes: Int,
+    modifier: Modifier = Modifier
+) {
+    Row(
+        modifier = modifier,
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(9.dp)
+    ) {
+        Box(
+            modifier = Modifier
+                .size(33.dp)
+                .background(
+                    color = MaterialTheme.colorScheme.surfaceVariant,
+                    shape = RoundedCornerShape(10.dp)
+                ),
+            contentAlignment = Alignment.Center
+        ) {
+            Image(
+                painter = painterResource(iconRes),
+                contentDescription = null,
+                modifier = Modifier.size(17.dp),
+                colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.onSurfaceVariant)
+            )
+        }
+        Text(
+            text = title,
+            style = MaterialTheme.typography.titleLarge,
+            fontWeight = FontWeight.Bold,
+            color = MaterialTheme.colorScheme.onBackground
+        )
+    }
+}
+
+@Composable
 private fun GreetingSection() {
     val translator by TranslatorManager.translator.collectAsStateWithLifecycle()
     var greetingMessage by rememberSaveable { mutableStateOf("") }
@@ -454,94 +484,82 @@ private fun GreetingSection() {
 
     val username = Repository.getUser()?.username ?: ""
 
-    // Reflect the time of day — mirrors the hour ranges in Utils.greetingBasedOnTimezone
-    val currentHour =
-        Calendar.getInstance().get(Calendar.HOUR_OF_DAY)
-    val timeOfDayEmoji = when (currentHour) {
-        in 0..11 -> "🌤️"  // morning
-        in 12..17 -> "☀️"  // afternoon
-        in 18..20 -> "🌥️"  // early evening
-        else -> "🌙"  // late evening & night
-    }
-
-    val greetingText = "$greetingMessage,\n$username $timeOfDayEmoji"
-
-    // Gradient brush using theme colors
-    val gradientBrush = Brush.linearGradient(
-        colors = listOf(
-            MaterialTheme.colorScheme.primary,
-            MaterialTheme.colorScheme.tertiary
-        )
+    Text(
+        text = "$greetingMessage, $username",
+        style = MaterialTheme.typography.headlineMedium,
+        fontWeight = FontWeight.Bold,
+        color = MaterialTheme.colorScheme.onBackground,
+        maxLines = 1,
+        overflow = TextOverflow.Ellipsis,
+        modifier = Modifier.fillMaxWidth()
     )
-
-    Column(modifier = Modifier.fillMaxWidth()) {
-        Text(
-            text = greetingText,
-            style = TextStyle(
-                fontSize = 40.sp,
-                fontWeight = FontWeight.ExtraBold,
-                brush = gradientBrush,
-                lineHeight = 44.sp,
-                letterSpacing = (-1).sp
-            ),
-            modifier = Modifier.fillMaxWidth()
-        )
-    }
 }
 
 @Composable
 private fun QuoteSection(quoteState: QuoteState) {
-    Column(modifier = Modifier.fillMaxWidth()) {
-        Text(
-            text = stringResource(R.string.home_quote_label), // Using exactly what's in the Mockup
-            style = MaterialTheme.typography.titleMedium,
-            fontWeight = FontWeight.Bold,
-            color = MaterialTheme.colorScheme.onBackground
-        )
-
-        Spacer(Modifier.height(14.dp))
-
-        // Quote text with gradient left accent bar
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(IntrinsicSize.Min)
-        ) {
-            Box(
-                modifier = Modifier
-                    .width(3.dp)
-                    .fillMaxHeight()
-                    .background(
-                        brush = Brush.verticalGradient(
-                            colors = listOf(
-                                MaterialTheme.colorScheme.primary,
-                                MaterialTheme.colorScheme.secondary
-                            )
-                        ),
-                        shape = RoundedCornerShape(percent = 50)
-                    )
+    // Single integrated card with icon + title as header
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(
+                color = MaterialTheme.colorScheme.surfaceVariant,
+                shape = RoundedCornerShape(16.dp)
             )
-            Spacer(Modifier.width(16.dp))
-            Column(modifier = Modifier.weight(1f)) {
-                Text(
-                    text = if (quoteState.quote?.quote != null)
-                        "${quoteState.quote.quote}"
-                    else
-                        stringResource(R.string.home_quote_not_found),
-                    style = MaterialTheme.typography.bodyLarge,
-                    fontStyle = FontStyle.Italic,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.9f),
-                    maxLines = 3,
-                    overflow = TextOverflow.Ellipsis
-                )
-                if (!quoteState.quote?.author.isNullOrBlank()) {
-                    Spacer(Modifier.height(8.dp))
-                    Text(
-                        text = "- ${quoteState.quote?.author}",
-                        style = MaterialTheme.typography.labelMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
+            .padding(20.dp)
+    ) {
+        Column {
+            // Card header: icon chip + title
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(7.dp)
+            ) {
+                Box(
+                    modifier = Modifier
+                        .size(29.dp)
+                        .background(
+                            color = MaterialTheme.colorScheme.background.copy(alpha = 0.6f),
+                            shape = RoundedCornerShape(8.dp)
+                        ),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Image(
+                        painter = painterResource(R.drawable.ic_feather),
+                        contentDescription = null,
+                        modifier = Modifier.size(15.dp),
+                        colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.onSurfaceVariant)
                     )
                 }
+                Text(
+                    text = stringResource(R.string.home_quote_label),
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+
+            Spacer(Modifier.height(14.dp))
+
+            // Quote body
+            Text(
+                text = if (quoteState.quote?.quote != null)
+                    "\u201C${quoteState.quote.quote}\u201D"
+                else
+                    stringResource(R.string.home_quote_not_found),
+                style = MaterialTheme.typography.bodyLarge,
+                fontStyle = FontStyle.Italic,
+                color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.85f),
+                maxLines = 4,
+                overflow = TextOverflow.Ellipsis
+            )
+
+            if (!quoteState.quote?.author.isNullOrBlank()) {
+                Spacer(Modifier.height(10.dp))
+                Text(
+                    text = "\u2014 ${quoteState.quote?.author}",
+                    style = MaterialTheme.typography.labelMedium,
+                    fontWeight = FontWeight.SemiBold,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f)
+                )
             }
         }
     }
@@ -556,55 +574,39 @@ private fun PlayNowSection(
     val interactionSource = remember { MutableInteractionSource() }
     val isDarkTheme = isSystemInDarkTheme()
 
-    Column(
-        modifier = Modifier.fillMaxWidth(),
-        verticalArrangement = Arrangement.spacedBy(12.dp)
-    ) {
-        val title =
-            if (hasActiveSession) stringResource(R.string.home_title_resume_journey) else stringResource(
-                R.string.home_title_play_now
-            )
-        Text(
-            text = title,
-            style = MaterialTheme.typography.titleMedium,
-            fontWeight = FontWeight.Bold,
-            color = MaterialTheme.colorScheme.onBackground
-        )
-
-        if (hasActiveSession) {
-            // Dual buttons when a session is active
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(12.dp)
-            ) {
-                PlayCardItem(
-                    text = stringResource(R.string.home_action_resume),
-                    onClick = onResume,
-                    modifier = Modifier.weight(1f),
-                    interactionSource = remember { MutableInteractionSource() },
-                    containerColor = MaterialTheme.colorScheme.primaryContainer,
-                    contentColor = MaterialTheme.colorScheme.onPrimaryContainer
-                )
-                PlayCardItem(
-                    text = stringResource(R.string.home_action_new_game),
-                    onClick = onStartNew,
-                    modifier = Modifier.weight(1f),
-                    interactionSource = remember { MutableInteractionSource() },
-                    containerColor = if (isDarkTheme) NewGameGreenDarkContainer else NewGameGreenContainer,
-                    contentColor = if (isDarkTheme) NewGameGreenDark else NewGameGreen
-                )
-            }
-        } else {
-            // Single large button when no session
+    if (hasActiveSession) {
+        // Dual buttons when a session is active
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(12.dp)
+        ) {
             PlayCardItem(
-                text = stringResource(R.string.home_action_play_now),
-                onClick = onStartNew,
-                modifier = Modifier.fillMaxWidth(),
-                interactionSource = interactionSource,
+                text = stringResource(R.string.home_action_resume),
+                onClick = onResume,
+                modifier = Modifier.weight(1f),
+                interactionSource = remember { MutableInteractionSource() },
                 containerColor = MaterialTheme.colorScheme.primaryContainer,
                 contentColor = MaterialTheme.colorScheme.onPrimaryContainer
             )
+            PlayCardItem(
+                text = stringResource(R.string.home_action_new_game),
+                onClick = onStartNew,
+                modifier = Modifier.weight(1f),
+                interactionSource = remember { MutableInteractionSource() },
+                containerColor = if (isDarkTheme) NewGameGreenDarkContainer else NewGameGreenContainer,
+                contentColor = if (isDarkTheme) NewGameGreenDark else NewGameGreen
+            )
         }
+    } else {
+        // Single large button when no session
+        PlayCardItem(
+            text = stringResource(R.string.home_action_play_now),
+            onClick = onStartNew,
+            modifier = Modifier.fillMaxWidth(),
+            interactionSource = interactionSource,
+            containerColor = MaterialTheme.colorScheme.primaryContainer,
+            contentColor = MaterialTheme.colorScheme.onPrimaryContainer
+        )
     }
 }
 
@@ -662,17 +664,16 @@ private fun FeaturedCategoriesSection(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
-            Text(
-                text = stringResource(R.string.home_title_featured_categories),
-                style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.Bold,
-                color = MaterialTheme.colorScheme.onBackground
+            SectionTitle(
+                title = stringResource(R.string.home_title_featured_categories),
+                iconRes = R.drawable.ic_pin
             )
             Text(
                 text = stringResource(R.string.home_action_browse_all),
                 style = MaterialTheme.typography.labelLarge,
                 fontWeight = FontWeight.Bold,
                 color = MaterialTheme.colorScheme.primary,
+                textDecoration = TextDecoration.Underline,
                 modifier = Modifier
                     .clip(RoundedCornerShape(8.dp))
                     .clickable { onBrowseAllClick() }
@@ -711,7 +712,7 @@ private fun FeaturedCategoryCard(
     onClick: () -> Unit
 ) {
     val screenWidth = LocalConfiguration.current.screenWidthDp.dp
-    val cardWidth = screenWidth * 0.45f
+    val cardWidth = screenWidth * 0.4f
 
     CardClickable(
         modifier = Modifier
@@ -778,32 +779,4 @@ fun Category.toShortName(): String {
     }
 }
 
-fun Category.toIconRes(): Int {
-    return when (id) {
-        9 -> R.drawable.img_category_general
-        10 -> R.drawable.img_category_books
-        11 -> R.drawable.img_category_movies
-        12 -> R.drawable.img_category_music
-        13 -> R.drawable.img_category_musicals
-        14 -> R.drawable.img_category_series
-        15 -> R.drawable.img_category_video_games
-        16 -> R.drawable.img_category_board_games
-        17 -> R.drawable.img_category_nature
-        18 -> R.drawable.img_category_computers
-        19 -> R.drawable.img_category_math
-        20 -> R.drawable.img_category_mythology
-        21 -> R.drawable.img_category_sports
-        22 -> R.drawable.img_category_geography
-        23 -> R.drawable.img_category_history
-        24 -> R.drawable.img_category_politics
-        25 -> R.drawable.img_category_history
-        26 -> R.drawable.img_category_movies
-        27 -> R.drawable.img_category_animals
-        28 -> R.drawable.img_category_general
-        29 -> R.drawable.img_category_books
-        30 -> R.drawable.img_category_computers
-        31 -> R.drawable.img_category_movies
-        32 -> R.drawable.img_category_movies
-        else -> R.drawable.img_category_general
-    }
-}
+fun Category.toIconRes(): Int = Utils.categoryImageRes(id)

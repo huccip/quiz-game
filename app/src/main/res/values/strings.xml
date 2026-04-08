@@ -82,48 +82,46 @@
 
     <string name="guide_button_finish">Got it!</string>
 
-    <string name="achievements_new_record">New score record!!</string>
-    <string name="achievements_no_mistakes">The nerd</string>
-    <string name="achievements_one_mistake">People make mistakes, and it\'s okay</string>
-    <string name="achievements_two_mistakes">Fool me once shame on you, fool me twice shame on me</string>
-    <string name="achievements_ten_mistakes">Don\'t give up now, you got this</string>
-    <string name="achievements_twenty_mistakes">Yeah… Better luck next time</string>
+    <!-- Achievement titles -->
+    <string name="achievements_new_record">New Score Record!</string>
+    <string name="achievements_no_mistakes">The Nerd</string>
+    <string name="achievements_one_mistake">Almost Perfect</string>
+    <string name="achievements_two_mistakes">So Close</string>
+    <string name="achievements_rough_session">Rough Session</string>
+    <string name="achievements_first_session">First Steps</string>
     <string name="achievements_empty" />
 
-    <string name="achievements_detailed_new_record">You’ve smashed your previous best! This card unlocks when you set a new personal high score.</string>
-    <string name="achievements_detailed_no_mistakes">A flawless victory! This card is awarded for navigating the entire challenge without a single misstep.</string>
-    <string name="achievements_detailed_one_mistake">Just one hiccup, but perfection was in reach. Earned for completing the game with only one mistake.</string>
-    <string name="achievements_detailed_two_mistakes">A near-perfect run—twice tripped, but still standing strong. This card shows your resilience with just two errors.</string>
-    <string name="achievements_detailed_ten_mistakes">Everyone stumbles now and then. This achievement reflects your persistence, even after ten mistakes.</string>
-    <string name="achievements_detailed_twenty_mistakes">We’ve all had rough days. This badge is a reminder that falling twenty times is just twenty chances to get back up.</string>
+    <!-- Achievement detail descriptions -->
+    <string name="achievements_detailed_new_record">You\'ve smashed your previous best! A new personal high score is set.</string>
+    <string name="achievements_detailed_no_mistakes">A flawless victory — not a single wrong answer. Absolute nerd energy.</string>
+    <string name="achievements_detailed_one_mistake">Just one slip, but perfection was within reach. Earned for finishing with only one mistake.</string>
+    <string name="achievements_detailed_two_mistakes">A near-perfect run — twice tripped, but still standing strong.</string>
+    <string name="achievements_detailed_rough_session">Everyone has off days. Keep pushing — the next round is yours.</string>
+    <string name="achievements_detailed_first_session">Every legend starts somewhere. Welcome to your quiz journey!</string>
 
+    <!-- Timelapse achievement titles & descriptions -->
     <string name="achievement_timelapse_quick_thinker">Quick Thinker</string>
-    <string name="achievement_timelapse_detailed_quick_thinker">Completed a quiz in under 1 minute! Speed and smarts combined!</string>
+    <string name="achievement_timelapse_detailed_quick_thinker">Blazed through a session in under a minute. Speed and smarts combined!</string>
 
     <string name="achievement_timelapse_casual_cruiser">Casual Cruiser</string>
-    <string name="achievement_timelapse_detailed_casual_cruiser">Spent over 5 minutes in a single quiz session. You\'re in no rush—smart and steady!</string>
-
-    <string name="achievement_timelapse_steady_strategist">Steady Strategist</string>
-    <string name="achievement_timelapse_detailed_steady_strategist">Played a quiz session lasting over 10 minutes. That\'s some deep thinking!</string>
+    <string name="achievement_timelapse_detailed_casual_cruiser">Spent 1–10 minutes in a session. Thoughtful and steady — a reliable quizzer.</string>
 
     <string name="achievement_timelapse_brain_marathoner">Brain Marathoner</string>
-    <string name="achievement_timelapse_detailed_brain_marathoner">Stayed active in one quiz for over 20 minutes. Your brain must be sweating!</string>
-
-    <string name="achievement_timelapse_quiz_zen_master">Quiz Zen Master</string>
-    <string name="achievement_timelapse_detailed_quiz_zen_master">You calmly solved quizzes for over 30 minutes in one go. Mental peace meets performance.</string>
-
-    <string name="achievement_timelapse_time_bender">Time Bender</string>
-    <string name="achievement_timelapse_detailed_time_bender">Over 45 minutes in a quiz session? Are you warping time or just that immersed?</string>
+    <string name="achievement_timelapse_detailed_brain_marathoner">Kept going for 10–30 minutes straight. Your brain must be sweating!</string>
 
     <string name="achievement_timelapse_eternal_quizzer">Eternal Quizzer</string>
-    <string name="achievement_timelapse_detailed_eternal_quizzer">An hour has passed and you\'re still going strong. This is quiz dedication at its finest!</string>
+    <string name="achievement_timelapse_detailed_eternal_quizzer">Over 30 minutes and still going strong. Quiz dedication at its absolute finest.</string>
 
     <string name="dialog_discard_session_confirm_button">Yes. Start new session</string>
     <string name="dialog_discard_session_dissmiss_button">No</string>
     <string name="dialog_discard_session_title">Caution</string>
     <string name="dialog_discard_session_text">Are you sure you want to start a new session? Previous session will be discarded</string>
 
-    <string name="postgame_button_navigate_home">Restart</string>
+    <string name="postgame_button_navigate_home">Back to Home</string>
+    <string name="postgame_title">Session Complete</string>
+    <string name="postgame_score_label">Score</string>
+    <string name="postgame_achievements_title">Achievements</string>
+    <string name="postgame_achievements_empty">No achievements this session. Keep playing!</string>
 
     <!-- Guide Screen -->
     <string name="guide_welcome_title">Welcome to Quiz Game!</string>
@@ -219,8 +217,8 @@
     <string name="home_action_resume">Resume \u25B6</string>
     <string name="home_action_new_game">New Game</string>
     <string name="home_action_play_now">Play Now \u25B6</string>
-    <string name="home_title_featured_categories">Featured Categories</string>
-    <string name="home_action_browse_all">Browse all \u2197</string>
+    <string name="home_title_featured_categories">Recommended</string>
+    <string name="home_action_browse_all">Browse all</string>
     <string name="home_categories_empty_message">No categories available yet.</string>
     <string name="category_short_9">General</string>
     <string name="category_short_10">Books</string>
