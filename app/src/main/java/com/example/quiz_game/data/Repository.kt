@@ -2,10 +2,12 @@ package com.example.quiz_game.data
 
 import android.util.Log
 import androidx.core.content.edit
+import com.example.quiz_game.App.Companion.quotePrefs
 import com.example.quiz_game.App.Companion.userPrefs
 import com.example.quiz_game.data.category.CategoryRepository
 import com.example.quiz_game.data.collectible.CollectibleRepository
 import com.example.quiz_game.data.quiz.QuizRepository
+import com.example.quiz_game.data.quote.Quote
 import com.example.quiz_game.data.quote.QuoteRepository
 import com.example.quiz_game.data.session.SessionRepository
 import com.example.quiz_game.data.user.User
@@ -51,6 +53,25 @@ object Repository {
                 Json.decodeFromString<User>(it)
             } catch (e: Exception) {
                 Log.e("Repository", "getUser: Could not retrieve user info $e")
+                null
+            }
+        }
+    }
+
+    fun saveQuote(quote: Quote) {
+        quotePrefs.edit {
+            putString(Quote.KEY_QUOTE, Json.encodeToString(quote))
+            commit()
+        }
+    }
+
+    fun getQuote(): Quote? {
+        val quoteJson = quotePrefs.getString(Quote.KEY_QUOTE, null)
+        return quoteJson?.let {
+            try {
+                Json.decodeFromString<Quote>(it)
+            } catch (e: Exception) {
+                Log.e("Repository", "getQuote: Could not retrieve quote info $e")
                 null
             }
         }

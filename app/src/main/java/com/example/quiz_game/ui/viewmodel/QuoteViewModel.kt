@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.quiz_game.data.Repository
 import com.example.quiz_game.data.quote.Quote
+import com.example.quiz_game.other.TranslatorManager
 import com.google.mlkit.nl.translate.Translator
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
@@ -13,6 +14,20 @@ class QuoteViewModel : ViewModel() {
     var state = MutableStateFlow(QuoteState())
         private set
 
+    init {
+        if (state.value.quote == null) {
+            onAction(QuoteAction.GetQuote())
+
+            viewModelScope.launch {
+                TranslatorManager.translator.collect { translator ->
+                    if (translator != null && state.value.quote != null) {
+                        onAction(QuoteAction.GetQuote(translator))
+                    }
+                }
+            }
+        }
+    }
+
     fun onAction(action: QuoteAction) {
         viewModelScope.launch {
             when (action) {
@@ -20,7 +35,7 @@ class QuoteViewModel : ViewModel() {
                         execute {
                             val quote = Repository.quoteRepository.get()
                             val translatedQuote =
-                                    action.translator?.let { it.translate(quote.quote!!).await() }
+                                    action.translator?.translate(quote.quote!!)?.await()
                                             ?: quote.quote!!
                             state.value =
                                     state.value.copy(quote = quote.copy(quote = translatedQuote))

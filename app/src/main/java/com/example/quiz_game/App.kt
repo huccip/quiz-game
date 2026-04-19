@@ -6,6 +6,7 @@ import android.content.SharedPreferences
 import androidx.core.content.edit
 import androidx.room.Room
 import com.example.quiz_game.data.Database
+import com.example.quiz_game.data.quote.Quote
 import com.example.quiz_game.data.user.User
 import com.example.quiz_game.other.LocaleHelper
 import com.example.quiz_game.other.Utils
@@ -23,6 +24,7 @@ class App : Application() {
         lateinit var instance: App
         lateinit var db: Database
         lateinit var userPrefs: SharedPreferences
+        lateinit var quotePrefs: SharedPreferences
     }
 
     override fun onCreate() {
@@ -37,6 +39,7 @@ class App : Application() {
             )
             .build()
 
+        quotePrefs = getSharedPreferences(Quote.KEY_QUOTE, MODE_PRIVATE)
         userPrefs = getSharedPreferences(User.KEY_USER, MODE_PRIVATE)
         if (!userPrefs.contains(User.KEY_LAST_KNOWN_LANGUAGE)) {
             userPrefs.edit {

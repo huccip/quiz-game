@@ -513,22 +513,12 @@ private fun QuoteSection(quoteState: QuoteState) {
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(7.dp)
             ) {
-                Box(
-                    modifier = Modifier
-                        .size(29.dp)
-                        .background(
-                            color = MaterialTheme.colorScheme.background.copy(alpha = 0.6f),
-                            shape = RoundedCornerShape(8.dp)
-                        ),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Image(
-                        painter = painterResource(R.drawable.ic_feather),
-                        contentDescription = null,
-                        modifier = Modifier.size(15.dp),
-                        colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.onSurfaceVariant)
-                    )
-                }
+                Image(
+                    painter = painterResource(R.drawable.ic_feather),
+                    contentDescription = null,
+                    modifier = Modifier.size(15.dp),
+                    colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.onSurfaceVariant)
+                )
                 Text(
                     text = stringResource(R.string.home_quote_label),
                     style = MaterialTheme.typography.titleMedium,

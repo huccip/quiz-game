@@ -7,7 +7,7 @@ import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 
 const val TRIVIA = "https://opentdb.com/"
-const val QUOTE = "https://quotes-api-self.vercel.app/"
+const val QUOTE = "https://motivational-spark-api.vercel.app/api/quotes/"
 
 object Service {
 

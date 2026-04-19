@@ -50,10 +50,12 @@ import com.example.quiz_game.ui.theme.QuizgameTheme
 import com.example.quiz_game.ui.viewmodel.CategoryViewModel
 import com.example.quiz_game.ui.viewmodel.OnboardViewModel
 import com.example.quiz_game.ui.viewmodel.QuizViewModel
+import com.example.quiz_game.ui.viewmodel.QuoteViewModel
 import com.example.quiz_game.ui.viewmodel.SessionViewModel
 import com.example.quiz_game.ui.viewmodel.SharedViewModel
 import kotlinx.coroutines.launch
 import kotlinx.serialization.Serializable
+import kotlin.getValue
 
 class MainActivity : BaseActivity() {
 
@@ -62,6 +64,7 @@ class MainActivity : BaseActivity() {
     val quizViewModel by viewModels<QuizViewModel>()
     val sessionViewModel by viewModels<SessionViewModel>()
     val onboardViewModel by viewModels<OnboardViewModel>()
+    val quoteViewModel by viewModels<QuoteViewModel>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -74,6 +77,7 @@ class MainActivity : BaseActivity() {
             val categoryState by categoryViewModel.state.collectAsStateWithLifecycle()
             val sessionState by sessionViewModel.state.collectAsStateWithLifecycle()
             val onboardState by onboardViewModel.state.collectAsStateWithLifecycle()
+            val quoteState by quoteViewModel.state.collectAsStateWithLifecycle()
 
             val context = LocalContext.current
             val snackbarHostState = remember { SnackbarHostState() }
@@ -223,6 +227,7 @@ class MainActivity : BaseActivity() {
                                         sharedAction = sharedViewModel::onAction,
                                         navController = navController,
                                         sessionAction = sessionViewModel::onAction,
+                                        quoteState = quoteState,
                                         onError = onError
                                     )
                                 }
