@@ -213,12 +213,20 @@
 
     <string name="home_title_resume_journey">استكمال الرحلة</string>
     <string name="home_title_play_now">العب الآن</string>
-    <string name="home_action_resume">استئناف \u25C0</string>
+    <string name="home_action_resume">استئناف</string>
     <string name="home_action_new_game">لعبة جديدة</string>
-    <string name="home_action_play_now">العب الآن \u25C0</string>
-    <string name="home_title_featured_categories">مُوصى بها</string>
+    <string name="home_action_play_now">العب الآن</string>
+    <string name="home_title_featured_categories">اقتراحات</string>
     <string name="home_action_browse_all">تصفح الكل</string>
     <string name="home_categories_empty_message">لا توجد فئات متاحة بعد.</string>
+    <plurals name="home_user_coins">
+        <item quantity="zero">%d عملة نقدية</item>
+        <item quantity="one">عملة نقدية واحدة</item>
+        <item quantity="two">عملتان نقديتان</item>
+        <item quantity="few">%d عملات نقدية</item>
+        <item quantity="many">%d عملات نقدية</item>
+        <item quantity="other">%d عملات نقدية</item>
+    </plurals>
     <string name="category_short_9">عامة</string>
     <string name="category_short_10">كتب</string>
     <string name="category_short_11">أفلام</string>

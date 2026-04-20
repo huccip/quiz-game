@@ -76,6 +76,9 @@ class SessionViewModel : ViewModel() {
 
                 is SessionAction.UpdateScore ->
                     execute {
+                        //update user coins in the process
+                        Repository.getUser()?.let { Repository.saveUser(it.copy(coins = it.coins + action.score)) }
+
                         val currentSession =
                             state.value.session ?: return@execute
                         val newScore =

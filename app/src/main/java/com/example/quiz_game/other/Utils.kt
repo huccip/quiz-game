@@ -162,9 +162,11 @@ object Utils {
                 capabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_VALIDATED)
     }
 
-    fun checkIsMidnight() : Boolean {
-        val calendar = Calendar.getInstance()
-        val currentHour = calendar.get(Calendar.HOUR_OF_DAY)
-        return currentHour == 0
+    fun checkHasADayPassedSince(date: Long): Boolean {
+        val currentDate = Date()
+        val dateObject = Date(date)
+        val diff = currentDate.time - dateObject.time
+        val daysPassed = diff / (24 * 60 * 60 * 1000)
+        return daysPassed >= 1
     }
 }

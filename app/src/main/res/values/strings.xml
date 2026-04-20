@@ -214,12 +214,16 @@
 
     <string name="home_title_resume_journey">Resume Journey</string>
     <string name="home_title_play_now">Play Now</string>
-    <string name="home_action_resume">Resume \u25B6</string>
+    <string name="home_action_resume">Resume</string>
     <string name="home_action_new_game">New Game</string>
-    <string name="home_action_play_now">Play Now \u25B6</string>
-    <string name="home_title_featured_categories">Recommended</string>
+    <string name="home_action_play_now">Play Now</string>
+    <string name="home_title_featured_categories">Suggested</string>
     <string name="home_action_browse_all">Browse all</string>
     <string name="home_categories_empty_message">No categories available yet.</string>
+    <plurals name="home_user_coins">
+        <item quantity="one">%d coin</item>
+        <item quantity="other">%d coins</item>
+    </plurals>
     <string name="category_short_9">General</string>
     <string name="category_short_10">Books</string>
     <string name="category_short_11">Movies</string>

@@ -493,7 +493,7 @@ private fun AnswerChoiceCard(
             containerColor = Color(0xFF16A34A).copy(alpha = 0.12f)
             textColor = Color(0xFF16A34A)
         }
-        locked && wasAnswered && !isCorrect -> {
+        locked && wasAnswered -> {
             borderColor = MaterialTheme.colorScheme.error
             containerColor = MaterialTheme.colorScheme.error.copy(alpha = 0.10f)
             textColor = MaterialTheme.colorScheme.error
@@ -507,7 +507,7 @@ private fun AnswerChoiceCard(
             borderColor = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f)
             containerColor = MaterialTheme.colorScheme.surface
             textColor = MaterialTheme.colorScheme.onSurface.copy(
-                alpha = if (locked && !isCorrect && !wasAnswered) 0.4f else 1f
+                alpha = if (locked) 0.4f else 1f
             )
         }
     }

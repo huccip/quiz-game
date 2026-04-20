@@ -21,13 +21,9 @@ object QuoteRepository {
     }
 
     suspend fun get(): Quote {
-        if (!Utils.checkIsMidnight()) {
-            val quote = Repository.getQuote()
-            println("test1234 $quote")
-            if (quote != null) {
-                return quote
-            }
-        }
+        var quote = Repository.getQuote()
+
+        if (quote != null && !Utils.checkHasADayPassedSince(quote.dateOfRetrieval)) return quote
 
         val response = Service.quoteService.get()
 
@@ -35,7 +31,7 @@ object QuoteRepository {
             throw Exception("Error while getting quote: ${response.code()}")
         }
 
-        val quote = response.body() ?: throw Exception("Error while getting quote: Empty body")
+        quote = response.body() ?: throw Exception("Error while getting quote: Empty body")
 
         Repository.saveQuote(quote)
 

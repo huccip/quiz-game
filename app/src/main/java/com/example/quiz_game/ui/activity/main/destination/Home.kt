@@ -2,6 +2,7 @@ package com.example.quiz_game.ui.activity.main.destination
 
 import android.util.Log
 import androidx.annotation.DrawableRes
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.LocalIndication
 import androidx.compose.foundation.background
@@ -15,6 +16,7 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -26,7 +28,10 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.SuggestionChip
+import androidx.compose.material3.SuggestionChipDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -47,6 +52,7 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringArrayResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontStyle
@@ -57,6 +63,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.fastFilter
 import androidx.compose.ui.util.fastForEach
 import androidx.compose.ui.util.fastMap
+import androidx.core.graphics.toColorInt
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
@@ -483,16 +490,60 @@ private fun GreetingSection() {
     }
 
     val username = Repository.getUser()?.username ?: ""
+    val userCoins = Repository.getUser()?.coins ?: 0
 
-    Text(
-        text = "$greetingMessage, $username",
-        style = MaterialTheme.typography.headlineMedium,
-        fontWeight = FontWeight.Bold,
-        color = MaterialTheme.colorScheme.onBackground,
-        maxLines = 1,
-        overflow = TextOverflow.Ellipsis,
-        modifier = Modifier.fillMaxWidth()
-    )
+    var textDp by remember { mutableStateOf(0.dp) }
+
+    Column {
+        Text(
+            text = "$greetingMessage, $username",
+            style = MaterialTheme.typography.headlineMedium,
+            fontWeight = FontWeight.Bold,
+            color = MaterialTheme.colorScheme.onBackground,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis,
+        )
+
+        SuggestionChip(
+            onClick = {},
+            elevation = SuggestionChipDefaults.suggestionChipElevation(
+                elevation = 0.dp,
+                pressedElevation = 0.dp
+            ),
+            border = BorderStroke(
+                width = 2.dp,
+                color = Color("#F5E584".toColorInt())
+            ),
+            shape = RoundedCornerShape(50),
+            label = {
+                Text(
+                    text = pluralStringResource(
+                        id = R.plurals.home_user_coins,
+                        count = userCoins,
+                        userCoins
+                    ),
+                    style = MaterialTheme.typography.bodySmall.copy(fontWeight = FontWeight.Bold),
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                    modifier = Modifier
+                        .fillMaxHeight()
+                        .graphicsLayer { textDp = this.size.height.toDp() }
+                )
+            },
+            icon = {
+                Icon(
+                    modifier = Modifier.size(textDp),
+                    painter = painterResource(R.drawable.ic_coin),
+                    contentDescription = null,
+                )
+            },
+            colors = SuggestionChipDefaults.suggestionChipColors(
+                containerColor = Color.Transparent,
+                labelColor = Color("#F5E584".toColorInt()),
+                iconContentColor = Color("#F5E584".toColorInt())
+            )
+        )
+    }
 }
 
 @Composable
@@ -508,28 +559,15 @@ private fun QuoteSection(quoteState: QuoteState) {
             .padding(20.dp)
     ) {
         Column {
-            // Card header: icon chip + title
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(7.dp)
-            ) {
-                Image(
-                    painter = painterResource(R.drawable.ic_feather),
-                    contentDescription = null,
-                    modifier = Modifier.size(15.dp),
-                    colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.onSurfaceVariant)
-                )
-                Text(
-                    text = stringResource(R.string.home_quote_label),
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-            }
+            Text(
+                text = stringResource(R.string.home_quote_label),
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
 
             Spacer(Modifier.height(14.dp))
 
-            // Quote body
             Text(
                 text = if (quoteState.quote?.quote != null)
                     "\u201C${quoteState.quote.quote}\u201D"
@@ -538,14 +576,12 @@ private fun QuoteSection(quoteState: QuoteState) {
                 style = MaterialTheme.typography.bodyLarge,
                 fontStyle = FontStyle.Italic,
                 color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.85f),
-                maxLines = 4,
-                overflow = TextOverflow.Ellipsis
             )
 
             if (!quoteState.quote?.author.isNullOrBlank()) {
                 Spacer(Modifier.height(10.dp))
                 Text(
-                    text = "\u2014 ${quoteState.quote?.author}",
+                    text = "\u2014 ${quoteState.quote.author}",
                     style = MaterialTheme.typography.labelMedium,
                     fontWeight = FontWeight.SemiBold,
                     color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f)
@@ -656,7 +692,7 @@ private fun FeaturedCategoriesSection(
         ) {
             SectionTitle(
                 title = stringResource(R.string.home_title_featured_categories),
-                iconRes = R.drawable.ic_pin
+                iconRes = R.drawable.ic_fire
             )
             Text(
                 text = stringResource(R.string.home_action_browse_all),
