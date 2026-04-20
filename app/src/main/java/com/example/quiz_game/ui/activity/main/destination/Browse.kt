@@ -212,7 +212,7 @@ fun Browse(
         ) {
             // Parallax Hero Image using fallback illustration
             Image(
-                painter = painterResource(if (isDarkTheme) R.drawable.img_illustration_home else R.drawable.img_illustration_home_light),
+                painter = painterResource(R.drawable.img_illustration_home),
                 contentDescription = "Browse Vault",
                 contentScale = ContentScale.Crop,
                 modifier = Modifier

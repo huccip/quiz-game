@@ -13,13 +13,45 @@ val Pink40 = Color(0xFF7D5260)
 val Yellow40 = Color(0xFFF8E826)
 
 // ── Design system accent palette ──────────────────────────────────────
+val Indigo700 = Color(0xFF4338CA)
 val Indigo600 = Color(0xFF4F46E5)
+val Indigo500 = Color(0xFF6366F1)
+val Indigo400 = Color(0xFF818CF8)
+val Indigo300 = Color(0xFFA5B4FC)
 val Indigo100 = Color(0xFFE0E7FF)
 val Indigo50  = Color(0xFFEEF2FF)
 
 val Neutral50  = Color(0xFFF8F9FA)
 val Neutral400 = Color(0xFF9CA3AF)
 val Neutral900 = Color(0xFF111827)
+
+// ── Branded cream surface tokens (light theme) ─────────────────────────
+val Cream50  = Color(0xFFFDF8F0) // page background
+val Cream100 = Color(0xFFF5EFE4) // cards / chips
+val Cream200 = Color(0xFFEAE2D2) // outline / dividers
+
+// Coin / gem accent — vibrant cyan that pops on both light and dark surfaces
+val GemCyan    = Color(0xFF06B6D4)
+val GemCyanDark = Color(0xFF22D3EE)
+
+// ── Branded dark surface tokens (dark theme) ───────────────────────────
+val Ink900   = Color(0xFF0F1117) // page background
+val Ink800   = Color(0xFF1A1D26) // cards
+val Ink700   = Color(0xFF252836) // chips / surface variant
+val Ink600   = Color(0xFF323647) // outline
+
+// ── Accent pairs for stat pills ────────────────────────────────────────
+val StreakOrange      = Color(0xFFF97316)
+val StreakOrangeBg    = Color(0xFFFFF1E6)
+val StreakOrangeBgDark = Color(0xFF3A1F0F)
+
+val TrophyAmber       = Color(0xFFCA8A04)
+val TrophyAmberBg     = Color(0xFFFEF3C7)
+val TrophyAmberBgDark = Color(0xFF3B2F08)
+
+val PlayedTeal        = Color(0xFF0D9488)
+val PlayedTealBg      = Color(0xFFCCFBF1)
+val PlayedTealBgDark  = Color(0xFF0B3B38)
 
 // ── Semantic game action colors ─────────────────────────────────────────
 // Used for the "New Game" button — positive/ready-to-go signal, not an error

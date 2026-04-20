@@ -2,7 +2,9 @@ package com.example.quiz_game.ui.shared.component
 
 import androidx.annotation.DrawableRes
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
@@ -22,18 +24,21 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 
 @Composable
 fun InformativeChip(
     modifier: Modifier = Modifier,
-    color: Color,
-    text: String,
+    containerColor: Color,
+    textColor: Color,
+    iconColor: Color,
+    borderColor: Color,
+    textComposable: @Composable (() -> Unit) = {},
+    iconSize: Dp,
     @DrawableRes icon: Int,
     onClick: () -> Unit = {},
 ) {
-    var textDp by remember { mutableStateOf(0.dp) }
-
     SuggestionChip(
         onClick = onClick,
         elevation = SuggestionChipDefaults.suggestionChipElevation(
@@ -42,31 +47,21 @@ fun InformativeChip(
         ),
         border = BorderStroke(
             width = 2.dp,
-            color = color
+            color = borderColor
         ),
         shape = RoundedCornerShape(50),
-        label = {
-            Text(
-                text = text,
-                style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Bold),
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-                modifier = modifier
-                    .fillMaxHeight()
-                    .graphicsLayer { textDp = this.size.height.toDp() }
-            )
-        },
+        label = textComposable,
         icon = {
             Icon(
-                modifier = Modifier.size(textDp),
+                modifier = Modifier.size(iconSize),
                 painter = painterResource(icon),
                 contentDescription = null,
             )
         },
         colors = SuggestionChipDefaults.suggestionChipColors(
-            containerColor = Color.Transparent,
-            labelColor = color,
-            iconContentColor = color
+            containerColor = containerColor,
+            labelColor = textColor,
+            iconContentColor = iconColor
         )
     )
 }

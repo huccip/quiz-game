@@ -2,7 +2,6 @@ package com.example.quiz_game.ui.activity.main.destination
 
 import android.util.Log
 import androidx.annotation.DrawableRes
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.LocalIndication
 import androidx.compose.foundation.background
@@ -11,33 +10,35 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
-import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.SuggestionChip
-import androidx.compose.material3.SuggestionChipDefaults
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -46,22 +47,26 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.geometry.CornerRadius
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringArrayResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.compose.ui.util.fastFilter
 import androidx.compose.ui.util.fastForEach
 import androidx.compose.ui.util.fastMap
@@ -79,14 +84,28 @@ import com.example.quiz_game.other.Utils
 import com.example.quiz_game.ui.activity.main.MainDestination
 import com.example.quiz_game.ui.shared.component.CardClickable
 import com.example.quiz_game.ui.shared.component.DialogYesOrNo
-import com.example.quiz_game.ui.shared.component.IconButton
 import com.example.quiz_game.ui.shared.component.InformativeChip
 import com.example.quiz_game.ui.shared.component.LoadingInfiniteLine
 import com.example.quiz_game.ui.shared.effect.scaleDownOnPress
+import com.example.quiz_game.ui.theme.GemCyan
+import com.example.quiz_game.ui.theme.GemCyanDark
+import com.example.quiz_game.ui.theme.Indigo100
+import com.example.quiz_game.ui.theme.Indigo500
+import com.example.quiz_game.ui.theme.Indigo600
+import com.example.quiz_game.ui.theme.Indigo700
 import com.example.quiz_game.ui.theme.NewGameGreen
 import com.example.quiz_game.ui.theme.NewGameGreenContainer
 import com.example.quiz_game.ui.theme.NewGameGreenDark
 import com.example.quiz_game.ui.theme.NewGameGreenDarkContainer
+import com.example.quiz_game.ui.theme.PlayedTeal
+import com.example.quiz_game.ui.theme.PlayedTealBg
+import com.example.quiz_game.ui.theme.PlayedTealBgDark
+import com.example.quiz_game.ui.theme.StreakOrange
+import com.example.quiz_game.ui.theme.StreakOrangeBg
+import com.example.quiz_game.ui.theme.StreakOrangeBgDark
+import com.example.quiz_game.ui.theme.TrophyAmber
+import com.example.quiz_game.ui.theme.TrophyAmberBg
+import com.example.quiz_game.ui.theme.TrophyAmberBgDark
 import com.example.quiz_game.ui.viewmodel.CategoryAction
 import com.example.quiz_game.ui.viewmodel.CategoryState
 import com.example.quiz_game.ui.viewmodel.QuizAction
@@ -96,6 +115,8 @@ import com.example.quiz_game.ui.viewmodel.QuoteState
 import com.example.quiz_game.ui.viewmodel.SessionAction
 import com.example.quiz_game.ui.viewmodel.SessionState
 import com.example.quiz_game.ui.viewmodel.SharedAction
+import java.util.Calendar
+import java.util.concurrent.TimeUnit
 
 
 // Magic number extraction
@@ -279,25 +300,35 @@ fun Home(
         ) {
             // ── 1. Edge-to-edge Illustration (Parallax) ──
             Image(
-                painter = painterResource(if (isDarkTheme) R.drawable.img_illustration_home else R.drawable.img_illustration_home_light),
+                painter = painterResource(R.drawable.img_illustration_home),
                 contentDescription = null,
                 contentScale = ContentScale.Crop,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(HeroImageHeight) // slightly taller to accommodate the parallax pull
+                    .height(HeroImageHeight)
                     .graphicsLayer {
-                        // Move the image up at half the speed of the scroll
                         val scrollValue = scrollState.value.toFloat()
                         translationY = -scrollValue * 0.5f
-
-                        // Calculate fade-out ratio (0f = fully visible, 1f = fully scrolled/darkened)
-                        val maxScroll =
-                            MaxScrollFading // Approx point where it should be almost black
-                        val scrollRatio = (scrollValue / maxScroll).coerceIn(0f, 1f)
-
-                        // Keep image visible, just darkened and blurred slightly
+                        val scrollRatio = (scrollValue / MaxScrollFading).coerceIn(0f, 1f)
                         alpha = 1f - (scrollRatio * 0.5f)
                     }
+            )
+
+            // Soft gradient scrim so the hero blends into the content surface
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(HeroImageHeight)
+                    .graphicsLayer {
+                        val scrollValue = scrollState.value.toFloat()
+                        translationY = -scrollValue * 0.5f
+                    }
+                    .background(
+                        Brush.verticalGradient(
+                            0.55f to Color.Transparent,
+                            1f to MaterialTheme.colorScheme.background
+                        )
+                    )
             )
 
             // Foreground scrollable content
@@ -306,10 +337,8 @@ fun Home(
                     .fillMaxSize()
                     .verticalScroll(scrollState)
             ) {
-                // Transparent spacer to push content down so the image is visible
                 Spacer(modifier = Modifier.height(ForegroundSpacerHeight))
 
-                // Wrapper for all content with soft upper borders (~35% visual curve effect)
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -320,24 +349,29 @@ fun Home(
                             )
                         )
                         .background(MaterialTheme.colorScheme.background)
-                        .padding(bottom = 90.dp) // Leave space for sticky language button
+                        .padding(bottom = 40.dp)
                 ) {
                     Column(modifier = Modifier.padding(horizontal = 24.dp)) {
                         Spacer(Modifier.height(28.dp))
 
-                        // ── 2. Greeting Section ──
+                        // ── 2. Greeting ──
                         GreetingSection()
-                        Spacer(Modifier.height(20.dp))
+                        Spacer(Modifier.height(18.dp))
 
-                        // ── 3. Quote Section ──
+                        // ── 3. Stats strip ──
+                        StatsStrip(sessions = sessionState.sessions)
+                        Spacer(Modifier.height(18.dp))
+
+                        // ── 4. Wisdom card ──
                         QuoteSection(quoteState = quoteState)
-                        Spacer(Modifier.height(20.dp))
+                        Spacer(Modifier.height(22.dp))
 
-                        // ── 4. Play Now Section ──
+                        // ── 5. Primary CTA ──
                         val hasActiveSession =
                             currentSession != null && currentSession.expiredAt == null
                         PlayNowSection(
                             hasActiveSession = hasActiveSession,
+                            activeSession = currentSession,
                             onResume = {
                                 currentSession?.let {
                                     sharedAction(
@@ -358,14 +392,14 @@ fun Home(
                                 }
                             }
                         )
-                        Spacer(Modifier.height(24.dp))
+                        Spacer(Modifier.height(28.dp))
                     }
 
-                    // ── 5. Recommended Categories ──
+                    // ── 6. Explore Topics (LazyRow, edge-to-edge) ──
                     val hasActiveSession =
                         currentSession != null && currentSession.expiredAt == null
-                    FeaturedCategoriesSection(
-                        categories = categoryState.categories.take(6),
+                    ExploreTopicsSection(
+                        categories = categoryState.categories,
                         onCategoryClick = { category ->
                             if (hasActiveSession) {
                                 pendingSessionAction = PendingSessionAction.StartCategory(category)
@@ -386,61 +420,41 @@ fun Home(
                             }
                         }
                     )
-                }
-            }
 
-            // ── 6. Sticky Language Button at Bottom ──
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .align(Alignment.BottomCenter)
-                    .padding(bottom = 24.dp),
-                contentAlignment = Alignment.Center
-            ) {
-                val interactionSource = remember { MutableInteractionSource() }
-                val borderColor = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.1f)
-                Row(
-                    modifier = Modifier
-                        .scaleDownOnPress(.95f, interactionSource)
-                        .background(
-                            color = MaterialTheme.colorScheme.surfaceVariant,
-                            shape = RoundedCornerShape(24.dp)
-                        )
-                        .drawBehind {
-                            drawRoundRect(
-                                color = borderColor,
-                                cornerRadius = CornerRadius(24.dp.toPx()),
-                                style = Stroke(width = 1.dp.toPx())
-                            )
-                        }
-                        .clickable(
-                            interactionSource = interactionSource,
-                            indication = LocalIndication.current,
-                            onClick = {
+                    Spacer(Modifier.height(24.dp))
+
+                    // ── 7. Quick actions ──
+                    QuickActionsSection(
+                        categories = categoryState.categories,
+                        onRandomClick = { cat ->
+                            if (hasActiveSession) {
+                                pendingSessionAction = PendingSessionAction.StartCategory(cat)
+                            } else {
+                                selectedCategory = cat
+                            }
+                        },
+                        onBrowseClick = {
+                            if (hasActiveSession) {
+                                pendingSessionAction = PendingSessionAction.BrowseAll
+                            } else {
                                 sharedAction(
                                     SharedAction.Navigate(
-                                        MainDestination.Language,
+                                        MainDestination.Browse,
                                         navController
                                     )
                                 )
                             }
-                        )
-                        .padding(horizontal = 20.dp, vertical = 10.dp),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    IconButton(
-                        model = Utils.countryFlag(countryCode = selectedCountryCode),
-                        modifier = Modifier.size(20.dp)
-                    )
-                    Text(
-                        text = translated,
-                        style = MaterialTheme.typography.labelLarge,
-                        fontWeight = FontWeight.Bold,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                        }
                     )
                 }
             }
+
+            // ── 8. Sticky top-right: gems + settings pills ──
+            TopBar(
+                onSettingsClick = {
+                    // TODO: sharedAction(SharedAction.Navigate(MainDestination.Settings, navController))
+                }
+            )
         }
     }
 }
@@ -495,100 +509,89 @@ private fun GreetingSection() {
     }
 
     val username = Repository.getUser()?.username ?: ""
-    val userCoins = Repository.getUser()?.coins ?: 0
-    val userCollectibles = Repository.getUser()?.collectiblesUids?.size ?: 0
-    val userAchievements = Repository.getUser()?.achievementsUidsSet?.size ?: 0
-
-    val coinColor = Color("#fdcb6e".toColorInt())
-    val collectibleColor = Color("#0984e3".toColorInt())
-    val trophyColor = Color("#00cec9".toColorInt())
+    val hour = remember { Calendar.getInstance().get(Calendar.HOUR_OF_DAY) }
+    val taglineRes = when (hour) {
+        in 0..11 -> R.string.home_greeting_tagline_morning
+        in 12..17 -> R.string.home_greeting_tagline_afternoon
+        else -> R.string.home_greeting_tagline_evening
+    }
 
     Column {
         Text(
             text = "$greetingMessage, $username",
-            style = MaterialTheme.typography.headlineMedium,
+            style = MaterialTheme.typography.headlineLarge,
             fontWeight = FontWeight.Bold,
             color = MaterialTheme.colorScheme.onBackground,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,
         )
-
-        FlowRow(
-            horizontalArrangement = Arrangement.spacedBy(8.dp)
-        ) {
-            InformativeChip(
-                color = coinColor,
-                text = pluralStringResource(
-                    id = R.plurals.home_user_coins,
-                    count = userCoins,
-                    userCoins
-                ),
-                icon = R.drawable.ic_coin,
-            )
-
-            InformativeChip(
-                color = collectibleColor,
-                text = pluralStringResource(
-                    id = R.plurals.home_user_collectibles,
-                    count = userCollectibles,
-                    userCollectibles
-                ),
-                icon = R.drawable.ic_collectible
-            )
-
-            InformativeChip(
-                color = trophyColor,
-                text = pluralStringResource(
-                    id = R.plurals.home_user_trophies,
-                    count = userAchievements,
-                    userAchievements,
-                    userAchievements // max achievements number
-                ),
-                icon = R.drawable.ic_trophy
-            )
-        }
+        Spacer(Modifier.height(4.dp))
+        Text(
+            text = stringResource(taglineRes),
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            maxLines = 2,
+            overflow = TextOverflow.Ellipsis,
+        )
     }
 }
 
 @Composable
 private fun QuoteSection(quoteState: QuoteState) {
-    // Single integrated card with icon + title as header
     Box(
         modifier = Modifier
             .fillMaxWidth()
             .background(
-                color = MaterialTheme.colorScheme.surfaceVariant,
-                shape = RoundedCornerShape(16.dp)
+                color = MaterialTheme.colorScheme.surface,
+                shape = RoundedCornerShape(18.dp)
             )
-            .padding(20.dp)
+            .drawBehind {
+                drawRoundRect(
+                    color = Color(0xFFE2E8F0).copy(alpha = 0.6f),
+                    cornerRadius = CornerRadius(18.dp.toPx()),
+                    style = Stroke(width = 1.dp.toPx())
+                )
+            }
+            .padding(horizontal = 16.dp, vertical = 14.dp)
     ) {
         Column {
-            Text(
-                text = stringResource(R.string.home_quote_label),
-                style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.Bold,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Icon(
+                    painter = painterResource(R.drawable.ic_book),
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier.size(16.dp)
+                )
+                Spacer(Modifier.width(8.dp))
+                Text(
+                    text = stringResource(R.string.home_quote_label),
+                    style = MaterialTheme.typography.titleSmall,
+                    fontWeight = FontWeight.SemiBold,
+                    color = MaterialTheme.colorScheme.onSurface
+                )
+            }
 
-            Spacer(Modifier.height(14.dp))
+            Spacer(Modifier.height(8.dp))
 
             Text(
                 text = if (quoteState.quote?.quote != null)
                     "\u201C${quoteState.quote.quote}\u201D"
                 else
                     stringResource(R.string.home_quote_not_found),
-                style = MaterialTheme.typography.bodyLarge,
+                style = MaterialTheme.typography.bodyMedium,
                 fontStyle = FontStyle.Italic,
-                color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.85f),
+                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.88f),
+                maxLines = 3,
+                overflow = TextOverflow.Ellipsis
             )
 
             if (!quoteState.quote?.author.isNullOrBlank()) {
-                Spacer(Modifier.height(10.dp))
+                Spacer(Modifier.height(6.dp))
                 Text(
                     text = "\u2014 ${quoteState.quote.author}",
                     style = MaterialTheme.typography.labelMedium,
                     fontWeight = FontWeight.SemiBold,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f)
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
         }
@@ -598,44 +601,137 @@ private fun QuoteSection(quoteState: QuoteState) {
 @Composable
 private fun PlayNowSection(
     hasActiveSession: Boolean,
+    activeSession: Session?,
     onResume: () -> Unit,
     onStartNew: () -> Unit
 ) {
-    val interactionSource = remember { MutableInteractionSource() }
-    val isDarkTheme = isSystemInDarkTheme()
-
     if (hasActiveSession) {
-        // Dual buttons when a session is active
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(12.dp)
-        ) {
-            PlayCardItem(
-                text = stringResource(R.string.home_action_resume),
-                onClick = onResume,
-                modifier = Modifier.weight(1f),
-                interactionSource = remember { MutableInteractionSource() },
-                containerColor = MaterialTheme.colorScheme.primaryContainer,
-                contentColor = MaterialTheme.colorScheme.onPrimaryContainer
+        Column(modifier = Modifier.fillMaxWidth()) {
+            ContinueHeroButton(
+                title = stringResource(R.string.home_action_continue),
+                subtitle = stringResource(R.string.home_action_continue_subtitle),
+                onClick = onResume
             )
-            PlayCardItem(
-                text = stringResource(R.string.home_action_new_game),
-                onClick = onStartNew,
-                modifier = Modifier.weight(1f),
-                interactionSource = remember { MutableInteractionSource() },
-                containerColor = if (isDarkTheme) NewGameGreenDarkContainer else NewGameGreenContainer,
-                contentColor = if (isDarkTheme) NewGameGreenDark else NewGameGreen
-            )
+            Spacer(Modifier.height(10.dp))
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clip(RoundedCornerShape(10.dp))
+                    .clickable(onClick = onStartNew)
+                    .padding(vertical = 10.dp),
+                horizontalArrangement = Arrangement.Center,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = stringResource(R.string.home_action_start_new),
+                    style = MaterialTheme.typography.labelLarge,
+                    fontWeight = FontWeight.SemiBold,
+                    color = MaterialTheme.colorScheme.primary,
+                )
+            }
         }
     } else {
-        // Single large button when no session
-        PlayCardItem(
+        PrimaryCtaButton(
             text = stringResource(R.string.home_action_play_now),
-            onClick = onStartNew,
-            modifier = Modifier.fillMaxWidth(),
-            interactionSource = interactionSource,
-            containerColor = MaterialTheme.colorScheme.primaryContainer,
-            contentColor = MaterialTheme.colorScheme.onPrimaryContainer
+            onClick = onStartNew
+        )
+    }
+}
+
+@Composable
+private fun ContinueHeroButton(
+    title: String,
+    subtitle: String,
+    onClick: () -> Unit
+) {
+    val interactionSource = remember { MutableInteractionSource() }
+    val dark = isSystemInDarkTheme()
+    val gradientStart = if (dark) Indigo500 else Indigo600
+    val gradientEnd = if (dark) Indigo700 else Indigo500
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .heightIn(min = 68.dp)
+            .scaleDownOnPress(.97f, interactionSource)
+            .background(
+                brush = Brush.linearGradient(listOf(gradientStart, gradientEnd)),
+                shape = RoundedCornerShape(16.dp)
+            )
+            .clickable(
+                interactionSource = interactionSource,
+                indication = LocalIndication.current,
+                onClick = onClick
+            )
+            .padding(horizontal = 20.dp, vertical = 12.dp)
+    ) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Box(
+                modifier = Modifier
+                    .size(40.dp)
+                    .background(Color.White.copy(alpha = 0.18f), CircleShape),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    text = "\u25B6",
+                    color = Color.White,
+                    fontSize = 18.sp,
+                    fontWeight = FontWeight.Bold
+                )
+            }
+            Spacer(Modifier.width(14.dp))
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    text = title,
+                    style = MaterialTheme.typography.titleLarge,
+                    fontWeight = FontWeight.Bold,
+                    color = Color.White
+                )
+                Text(
+                    text = subtitle,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = Color.White.copy(alpha = 0.85f),
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun PrimaryCtaButton(
+    text: String,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    val interactionSource = remember { MutableInteractionSource() }
+    val dark = isSystemInDarkTheme()
+    val gradientStart = if (dark) Indigo500 else Indigo600
+    val gradientEnd = if (dark) Indigo700 else Indigo500
+    Box(
+        modifier = modifier
+            .fillMaxWidth()
+            .heightIn(min = 60.dp)
+            .scaleDownOnPress(.97f, interactionSource)
+            .background(
+                brush = Brush.linearGradient(listOf(gradientStart, gradientEnd)),
+                shape = RoundedCornerShape(14.dp)
+            )
+            .clickable(
+                interactionSource = interactionSource,
+                indication = LocalIndication.current,
+                onClick = onClick
+            ),
+        contentAlignment = Alignment.Center
+    ) {
+        Text(
+            text = text,
+            style = MaterialTheme.typography.titleMedium,
+            fontWeight = FontWeight.Bold,
+            color = Color.White
         )
     }
 }
@@ -681,7 +777,7 @@ private fun PlayCardItem(
 }
 
 @Composable
-private fun FeaturedCategoriesSection(
+private fun ExploreTopicsSection(
     categories: List<Category>,
     onCategoryClick: (Category) -> Unit,
     onBrowseAllClick: () -> Unit
@@ -694,24 +790,36 @@ private fun FeaturedCategoriesSection(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
-            SectionTitle(
-                title = stringResource(R.string.home_title_featured_categories),
-                iconRes = R.drawable.ic_fire
-            )
             Text(
-                text = stringResource(R.string.home_action_browse_all),
-                style = MaterialTheme.typography.labelLarge,
+                text = stringResource(R.string.home_title_featured_categories),
+                style = MaterialTheme.typography.titleLarge,
                 fontWeight = FontWeight.Bold,
-                color = MaterialTheme.colorScheme.primary,
-                textDecoration = TextDecoration.Underline,
+                color = MaterialTheme.colorScheme.onBackground
+            )
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier
                     .clip(RoundedCornerShape(8.dp))
                     .clickable { onBrowseAllClick() }
                     .padding(horizontal = 8.dp, vertical = 4.dp)
-            )
+            ) {
+                Text(
+                    text = stringResource(R.string.home_action_browse_all),
+                    style = MaterialTheme.typography.labelLarge,
+                    fontWeight = FontWeight.SemiBold,
+                    color = MaterialTheme.colorScheme.primary,
+                )
+                Spacer(Modifier.width(2.dp))
+                Icon(
+                    painter = painterResource(R.drawable.ic_arrow_forward),
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier.size(16.dp)
+                )
+            }
         }
 
-        Spacer(Modifier.height(16.dp))
+        Spacer(Modifier.height(14.dp))
 
         if (categories.isEmpty()) {
             Text(
@@ -721,11 +829,26 @@ private fun FeaturedCategoriesSection(
                 modifier = Modifier.padding(horizontal = 24.dp)
             )
         } else {
+            // Pick today's category deterministically (same all day)
+            val dayOfYear = remember { Calendar.getInstance().get(Calendar.DAY_OF_YEAR) }
+            val dailyCategory = remember(categories, dayOfYear) {
+                categories[dayOfYear % categories.size]
+            }
+            val suggested = remember(categories, dailyCategory) {
+                categories.filter { it.uid != dailyCategory.uid }.take(6)
+            }
+
             LazyRow(
                 contentPadding = PaddingValues(horizontal = 24.dp),
-                horizontalArrangement = Arrangement.spacedBy(16.dp)
+                horizontalArrangement = Arrangement.spacedBy(14.dp)
             ) {
-                items(items = categories, key = { it.uid }) { category ->
+                item(key = "daily-${dailyCategory.uid}") {
+                    DailyChallengeCard(
+                        category = dailyCategory,
+                        onClick = { onCategoryClick(dailyCategory) }
+                    )
+                }
+                items(items = suggested, key = { it.uid }) { category ->
                     FeaturedCategoryCard(
                         category = category,
                         onClick = { onCategoryClick(category) }
@@ -737,46 +860,439 @@ private fun FeaturedCategoriesSection(
 }
 
 @Composable
+private fun DailyChallengeCard(
+    category: Category,
+    onClick: () -> Unit
+) {
+    val screenWidth = LocalConfiguration.current.screenWidthDp.dp
+    val cardWidth = screenWidth * 0.38f
+    val interactionSource = remember { MutableInteractionSource() }
+    val dark = isSystemInDarkTheme()
+
+    Box(
+        modifier = Modifier
+            .width(cardWidth)
+            .aspectRatio(0.78f)
+            .scaleDownOnPress(.95f, interactionSource)
+            .clip(RoundedCornerShape(18.dp))
+            .background(
+                Brush.linearGradient(
+                    listOf(
+                        if (dark) Indigo500 else Indigo600,
+                        if (dark) Indigo700 else Indigo700
+                    )
+                )
+            )
+            .clickable(
+                interactionSource = interactionSource,
+                indication = LocalIndication.current,
+                onClick = onClick
+            )
+    ) {
+        // Decorative big icon in the corner
+        Image(
+            painter = painterResource(category.toIconRes()),
+            contentDescription = null,
+            contentScale = ContentScale.Fit,
+            modifier = Modifier
+                .align(Alignment.TopEnd)
+                .offset(x = 18.dp, y = (-8).dp)
+                .size(110.dp)
+                .graphicsLayer { alpha = 0.55f }
+        )
+
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(12.dp),
+            verticalArrangement = Arrangement.SpaceBetween
+        ) {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier
+                    .background(Color.White.copy(alpha = 0.22f), RoundedCornerShape(999.dp))
+                    .padding(horizontal = 8.dp, vertical = 3.dp)
+            ) {
+                Icon(
+                    painter = painterResource(R.drawable.ic_fire),
+                    contentDescription = null,
+                    tint = Color.White,
+                    modifier = Modifier.size(11.dp)
+                )
+                Spacer(Modifier.width(4.dp))
+                Text(
+                    text = stringResource(R.string.home_daily_challenge_label),
+                    style = MaterialTheme.typography.labelSmall,
+                    fontWeight = FontWeight.Bold,
+                    color = Color.White,
+                    maxLines = 1
+                )
+            }
+
+            Column {
+                Text(
+                    text = category.toShortName(),
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold,
+                    color = Color.White,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
+                Text(
+                    text = stringResource(R.string.home_daily_challenge_sub),
+                    style = MaterialTheme.typography.labelSmall,
+                    color = Color.White.copy(alpha = 0.85f),
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
+            }
+        }
+    }
+}
+
+@Composable
 private fun FeaturedCategoryCard(
     category: Category,
     onClick: () -> Unit
 ) {
     val screenWidth = LocalConfiguration.current.screenWidthDp.dp
-    val cardWidth = screenWidth * 0.4f
+    val cardWidth = screenWidth * 0.38f
+    val interactionSource = remember { MutableInteractionSource() }
 
-    CardClickable(
+    Box(
         modifier = Modifier
-            .width(cardWidth),
-        color = MaterialTheme.colorScheme.surfaceVariant,
-        onClick = onClick
-    ) {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(9.dp)
-        ) {
-            Image(
-                painter = painterResource(category.toIconRes()),
-                contentDescription = null,
-                contentScale = ContentScale.FillBounds,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .aspectRatio(3 / 2.5f)
-                    .clip(RoundedCornerShape(8.dp))
+            .width(cardWidth)
+            .aspectRatio(0.78f)
+            .scaleDownOnPress(.95f, interactionSource)
+            .clip(RoundedCornerShape(18.dp))
+            .background(MaterialTheme.colorScheme.surface)
+            .clickable(
+                interactionSource = interactionSource,
+                indication = LocalIndication.current,
+                onClick = onClick
             )
+    ) {
+        Image(
+            painter = painterResource(category.toIconRes()),
+            contentDescription = null,
+            contentScale = ContentScale.Crop,
+            modifier = Modifier.fillMaxSize()
+        )
+        // Bottom gradient scrim for label legibility
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(
+                    Brush.verticalGradient(
+                        0.55f to Color.Transparent,
+                        1f to Color.Black.copy(alpha = 0.72f)
+                    )
+                )
+        )
+        Text(
+            text = category.toShortName(),
+            style = MaterialTheme.typography.titleMedium,
+            fontWeight = FontWeight.Bold,
+            color = Color.White,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis,
+            modifier = Modifier
+                .align(Alignment.BottomStart)
+                .padding(horizontal = 12.dp, vertical = 10.dp)
+        )
+    }
+}
 
-            Spacer(Modifier.height(12.dp))
+// ─────────────────────────────────────────────────────────────────────────────
+// STATS STRIP
+// ─────────────────────────────────────────────────────────────────────────────
 
+private data class HomeStats(val streak: Int, val bestScorePct: Int, val played: Int)
+
+private fun computeHomeStats(sessions: List<Session>): HomeStats {
+    val completed = sessions.filter {
+        it.expiredAt != null && it.score != null && it.maxScore != null && it.maxScore!! > 0
+    }
+
+    val bestPct = completed.maxOfOrNull {
+        (it.score!!.toDouble() / it.maxScore!!.toDouble() * 100).toInt()
+    } ?: 0
+
+    val played = completed.size
+
+    // Streak = consecutive days (ending today or yesterday) with at least one session
+    val oneDayMillis = TimeUnit.DAYS.toMillis(1)
+    val today = Calendar.getInstance().apply {
+        set(Calendar.HOUR_OF_DAY, 0); set(Calendar.MINUTE, 0)
+        set(Calendar.SECOND, 0); set(Calendar.MILLISECOND, 0)
+    }.timeInMillis
+    val days = sessions
+        .mapNotNull { it.createdAt ?: it.expiredAt }
+        .map { ts ->
+            val c = Calendar.getInstance().apply {
+                timeInMillis = ts
+                set(Calendar.HOUR_OF_DAY, 0); set(Calendar.MINUTE, 0)
+                set(Calendar.SECOND, 0); set(Calendar.MILLISECOND, 0)
+            }
+            c.timeInMillis
+        }
+        .toSet()
+
+    var streak = 0
+    var cursor = today
+    if (cursor !in days) cursor -= oneDayMillis // allow streak to have ended yesterday
+    while (cursor in days) {
+        streak++
+        cursor -= oneDayMillis
+    }
+
+    return HomeStats(streak = streak, bestScorePct = bestPct, played = played)
+}
+
+@Composable
+private fun StatsStrip(sessions: List<Session>) {
+    val stats = remember(sessions) { computeHomeStats(sessions) }
+    val dark = isSystemInDarkTheme()
+
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.spacedBy(10.dp)
+    ) {
+        StatPill(
+            modifier = Modifier.weight(1f),
+            iconRes = R.drawable.ic_fire,
+            value = stats.streak.toString(),
+            label = stringResource(R.string.home_stat_streak),
+            accent = StreakOrange,
+            bg = if (dark) StreakOrangeBgDark else StreakOrangeBg
+        )
+        StatPill(
+            modifier = Modifier.weight(1f),
+            iconRes = R.drawable.ic_trophy,
+            value = if (stats.bestScorePct > 0) "${stats.bestScorePct}%" else "--",
+            label = stringResource(R.string.home_stat_best),
+            accent = TrophyAmber,
+            bg = if (dark) TrophyAmberBgDark else TrophyAmberBg
+        )
+        StatPill(
+            modifier = Modifier.weight(1f),
+            iconRes = R.drawable.ic_check,
+            value = stats.played.toString(),
+            label = stringResource(R.string.home_stat_played),
+            accent = PlayedTeal,
+            bg = if (dark) PlayedTealBgDark else PlayedTealBg
+        )
+    }
+}
+
+@Composable
+private fun StatPill(
+    modifier: Modifier = Modifier,
+    iconRes: Int,
+    value: String,
+    label: String,
+    accent: Color,
+    bg: Color
+) {
+    Column(
+        modifier = modifier
+            .background(MaterialTheme.colorScheme.surface, RoundedCornerShape(14.dp))
+            .drawBehind {
+                drawRoundRect(
+                    color = Color(0xFFE2E8F0).copy(alpha = 0.5f),
+                    cornerRadius = CornerRadius(14.dp.toPx()),
+                    style = Stroke(width = 1.dp.toPx())
+                )
+            }
+            .padding(horizontal = 12.dp, vertical = 10.dp)
+    ) {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Box(
+                modifier = Modifier
+                    .size(22.dp)
+                    .background(bg, CircleShape),
+                contentAlignment = Alignment.Center
+            ) {
+                Icon(
+                    painter = painterResource(iconRes),
+                    contentDescription = null,
+                    tint = accent,
+                    modifier = Modifier.size(13.dp)
+                )
+            }
+            Spacer(Modifier.width(8.dp))
             Text(
-                text = category.toShortName(),
+                text = value,
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.Bold,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                maxLines = 1
+                color = MaterialTheme.colorScheme.onSurface,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+            )
+        }
+        Spacer(Modifier.height(2.dp))
+        Text(
+            text = label,
+            style = MaterialTheme.typography.labelSmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis
+        )
+    }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// QUICK ACTIONS
+// ─────────────────────────────────────────────────────────────────────────────
+
+@Composable
+private fun QuickActionsSection(
+    categories: List<Category>,
+    onRandomClick: (Category) -> Unit,
+    onBrowseClick: () -> Unit
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 24.dp),
+        horizontalArrangement = Arrangement.spacedBy(12.dp)
+    ) {
+        QuickActionCard(
+            modifier = Modifier.weight(1f),
+            title = stringResource(R.string.home_quick_random),
+            subtitle = stringResource(R.string.home_quick_random_sub),
+            icon = "\uD83C\uDFB2", // 🎲
+            tint = MaterialTheme.colorScheme.primary,
+            onClick = {
+                if (categories.isNotEmpty()) onRandomClick(categories.random())
+            }
+        )
+        QuickActionCard(
+            modifier = Modifier.weight(1f),
+            title = stringResource(R.string.home_quick_browse),
+            subtitle = stringResource(R.string.home_quick_browse_sub),
+            icon = "\uD83C\uDF10", // 🌐
+            tint = if (isSystemInDarkTheme()) NewGameGreenDark else NewGameGreen,
+            onClick = onBrowseClick
+        )
+    }
+}
+
+@Composable
+private fun QuickActionCard(
+    modifier: Modifier = Modifier,
+    title: String,
+    subtitle: String,
+    icon: String,
+    tint: Color,
+    onClick: () -> Unit
+) {
+    val interactionSource = remember { MutableInteractionSource() }
+    Column(
+        modifier = modifier
+            .scaleDownOnPress(.96f, interactionSource)
+            .clip(RoundedCornerShape(16.dp))
+            .background(MaterialTheme.colorScheme.surface)
+            .clickable(
+                interactionSource = interactionSource,
+                indication = LocalIndication.current,
+                onClick = onClick
+            )
+            .padding(14.dp)
+    ) {
+        Box(
+            modifier = Modifier
+                .size(36.dp)
+                .background(tint.copy(alpha = 0.12f), RoundedCornerShape(10.dp)),
+            contentAlignment = Alignment.Center
+        ) {
+            Text(text = icon, fontSize = 18.sp)
+        }
+        Spacer(Modifier.height(10.dp))
+        Text(
+            text = title,
+            style = MaterialTheme.typography.titleSmall,
+            fontWeight = FontWeight.Bold,
+            color = MaterialTheme.colorScheme.onSurface,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis
+        )
+        Text(
+            text = subtitle,
+            style = MaterialTheme.typography.labelSmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis
+        )
+    }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// TOP BAR
+// ─────────────────────────────────────────────────────────────────────────────
+
+@Composable
+private fun TopBar(
+    onSettingsClick: () -> Unit
+) {
+    val userCoins = Repository.getUser()?.coins ?: 0
+    val surface = MaterialTheme.colorScheme.surface
+    val onSurface = MaterialTheme.colorScheme.onSurface
+    val coinTint = if (isSystemInDarkTheme()) GemCyanDark else GemCyan
+
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(top = 20.dp, end = 20.dp),
+        horizontalArrangement = Arrangement.End,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        // Gems pill
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier
+                .background(surface, RoundedCornerShape(999.dp))
+                .padding(horizontal = 12.dp, vertical = 8.dp)
+        ) {
+            Icon(
+                painter = painterResource(R.drawable.ic_coin),
+                contentDescription = null,
+                tint = coinTint,
+                modifier = Modifier.size(16.dp)
+            )
+            Spacer(Modifier.width(6.dp))
+            Text(
+                text = "$userCoins",
+                style = MaterialTheme.typography.labelLarge,
+                fontWeight = FontWeight.Bold,
+                color = onSurface
+            )
+        }
+
+        Spacer(Modifier.width(10.dp))
+
+        // Settings pill
+        Box(
+            modifier = Modifier
+                .size(36.dp)
+                .background(surface, CircleShape)
+                .clip(CircleShape)
+                .clickable(onClick = onSettingsClick),
+            contentAlignment = Alignment.Center
+        ) {
+            Icon(
+                painter = painterResource(R.drawable.ic_settings),
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.size(18.dp)
             )
         }
     }
 }
+
+// ─────────────────────────────────────────────────────────────────────────────
+// CATEGORY NAME EXTENSIONS
+// ─────────────────────────────────────────────────────────────────────────────
 
 @Composable
 fun Category.toShortName(): String {

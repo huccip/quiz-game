@@ -217,24 +217,27 @@
     <string name="home_action_resume">Resume</string>
     <string name="home_action_new_game">New Game</string>
     <string name="home_action_play_now">Play Now</string>
-    <string name="home_title_featured_categories">Suggested</string>
-    <string name="home_action_browse_all">Browse all</string>
+    <string name="home_title_featured_categories">Explore Topics</string>
+    <string name="home_action_browse_all">View all</string>
     <string name="home_categories_empty_message">No categories available yet.</string>
-    <plurals name="home_user_coins">
-        <item quantity="zero">%d coin</item>
-        <item quantity="one">%d coin</item>
-        <item quantity="other">%d coins</item>
-    </plurals>
-    <plurals name="home_user_collectibles">
-        <item quantity="zero">%d collectible</item>
-        <item quantity="one">%d collectible</item>
-        <item quantity="other">%d collectibles</item>
-    </plurals>
-    <plurals name="home_user_trophies">
-        <item quantity="zero">%d of %d achievement</item>
-        <item quantity="one">%d of %d achievement</item>
-        <item quantity="other">%d of %d achievements</item>
-    </plurals>
+
+    <!-- Home redesign -->
+    <string name="home_greeting_tagline_morning">Ready to warm up your brain?</string>
+    <string name="home_greeting_tagline_afternoon">Got a minute for a quick challenge?</string>
+    <string name="home_greeting_tagline_evening">Time to unwind with a few questions.</string>
+    <string name="home_stat_streak">day streak</string>
+    <string name="home_stat_streak_one">day streak</string>
+    <string name="home_stat_best">best score</string>
+    <string name="home_stat_played">quizzes played</string>
+    <string name="home_action_continue">Continue</string>
+    <string name="home_action_continue_subtitle">Pick up where you left off</string>
+    <string name="home_action_start_new">Start a new game</string>
+    <string name="home_daily_challenge_label">Daily Challenge</string>
+    <string name="home_daily_challenge_sub">Fresh topic, every day</string>
+    <string name="home_quick_random">Random Quiz</string>
+    <string name="home_quick_random_sub">Surprise me</string>
+    <string name="home_quick_browse">Browse Topics</string>
+    <string name="home_quick_browse_sub">See all categories</string>
     <string name="category_short_9">General</string>
     <string name="category_short_10">Books</string>
     <string name="category_short_11">Movies</string>
