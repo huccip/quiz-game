@@ -227,6 +227,22 @@
         <item quantity="many">%d عملات نقدية</item>
         <item quantity="other">%d عملات نقدية</item>
     </plurals>
+    <plurals name="home_user_collectibles">
+        <item quantity="zero">%d بطاقة</item>
+        <item quantity="one">بطاقة واحدة</item>
+        <item quantity="two">بطاقان</item>
+        <item quantity="few">%d بطاقات</item>
+        <item quantity="many">%d بطاقات</item>
+        <item quantity="other">%d بطاقات</item>
+    </plurals>
+    <plurals name="home_user_trophies">
+        <item quantity="zero">%d من %d انجاز</item>
+        <item quantity="one">%d من %d انجاز</item>
+        <item quantity="two">%d من %d انجاز</item>
+        <item quantity="few">%d من %d انجازات</item>
+        <item quantity="many">%d من %d انجازات</item>
+        <item quantity="other">%d من %d انجازات</item>
+    </plurals>
     <string name="category_short_9">عامة</string>
     <string name="category_short_10">كتب</string>
     <string name="category_short_11">أفلام</string>

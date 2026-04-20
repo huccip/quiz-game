@@ -221,8 +221,19 @@
     <string name="home_action_browse_all">Browse all</string>
     <string name="home_categories_empty_message">No categories available yet.</string>
     <plurals name="home_user_coins">
+        <item quantity="zero">%d coin</item>
         <item quantity="one">%d coin</item>
         <item quantity="other">%d coins</item>
+    </plurals>
+    <plurals name="home_user_collectibles">
+        <item quantity="zero">%d collectible</item>
+        <item quantity="one">%d collectible</item>
+        <item quantity="other">%d collectibles</item>
+    </plurals>
+    <plurals name="home_user_trophies">
+        <item quantity="zero">%d of %d achievement</item>
+        <item quantity="one">%d of %d achievement</item>
+        <item quantity="other">%d of %d achievements</item>
     </plurals>
     <string name="category_short_9">General</string>
     <string name="category_short_10">Books</string>

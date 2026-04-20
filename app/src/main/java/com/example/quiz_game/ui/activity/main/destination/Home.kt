@@ -12,6 +12,8 @@ import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -70,6 +72,7 @@ import androidx.navigation.compose.rememberNavController
 import com.example.quiz_game.R
 import com.example.quiz_game.data.Repository
 import com.example.quiz_game.data.category.Category
+import com.example.quiz_game.data.session.Session
 import com.example.quiz_game.other.Constants
 import com.example.quiz_game.other.TranslatorManager
 import com.example.quiz_game.other.Utils
@@ -77,6 +80,7 @@ import com.example.quiz_game.ui.activity.main.MainDestination
 import com.example.quiz_game.ui.shared.component.CardClickable
 import com.example.quiz_game.ui.shared.component.DialogYesOrNo
 import com.example.quiz_game.ui.shared.component.IconButton
+import com.example.quiz_game.ui.shared.component.InformativeChip
 import com.example.quiz_game.ui.shared.component.LoadingInfiniteLine
 import com.example.quiz_game.ui.shared.effect.scaleDownOnPress
 import com.example.quiz_game.ui.theme.NewGameGreen
@@ -481,6 +485,7 @@ private fun SectionTitle(
     }
 }
 
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
 private fun GreetingSection() {
     val translator by TranslatorManager.translator.collectAsStateWithLifecycle()
@@ -491,8 +496,12 @@ private fun GreetingSection() {
 
     val username = Repository.getUser()?.username ?: ""
     val userCoins = Repository.getUser()?.coins ?: 0
+    val userCollectibles = Repository.getUser()?.collectiblesUids?.size ?: 0
+    val userAchievements = Repository.getUser()?.achievementsUidsSet?.size ?: 0
 
-    var textDp by remember { mutableStateOf(0.dp) }
+    val coinColor = Color("#fdcb6e".toColorInt())
+    val collectibleColor = Color("#0984e3".toColorInt())
+    val trophyColor = Color("#00cec9".toColorInt())
 
     Column {
         Text(
@@ -504,45 +513,40 @@ private fun GreetingSection() {
             overflow = TextOverflow.Ellipsis,
         )
 
-        SuggestionChip(
-            onClick = {},
-            elevation = SuggestionChipDefaults.suggestionChipElevation(
-                elevation = 0.dp,
-                pressedElevation = 0.dp
-            ),
-            border = BorderStroke(
-                width = 2.dp,
-                color = Color("#F5E584".toColorInt())
-            ),
-            shape = RoundedCornerShape(50),
-            label = {
-                Text(
-                    text = pluralStringResource(
-                        id = R.plurals.home_user_coins,
-                        count = userCoins,
-                        userCoins
-                    ),
-                    style = MaterialTheme.typography.bodySmall.copy(fontWeight = FontWeight.Bold),
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
-                    modifier = Modifier
-                        .fillMaxHeight()
-                        .graphicsLayer { textDp = this.size.height.toDp() }
-                )
-            },
-            icon = {
-                Icon(
-                    modifier = Modifier.size(textDp),
-                    painter = painterResource(R.drawable.ic_coin),
-                    contentDescription = null,
-                )
-            },
-            colors = SuggestionChipDefaults.suggestionChipColors(
-                containerColor = Color.Transparent,
-                labelColor = Color("#F5E584".toColorInt()),
-                iconContentColor = Color("#F5E584".toColorInt())
+        FlowRow(
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            InformativeChip(
+                color = coinColor,
+                text = pluralStringResource(
+                    id = R.plurals.home_user_coins,
+                    count = userCoins,
+                    userCoins
+                ),
+                icon = R.drawable.ic_coin,
             )
-        )
+
+            InformativeChip(
+                color = collectibleColor,
+                text = pluralStringResource(
+                    id = R.plurals.home_user_collectibles,
+                    count = userCollectibles,
+                    userCollectibles
+                ),
+                icon = R.drawable.ic_collectible
+            )
+
+            InformativeChip(
+                color = trophyColor,
+                text = pluralStringResource(
+                    id = R.plurals.home_user_trophies,
+                    count = userAchievements,
+                    userAchievements,
+                    userAchievements // max achievements number
+                ),
+                icon = R.drawable.ic_trophy
+            )
+        }
     }
 }
 

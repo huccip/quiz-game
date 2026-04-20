@@ -8,6 +8,7 @@ data class User(
     var coins: Int = 0, // global earned score translates to coins
     var createdAt: Long = System.currentTimeMillis(),
     var collectiblesUids: List<String> = emptyList(),
+    var achievementsUidsSet: Set<String> = emptySet(),
     var language: String? = null,
     var onboarded: Boolean = false,
     var translatorReady: Boolean = false,
