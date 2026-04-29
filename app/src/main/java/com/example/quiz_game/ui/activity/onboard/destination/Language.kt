@@ -123,8 +123,14 @@ fun Language(
     }
 
     when {
-        // Active download in progress
-        sharedState.executing || onboardState.executing -> {
+        // Active translator work in progress. Gate on the TranslatorStatus
+        // itself rather than the generic `executing` flag — the latter also
+        // flips true for unrelated state loads (e.g. GetUser on activity
+        // restart), which leaked a stray loading bar before Form appeared.
+        translatorStatus == TranslatorStatus.Saving ||
+                translatorStatus == TranslatorStatus.Downloading ||
+                translatorStatus == TranslatorStatus.SlowDownload ||
+                translatorStatus == TranslatorStatus.Restarting -> {
             val statusMessage =
                 when (translatorStatus) {
                     TranslatorStatus.Saving ->

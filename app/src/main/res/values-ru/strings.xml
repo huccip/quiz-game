@@ -1,0 +1,337 @@
+<resources>
+    <string name="app_name">Викторина</string>
+
+    <string name="textfield_placeholder_default">Введите здесь…</string>
+    <string name="textfield_label_default" />
+
+    <string name="onboard_form_loading_subject">Настройка языка</string>
+    <string name="onboard_form_greet">Привет, %s,</string>
+    <string name="onboard_form_question">Готов к незабываемому приключению?</string>
+    <string name="onboard_form_submit">Да, я готов</string>
+    <string name="onboard_form_error_translator">Произошла ошибка при настройке языка</string>
+    <string name="onboard_form_error_button">Повторить</string>
+
+    <string name="onboard_name_label">Никнейм</string>
+    <string name="onboard_name_placeholder">Как нам тебя называть</string>
+    <string name="onboard_name_textfield_max_characters">Никнейм должен быть короче 10 символов</string>
+    <string name="onboard_name_textfield_min_characters">Никнейм должен содержать минимум 4 символа</string>
+    <string name="onboard_name_textfield_unallowed_characters">Никнейм может содержать только буквы и цифры</string>
+    <string name="onboard_avatar_label">Аватар</string>
+    <string name="onboard_avatar_hint">Выбери своего героя — и поехали 🔥</string>
+    <string name="onboard_button_letsgo">Поехали!</string>
+
+    <string name="onboard_language_next_button">Продолжить</string>
+    <string name="onboard_language_welcome_title">Добро пожаловать!</string>
+    <string name="onboard_language_subtitle">Выбери язык, чтобы начать</string>
+    <string name="onboard_language_no_internet_warning_positive_button">Да, продолжить</string>
+    <string name="onboard_language_no_internet_warning_negative_button">Отмена</string>
+    <string name="onboard_language_no_wifi_warning_positive_button">Да, использовать моб. данные</string>
+    <string name="onboard_language_no_wifi_warning_negative_button">Нет</string>
+
+    <string name="onboard_language_no_internet_warning_message">Нет соединения с Интернетом. Продолжить без выбранного языка?</string>
+    <string name="onboard_language_no_wifi_warning_message">Вы не подключены к Wi-Fi. Продолжить через мобильные данные?</string>
+
+    <string name="onboard_language_downloading">Загрузка языковой модели…</string>
+    <string name="onboard_language_slow_download">Загрузка продолжается, не отключайтесь…</string>
+    <string name="onboard_language_restarting">Применение языка, перезапуск…</string>
+    <string name="onboard_language_download_failed">Сбой загрузки. Проверьте соединение.</string>
+    <string name="onboard_language_auto_retry">Повторим автоматически, когда вернётся связь…</string>
+    <string name="onboard_language_internet_lost">Соединение потеряно. Загрузка прервана.</string>
+    <string name="onboard_language_continue_without">Продолжить без перевода</string>
+    <string name="onboard_language_offline_title">Вы не в сети</string>
+    <string name="onboard_language_offline_body">Модели перевода нужна загрузка. Подключитесь к Интернету или продолжите без перевода — она загрузится позже автоматически.</string>
+    <string name="onboard_language_back_online_title">Вы снова в сети!</string>
+    <string name="onboard_language_back_online_body">Запуск загрузки…</string>
+    <string name="network_recovery_retry_action">Повторить</string>
+
+    <string name="main_game_answer_state_idle">Ожидание…</string>
+    <string name="main_game_answer_state_picked">Подтвердить ответ</string>
+    <string name="main_game_answer_state_locked">Следующий вопрос</string>
+
+    <string name="home_button_start">Старт</string>
+    <string name="home_button_resume">Продолжить</string>
+    <string name="home_button_browse">Все категории</string>
+    <string name="home_greeting_subtitle">Рад тебя видеть!</string>
+    <string name="home_featured_title">Категории</string>
+    <string name="home_featured_subtitle">Показать ещё</string>
+    <string name="home_quote_label">Мудрость дня</string>
+    <string name="home_quote_not_found">"Сегодня цитат нет. Загляни позже!"</string>
+
+    <string name="loading_title">Подождите, загружаем </string>
+    <string name="loading_title_variator_1">Секунду…</string>
+    <string-array name="home_loading_subjects">
+        <item>список викторин</item>
+        <item>факты</item>
+        <item>веселье</item>
+        <item>обучающее путешествие</item>
+        <item>умный мир</item>
+        <item>рюкзак знаний</item>
+        <item>внезапный экзамен 😈</item>
+        <item>GG, EZ!</item>
+        <item>достижения</item>
+    </string-array>
+    <string name="game_loading_subject">Викторины</string>
+
+    <string name="home_title">Поехали!</string>
+    <string name="home_subtitle">Одной из кнопок должно хватить, чтобы начать</string>
+
+    <string name="avatar_wind">Ветерок</string>
+    <string name="avatar_fire">Огневик</string>
+    <string name="avatar_rock">Скала</string>
+    <string name="avatar_water">Водяная</string>
+
+    <string name="guide_button_finish">Понятно!</string>
+
+    <string name="achievements_new_record">Новый рекорд!</string>
+    <string name="achievements_no_mistakes">Ботаник</string>
+    <string name="achievements_one_mistake">Почти идеально</string>
+    <string name="achievements_two_mistakes">Так близко</string>
+    <string name="achievements_rough_session">Тяжёлая партия</string>
+    <string name="achievements_first_session">Первые шаги</string>
+    <string name="achievements_empty" />
+
+    <string name="achievements_detailed_new_record">Ты побил свой прежний рекорд! Установлен новый личный максимум.</string>
+    <string name="achievements_detailed_no_mistakes">Безупречная победа — ни одного неверного ответа. Чистый ботанический режим.</string>
+    <string name="achievements_detailed_one_mistake">Лишь одна осечка, но идеал был совсем рядом. Дано за финиш с одной ошибкой.</string>
+    <string name="achievements_detailed_two_mistakes">Почти идеальная партия — пара спотыканий, но ты всё ещё держишься.</string>
+    <string name="achievements_detailed_rough_session">У всех бывают неудачные дни. Не сдавайся — следующий раунд твой.</string>
+    <string name="achievements_detailed_first_session">Любая легенда с чего-то начинается. Добро пожаловать в путешествие по викторинам!</string>
+
+    <string name="achievement_timelapse_quick_thinker">Быстрый ум</string>
+    <string name="achievement_timelapse_detailed_quick_thinker">Прошёл сессию меньше чем за минуту. Скорость и сообразительность вместе!</string>
+
+    <string name="achievement_timelapse_casual_cruiser">Спокойный путник</string>
+    <string name="achievement_timelapse_detailed_casual_cruiser">Провёл от 1 до 10 минут в сессии. Вдумчивый и стабильный — надёжный игрок.</string>
+
+    <string name="achievement_timelapse_brain_marathoner">Мозг-марафонец</string>
+    <string name="achievement_timelapse_detailed_brain_marathoner">Держался 10–30 минут подряд. Твой мозг точно вспотел!</string>
+
+    <string name="achievement_timelapse_eternal_quizzer">Вечный игрок</string>
+    <string name="achievement_timelapse_detailed_eternal_quizzer">Более 30 минут — и не сбавляешь обороты. Преданность викторинам в чистом виде.</string>
+
+    <string name="dialog_discard_session_confirm_button">Да. Начать новую сессию</string>
+    <string name="dialog_discard_session_dissmiss_button">Нет</string>
+    <string name="dialog_discard_session_title">Внимание</string>
+    <string name="dialog_discard_session_text">Уверен, что хочешь начать новую сессию? Прежняя будет отброшена</string>
+
+    <string name="postgame_button_navigate_home">На главную</string>
+    <string name="postgame_title">Сессия завершена</string>
+    <string name="postgame_score_label">Счёт</string>
+    <string name="postgame_achievements_title">Достижения</string>
+    <string name="postgame_achievements_empty">В этой сессии достижений нет. Продолжай играть!</string>
+    <string name="achievements_dialog_title">Полученные трофеи</string>
+    <string name="achievements_dialog_empty">Трофеев пока нет. Заверши сессию, чтобы начать коллекцию!</string>
+    <string name="achievements_first_unlocked_prefix">Впервые получено %1$s</string>
+    <string name="achievement_popup_title">Достижение получено</string>
+
+    <!-- Guide Screen -->
+    <string name="guide_welcome_title">Добро пожаловать в Викторину!</string>
+    <string name="guide_welcome_subtitle">Давай разберёмся, как играть, и повеселимся!</string>
+
+    <string name="guide_how_to_play">Как играть</string>
+    <string name="guide_tutorial_title">Как играть в Викторину</string>
+
+    <string name="guide_step_1_title">Выбери категорию</string>
+    <string name="guide_step_1_desc">Нажми на интересующую тебя категорию!</string>
+
+    <string name="guide_step_2_title">Отвечай на вопросы</string>
+    <string name="guide_step_2_desc">Внимательно читай каждый вопрос и выбирай правильный ответ, пока не вышло время!</string>
+
+    <string name="guide_step_3_title">Зарабатывай очки</string>
+    <string name="guide_step_3_desc">Получай очки за правильные ответы. Чем быстрее ответ — тем больше очков!</string>
+
+    <string name="guide_step_4_title">Получай трофеи</string>
+    <string name="guide_step_4_desc">Собирай трофеи, заканчивая викторины с высоким счётом!</string>
+
+    <string name="guide_utility_cards">Карты-помощники</string>
+
+    <string name="guide_utility_time_booster">Ускоритель времени</string>
+    <string name="guide_utility_time_booster_desc">Даёт дополнительное время на ответ</string>
+
+    <string name="guide_utility_hint_card">Подсказка</string>
+    <string name="guide_utility_hint_card_desc">Убирает один неверный вариант ответа</string>
+
+    <string name="guide_utility_double_points">Двойные очки</string>
+    <string name="guide_utility_double_points_desc">Удваивает очки за правильный ответ</string>
+
+    <string name="guide_utility_second_chance">Второй шанс</string>
+    <string name="guide_utility_second_chance_desc">Позволяет повторить вопрос, если ответил неверно</string>
+
+    <string name="guide_coins_shop">Монеты и магазин</string>
+
+    <string name="guide_earn_coins">Зарабатывай монеты:</string>
+    <string name="guide_earn_coins_1">отвечая правильно</string>
+    <string name="guide_earn_coins_2">завершая викторины</string>
+    <string name="guide_earn_coins_3">получая трофеи</string>
+    <string name="guide_earn_coins_4">за ежедневный вход</string>
+
+    <string name="guide_use_coins">Используй монеты, чтобы:</string>
+    <string name="guide_use_coins_1">покупать карты-помощники в магазине</string>
+    <string name="guide_use_coins_2">открывать особые категории</string>
+    <string name="guide_use_coins_3">обменивать на трофеи</string>
+
+    <string name="guide_trading_title">Обмен карт на монеты</string>
+    <string name="guide_trading_desc">Если у тебя есть лишние карты-помощники, ты можешь обменять их на монеты в магазине! Просто нажми на карту в инвентаре и выбери \'Обменять\'.</string>
+
+    <string name="guide_faq">Частые вопросы</string>
+
+    <string name="guide_faq_1_q">Как сменить язык?</string>
+    <string name="guide_faq_1_a">Сменить язык можно в Настройках, выбрав нужный из списка.</string>
+
+    <string name="guide_faq_2_q">Что если время кончится?</string>
+    <string name="guide_faq_2_a">Если время вышло до ответа, вопрос будет засчитан как неверный, и ты перейдёшь к следующему.</string>
+
+    <string name="guide_faq_3_q">Можно играть без интернета?</string>
+    <string name="guide_faq_3_a">Да! Некоторые викторины доступны офлайн. Ищи значок офлайн рядом с категорией.</string>
+
+    <string name="guide_faq_4_q">Как получить трофеи?</string>
+    <string name="guide_faq_4_a">Трофеи выдаются за высокие результаты в викторинах. Чем больше правильных ответов, тем лучше трофей!</string>
+
+    <string name="guide_faq_5_q">Можно создавать свои викторины?</string>
+    <string name="guide_faq_5_a">Пока нет, но мы работаем над этой функцией для будущего обновления!</string>
+
+    <string name="guide_start_button">Начать играть!</string>
+    <string name="guide_explore_message">Пожалуйста, изучи все разделы перед продолжением</string>
+
+    <!-- Section names for tracking -->
+    <string name="guide_section_welcome">welcome</string>
+    <string name="guide_section_how_to_play">howToPlay</string>
+    <string name="guide_section_utilities">utilities</string>
+    <string name="guide_section_coins">coins</string>
+    <string name="guide_section_faq">faq</string>
+    <string name="language_restart_dialog_title">Обратите внимание</string>
+    <string name="language_restart_dialog_message">Приложение перезапустится для применения языка</string>
+    <string name="language_restart_dialog_button_positive">Перезапустить</string>
+    <string name="language_restart_dialog_button_negative">Отмена</string>
+
+    <string name="generic_error_message">Что-то пошло не так</string>
+    <string name="generic_warning_message">Внимание</string>
+
+    <string name="connectivity_offline">Вы не в сети</string>
+    <string name="connectivity_online">Вы снова в сети!</string>
+
+    <string name="onboard_guide_continue">Продолжить</string>
+    <string name="onboard_guide_title">Всё готово!</string>
+    <string name="onboard_guide_subtitle">Краткий обзор того, что ты можешь делать.</string>
+    <string name="onboard_guide_tip_play_title">Выбери категорию и сыграй раунд</string>
+    <string name="onboard_guide_tip_play_body">Просматривай темы или сразу запусти избранную викторину с главного экрана.</string>
+    <string name="onboard_guide_tip_coins_title">Зарабатывай монеты, отвечая</string>
+    <string name="onboard_guide_tip_coins_body">За правильные ответы дают монеты. Трать их в магазине на бусты.</string>
+    <string name="onboard_guide_tip_trophies_title">Собирай трофеи и рекорды</string>
+    <string name="onboard_guide_tip_trophies_body">Заканчивай сессии, чтобы получать достижения и бить личные рекорды.</string>
+    <string name="onboard_guide_tip_daily_title">Не пропусти ежедневный вызов</string>
+    <string name="onboard_guide_tip_daily_body">Свежий вызов появляется на главной каждый день &#8212; держи серию.</string>
+    <string name="onboard_guide_cta">Играть</string>
+    <string name="postgame_player_fallback">Игрок #0000</string>
+
+    <string name="home_title_resume_journey">Продолжить путь</string>
+    <string name="home_title_play_now">Играть сейчас</string>
+    <string name="home_action_resume">Продолжить</string>
+    <string name="home_action_new_game">Новая игра</string>
+    <string name="home_action_play_now">Играть сейчас</string>
+    <string name="home_title_featured_categories">Изучай темы</string>
+    <string name="home_action_browse_all">Все</string>
+    <string name="home_categories_empty_message">Пока нет доступных категорий.</string>
+
+    <!-- Home redesign -->
+    <string name="home_greeting_tagline_morning">Готов размять мозг?</string>
+    <string name="home_greeting_tagline_afternoon">Найдётся минутка на быстрый вызов?</string>
+    <string name="home_greeting_tagline_evening">Время расслабиться с парой вопросов.</string>
+    <string name="home_stat_streak">дней подряд</string>
+    <string name="home_stat_streak_one">день подряд</string>
+    <string name="home_stat_best">лучший счёт</string>
+    <string name="home_stat_played">сыграно викторин</string>
+    <string name="home_action_continue">Продолжить</string>
+    <string name="home_action_continue_subtitle">Продолжи с того места, где остановился</string>
+    <string name="home_action_start_new">Начать новую игру</string>
+    <string name="home_daily_challenge_label">Ежедневный вызов</string>
+    <string name="home_daily_challenge_sub">Свежая тема каждый день</string>
+    <string name="home_quick_random">Случайная викторина</string>
+    <string name="home_quick_random_sub">Удиви меня</string>
+    <string name="home_quick_browse">Темы</string>
+    <string name="home_quick_browse_sub">Все категории</string>
+    <string name="category_short_9">Общее</string>
+    <string name="category_short_10">Книги</string>
+    <string name="category_short_11">Фильмы</string>
+    <string name="category_short_12">Музыка</string>
+    <string name="category_short_13">Мюзиклы</string>
+    <string name="category_short_14">Сериалы</string>
+    <string name="category_short_15">Видеоигры</string>
+    <string name="category_short_16">Настолки</string>
+    <string name="category_short_17">Природа</string>
+    <string name="category_short_18">Компьютеры</string>
+    <string name="category_short_19">Математика</string>
+    <string name="category_short_20">Мифология</string>
+    <string name="category_short_21">Спорт</string>
+    <string name="category_short_22">География</string>
+    <string name="category_short_23">История</string>
+    <string name="category_short_24">Политика</string>
+    <string name="category_short_25">Искусство</string>
+    <string name="category_short_26">Знаменитости</string>
+    <string name="category_short_27">Животные</string>
+    <string name="category_short_28">Транспорт</string>
+    <string name="category_short_29">Комиксы</string>
+    <string name="category_short_30">Гаджеты</string>
+    <string name="category_short_31">Аниме</string>
+    <string name="category_short_32">Мультфильмы</string>
+    <string name="browse_search_placeholder">Поиск категорий…</string>
+    <string name="browse_sort_default">По умолчанию</string>
+    <string name="browse_sort_a_z">А-Я</string>
+    <string name="browse_sort_z_a">Я-А</string>
+    <string name="browse_sort_count_high">Больше всего викторин</string>
+    <string name="browse_sort_count_low">Меньше всего викторин</string>
+    <string name="browse_available_quizzes">%d доступно</string>
+    <string name="browse_no_quizzes">Нажми, чтобы загрузить</string>
+    <string name="browse_no_results">Нет результатов по \"%s\"</string>
+    <string name="browse_resume_title">У тебя есть активная викторина!</string>
+    <string name="browse_resume_button">Продолжить</string>
+
+    <!-- Shop -->
+    <string name="shop_title">Магазин бустов</string>
+    <string name="shop_subtitle">Трать монеты и получи преимущество в следующей викторине</string>
+    <string name="shop_section_items">Доступные товары</string>
+    <string name="shop_item_skip_name">Пропуск вопроса</string>
+    <string name="shop_item_skip_desc">Пропусти сложный вопрос без штрафа</string>
+    <string name="shop_item_time_name">+10 секунд</string>
+    <string name="shop_item_time_desc">Добавь 10 секунд к таймеру</string>
+    <string name="shop_item_swap_name">Замена вопроса</string>
+    <string name="shop_item_swap_desc">Замени текущий вопрос на новый</string>
+    <string name="shop_item_hint_name">Подсказка</string>
+    <string name="shop_item_hint_desc">Убери два неверных варианта ответа</string>
+    <string name="shop_buy_button">Купить</string>
+    <string name="shop_sell_button">Продать</string>
+    <string name="shop_owned_label">В наличии: %d</string>
+    <string name="shop_not_enough_coins">Недостаточно монет!</string>
+    <string name="shop_purchase_success">Куплено!</string>
+    <string name="shop_sold_success">Продано за %d монет</string>
+    <string name="shop_sell_price_label">Цена продажи: %d</string>
+    <string name="shop_banner_title">Магазин бустов</string>
+    <string name="shop_banner_subtitle">Покупай карты-помощники, чтобы прокачать игру</string>
+    <string name="shop_banner_cta">Открыть магазин</string>
+    <string name="shop_your_balance">Твой баланс</string>
+
+    <!-- Collectibles in-game tray + rewards -->
+    <string name="collectibles_tray_title">Бусты</string>
+    <string name="collectibles_use_hint">Нажми, чтобы использовать</string>
+    <string name="collectibles_empty_tray">Нет бустов — заработай или купи!</string>
+    <string name="collectibles_reward_title">Получено бустов: %d!</string>
+    <string name="collectibles_reward_subtitle">Добавлено в инвентарь</string>
+    <string name="collectibles_hint_applied">Убраны два неверных ответа</string>
+    <string name="collectibles_time_applied">+10 секунд добавлено</string>
+    <string name="collectibles_swap_applied">Замена вопроса…</string>
+    <string name="collectibles_skip_applied">Вопрос пропущен</string>
+
+    <!-- Settings dropdown -->
+    <string name="settings_menu_language">Язык</string>
+    <string name="settings_menu_about">О приложении</string>
+    <string name="settings_menu_privacy">Политика конфиденциальности</string>
+    <string name="settings_menu_terms">Условия использования</string>
+    <string name="settings_about_title">О Викторине</string>
+    <string name="settings_about_body">Викторина — это приложение для проверки знаний в сотнях категорий. Отвечай на вопросы, зарабатывай монеты и открывай бусты. Удачи!</string>
+    <string name="settings_legal_coming_soon">Этот документ появится в будущем обновлении.</string>
+    <string name="settings_ok">OK</string>
+
+    <!-- Browse redesign -->
+    <string name="browse_title">Темы</string>
+    <string name="browse_subtitle">Найди подходящую категорию</string>
+</resources>

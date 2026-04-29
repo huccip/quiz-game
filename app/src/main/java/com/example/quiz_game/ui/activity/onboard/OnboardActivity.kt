@@ -1,5 +1,6 @@
 package com.example.quiz_game.ui.activity.onboard
 
+import android.content.Intent
 import android.os.Bundle
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -16,6 +17,8 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.quiz_game.AppDestination
 import com.example.quiz_game.BaseActivity
+import com.example.quiz_game.data.Repository
+import com.example.quiz_game.ui.activity.main.MainActivity
 import com.example.quiz_game.ui.activity.onboard.destination.Form
 import com.example.quiz_game.ui.activity.onboard.destination.Guide
 import com.example.quiz_game.ui.activity.onboard.destination.Language
@@ -31,6 +34,14 @@ class OnboardActivity : BaseActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        // Skip onboarding entirely if the user has already completed the guide.
+        if (Repository.getUser()?.onboarded == true) {
+            startActivity(Intent(this, MainActivity::class.java))
+            finish()
+            return
+        }
+
         enableEdgeToEdge()
         setContent {
             val sharedState by sharedViewModel.state.collectAsStateWithLifecycle()

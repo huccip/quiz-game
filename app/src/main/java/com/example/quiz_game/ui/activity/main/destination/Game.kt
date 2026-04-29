@@ -1,8 +1,10 @@
 package com.example.quiz_game.ui.activity.main.destination
 
+import androidx.activity.compose.BackHandler
 import androidx.annotation.DrawableRes
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.EaseInExpo
+import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
@@ -14,22 +16,27 @@ import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.horizontalScroll
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.HorizontalDivider
@@ -47,24 +54,37 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.ColorMatrix
 import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.compose.ui.util.fastFilter
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.example.quiz_game.R
+import com.example.quiz_game.data.Repository
 import com.example.quiz_game.data.quiz.Quiz
 import com.example.quiz_game.data.session.Session
+import com.example.quiz_game.data.shop.ShopItem
+import com.example.quiz_game.data.shop.ShopItemType
 import com.example.quiz_game.other.Constants
+import com.example.quiz_game.other.Sound
+import com.example.quiz_game.other.SoundManager
+import com.example.quiz_game.other.withTap
 import com.example.quiz_game.ui.activity.main.MainDestination
 import com.example.quiz_game.ui.shared.component.ButtonPrimary
 import com.example.quiz_game.ui.shared.component.LoadingFullScreenLowOpacityWithInfiniteSpinner
@@ -80,6 +100,8 @@ import com.example.quiz_game.ui.viewmodel.SessionAction
 import com.example.quiz_game.ui.viewmodel.SessionState
 import com.example.quiz_game.ui.viewmodel.SharedAction
 import com.example.quiz_game.ui.viewmodel.SharedState
+import com.example.quiz_game.ui.viewmodel.ShopAction
+import com.example.quiz_game.ui.viewmodel.ShopState
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.first
@@ -95,6 +117,8 @@ fun Game(
     sharedAction: (SharedAction) -> Unit = {},
     sessionState: StateFlow<SessionState>,
     sessionAction: (SessionAction) -> Unit = {},
+    shopState: ShopState = ShopState(),
+    shopAction: (ShopAction) -> Unit = {},
     navController: NavController = rememberNavController(),
 ) {
 
@@ -154,6 +178,11 @@ fun Game(
 
         val quiz = currentQuizzes.getOrNull(quizIndex)
 
+        // Build list of owned collectibles for the tray
+        val ownedCollectibles = remember(shopState.ownedCounts, shopState.items) {
+            shopState.items.filter { (shopState.ownedCounts[it.id] ?: 0) > 0 }
+        }
+
         Box(modifier = modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
             when {
                 loading -> {
@@ -180,22 +209,50 @@ fun Game(
                         correctChoice = quiz.correctAnswer,
                         questionIndex = quizIndex,
                         totalQuestions = currentQuizzes.size,
+                        ownedCollectibles = ownedCollectibles,
+                        ownedCounts = shopState.ownedCounts,
+                        onUseCollectible = { item ->
+                            shopAction(ShopAction.UseItem(item))
+                        },
+                        onRequestSwap = {
+                            scope.launch {
+                                try {
+                                    // Fetch a pool of quizzes and pick one not in the current session
+                                    val sessionUids = currentQuizzes.map { it.uid }.toSet()
+                                    val pool = Repository.quizRepository.get()
+                                        .filter { !it.expired && it.uid !in sessionUids }
+                                    val replacement = pool.randomOrNull()
+                                    if (replacement != null) {
+                                        val newList = currentQuizzes.toMutableList()
+                                        newList[quizIndex] = replacement
+                                        currentQuizzes = newList
+                                    }
+                                } catch (_: Exception) {
+                                    // silently ignore; user still has choice to answer
+                                }
+                            }
+                        },
                         onAnswered = { answer, mark ->
                             if (answer != quiz.correctAnswer) {
                                 incorrectlyAnswered += 1
                             }
 
-                            sessionAction(SessionAction.UpdateScore(session.uid, mark))
                             quizAction(QuizAction.UpdateExpired(quiz.uid))
 
                             if (quizIndex >= currentQuizzes.lastIndex) {
+                                // Award 1-2 random collectibles as session-end reward
+                                shopAction(ShopAction.GrantRandom((1..2).random()))
+
+                                // Funnel the final mark through CompleteSession
+                                // so score, expiredAt, and achievements are
+                                // persisted atomically and in the right order.
                                 sessionAction(
-                                    SessionAction.UpdateTrophies(
-                                        session.uid,
-                                        incorrectlyAnswered
+                                    SessionAction.CompleteSession(
+                                        uid = session.uid,
+                                        finalMark = mark,
+                                        incorrectlyAnswered = incorrectlyAnswered
                                     )
                                 )
-                                sessionAction(SessionAction.EndSession(session.uid))
 
                                 sharedAction(
                                     SharedAction.Navigate(
@@ -204,6 +261,7 @@ fun Game(
                                     )
                                 )
                             } else {
+                                sessionAction(SessionAction.UpdateScore(session.uid, mark))
                                 quizIndex += 1
                             }
                         }
@@ -222,25 +280,72 @@ fun QuizCard(
     correctChoice: String? = null,
     questionIndex: Int = 0,
     totalQuestions: Int = 1,
+    ownedCollectibles: List<ShopItem> = emptyList(),
+    ownedCounts: Map<String, Int> = emptyMap(),
+    onUseCollectible: (ShopItem) -> Unit = {},
+    onRequestSwap: () -> Unit = {},
     onAnswered: (String, Int) -> Unit = { _, _ -> },
 ) {
     var answer by rememberSaveable(quiz.uid) { mutableStateOf("") }
     var enabled by rememberSaveable(quiz.uid) { mutableStateOf(true) }
     var answeredState by rememberSaveable(quiz.uid) { mutableStateOf(AnsweredState.IDLE) }
     var timer by rememberSaveable(quiz.uid) { mutableIntStateOf(Constants.DEFAULT_QUIZ_TIMER) }
+    // Choices eliminated by HINT power-up (stored as indices into `choices`)
+    var eliminatedChoices by rememberSaveable(quiz.uid) { mutableStateOf(setOf<String>()) }
+    // Per-question flags so each power-up can only be used once per question
+    var hintUsed by rememberSaveable(quiz.uid) { mutableStateOf(false) }
+    var timeUsed by rememberSaveable(quiz.uid) { mutableStateOf(false) }
+    var swapUsed by rememberSaveable(quiz.uid) { mutableStateOf(false) }
 
     val scrollState = rememberScrollState()
     val scope = rememberCoroutineScope()
 
+    // Tracks the SoundPool stream id of the most recent countdown tick so we
+    // can stop it before starting the next one. The supplied tick samples may
+    // be longer than 1 second, which would otherwise cause overlapping ticks
+    // to pile up, bleed across questions, and even survive into the PostGame
+    // screen.
+    var tickStreamId by remember(quiz.uid) { mutableIntStateOf(0) }
+
+    // Always silence any in-flight tick if this composable leaves the
+    // composition (e.g. user navigates to PostGame, Home, or rotates away).
+    DisposableEffect(quiz.uid) {
+        onDispose {
+            SoundManager.stop(tickStreamId)
+            tickStreamId = 0
+        }
+    }
+
     LaunchedEffect(answeredState) {
         when (answeredState) {
             AnsweredState.PICKED -> {
-                // Auto-scroll to reveal the confirm button
                 scope.launch { scrollState.animateScrollTo(scrollState.maxValue) }
             }
             AnsweredState.LOCKED -> {
+                // Stop any countdown tick the moment an answer is locked in
+                // (either by user confirm or timeout) so the result cue plays
+                // cleanly without the previous tick still ringing on top.
+                SoundManager.stop(tickStreamId)
+                tickStreamId = 0
+
+                // Result SFX:
+                //   • UNANSWERED — only when the timer ran out and the user
+                //     never picked any choice (`answer` stays at its initial
+                //     empty string in that path).
+                //   • CORRECT / WRONG — fired in every other LOCKED case
+                //     (user confirmed a pick, or timer expired after a pick
+                //     was made but not confirmed).
+                val isUnanswered = answer.isBlank()
+                val isCorrect = !isUnanswered && answer == correctChoice
+                SoundManager.play(
+                    when {
+                        isUnanswered -> Sound.ANSWER_UNANSWERED
+                        isCorrect -> Sound.ANSWER_CORRECT
+                        else -> Sound.ANSWER_WRONG
+                    }
+                )
                 delay(1500L)
-                onAnswered(answer, if (answer == correctChoice) quiz.mark!! else 0)
+                onAnswered(answer, if (isCorrect) quiz.mark!! else 0)
             }
             else -> Unit
         }
@@ -251,15 +356,30 @@ fun QuizCard(
             delay(1000L)
             if (answeredState != AnsweredState.LOCKED) {
                 timer -= 1
+                // Per-second tick. Switch to the intense variant once the
+                // remaining time has dropped into the "red" range (matches
+                // the timer-color threshold below). Stop the previous tick
+                // first so back-to-back longer samples don't overlap.
+                if (timer > 0) {
+                    val intense = timer < Constants.DEFAULT_QUIZ_TIMER / 6
+                    SoundManager.stop(tickStreamId)
+                    tickStreamId = SoundManager.play(
+                        if (intense) Sound.COUNTDOWN_TICK_INTENSE
+                        else Sound.COUNTDOWN_TICK
+                    )
+                }
             }
         }
+        // Final cleanup once the loop exits — answer-locked path goes through
+        // the LOCKED handler above, but this also covers any other exit.
+        SoundManager.stop(tickStreamId)
+        tickStreamId = 0
         if (timer <= 0 && answeredState != AnsweredState.LOCKED) {
             enabled = false
             answeredState = AnsweredState.LOCKED
         }
     }
 
-    // Timer color logic
     val timerColor = when (timer) {
         in Constants.DEFAULT_QUIZ_TIMER / 2..Constants.DEFAULT_QUIZ_TIMER ->
             MaterialTheme.colorScheme.primary
@@ -274,58 +394,96 @@ fun QuizCard(
     )
 
     val categoryImageRes = quiz.category.toCategoryImageRes()
-    val primaryColor = MaterialTheme.colorScheme.primary
-    val surfaceColor = MaterialTheme.colorScheme.surface
+    val surfaceColor = MaterialTheme.colorScheme.background
 
-    Card(
-        modifier = modifier.padding(16.dp),
-        shape = RoundedCornerShape(24.dp),
-        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+    // Centralised power-up handler — invoked from the bottom-overlay deck.
+    val useCollectible: (ShopItem) -> Unit = { item ->
+        when (item.type) {
+            ShopItemType.SKIP -> {
+                onUseCollectible(item)
+                onAnswered(correctChoice ?: "", quiz.mark ?: 0)
+            }
+            ShopItemType.TIME_BONUS -> {
+                if (!timeUsed) {
+                    timeUsed = true
+                    onUseCollectible(item)
+                    timer += 10
+                }
+            }
+            ShopItemType.HINT -> {
+                if (!hintUsed) {
+                    hintUsed = true
+                    onUseCollectible(item)
+                    val wrong = choices.filter { it != correctChoice }
+                    eliminatedChoices = wrong.shuffled().take(2).toSet()
+                }
+            }
+            ShopItemType.SWAP -> {
+                if (!swapUsed) {
+                    swapUsed = true
+                    onUseCollectible(item)
+                    onRequestSwap()
+                }
+            }
+        }
+    }
+
+    // ── Full-screen layout ──────────────────────────────────────────────────────
+    Box(
+        modifier = modifier
+            .fillMaxSize()
+            .background(surfaceColor)
     ) {
-        Column(
-            horizontalAlignment = Alignment.CenterHorizontally,
-            modifier = Modifier.verticalScroll(scrollState)
+        // ── Hero image — full width, top 42% of screen ──
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .fillMaxSize(0.42f)
         ) {
-
-            // ── Category banner image ──────────────────────────────────────
-            // Grayscale crop with a primary-tinted top gradient fading into the card surface,
-            // so it blends into the content beneath without a hard edge.
+            Image(
+                painter = painterResource(categoryImageRes),
+                contentDescription = null,
+                contentScale = ContentScale.Crop,
+                colorFilter = ColorFilter.colorMatrix(
+                    ColorMatrix().apply { setToSaturation(0.35f) }
+                ),
+                modifier = Modifier.fillMaxSize()
+            )
+            // Top-to-bottom gradient: translucent primary tint → transparent
             Box(
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .height(130.dp)
-            ) {
-                Image(
-                    painter = painterResource(categoryImageRes),
-                    contentDescription = null,
-                    contentScale = ContentScale.Crop,
-                    colorFilter = ColorFilter.colorMatrix(
-                        ColorMatrix().apply { setToSaturation(0f) }
-                    ),
-                    modifier = Modifier.fillMaxSize()
-                )
-                // Top-to-bottom: primary tint → transparent → card surface fade
-                Box(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .background(
-                            Brush.verticalGradient(
-                                0f to primaryColor.copy(alpha = 0.30f),
-                                0.45f to Color.Transparent,
-                                1f to surfaceColor.copy(alpha = 0.90f)
-                            )
+                    .fillMaxSize()
+                    .background(
+                        Brush.verticalGradient(
+                            0f to MaterialTheme.colorScheme.primary.copy(alpha = 0.25f),
+                            0.5f to Color.Transparent,
+                            1f to surfaceColor.copy(alpha = 0.85f)
                         )
-                )
-            }
+                    )
+            )
+        }
 
-            // ── Card body ──────────────────────────────────────────────────
+        // ── Scrollable content panel ────────────────────────────────────────────
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .verticalScroll(scrollState)
+        ) {
+            // Push content down below the image (slightly overlapping for seamless merge)
+            Spacer(Modifier.fillMaxWidth().height(200.dp))
+
+            // Content card — rounded top corners, sits on background
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally,
-                modifier = Modifier.padding(horizontal = 20.dp)
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clip(RoundedCornerShape(topStart = 32.dp, topEnd = 32.dp))
+                    .background(surfaceColor)
+                    .padding(horizontal = 20.dp)
             ) {
-                Spacer(Modifier.height(12.dp))
+                Spacer(Modifier.height(20.dp))
 
-                // ── Header row: category label + counter chip + circular timer ──
+                // ── Header row: category label + counter + timer ──
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     verticalAlignment = Alignment.CenterVertically,
@@ -380,7 +538,7 @@ fun QuizCard(
 
                 Spacer(Modifier.height(20.dp))
 
-                // ── Question text ──────────────────────────────────────────
+                // ── Question text ──
                 quiz.question?.let {
                     TextBig(
                         text = it,
@@ -396,35 +554,36 @@ fun QuizCard(
 
                 Spacer(Modifier.height(16.dp))
 
-                // ── Answer choices ─────────────────────────────────────────
+                // ── Answer choices ──
                 if (choices.isNotEmpty()) {
                     Column(
                         verticalArrangement = Arrangement.spacedBy(10.dp),
                         modifier = Modifier.fillMaxWidth()
                     ) {
                         choices.forEach { choice ->
-                            AnswerChoiceCard(
-                                text = choice,
-                                isSelected = answer == choice,
-                                isCorrect = correctChoice == choice,
-                                answeredState = answeredState,
-                                enabled = enabled || answer == choice || correctChoice == choice,
-                                showMark = answeredState == AnsweredState.LOCKED && correctChoice == choice,
-                                mark = quiz.mark ?: 0,
-                                wasAnswered = answer == choice,
-                                onClick = {
-                                    answer = choice
-                                    answeredState = AnsweredState.PICKED
-                                }
-                            )
+                            val eliminated = choice in eliminatedChoices
+                            if (!eliminated) {
+                                AnswerChoiceCard(
+                                    text = choice,
+                                    isSelected = answer == choice,
+                                    isCorrect = correctChoice == choice,
+                                    answeredState = answeredState,
+                                    enabled = enabled || answer == choice || correctChoice == choice,
+                                    showMark = answeredState == AnsweredState.LOCKED && correctChoice == choice,
+                                    mark = quiz.mark ?: 0,
+                                    wasAnswered = answer == choice,
+                                    onClick = {
+                                        answer = choice
+                                        answeredState = AnsweredState.PICKED
+                                    }
+                                )
+                            }
                         }
                     }
                     Spacer(Modifier.height(16.dp))
                 }
 
-                // ── Confirm / Next button — hidden until an answer is picked ──
-                // Mirrors the Language screen: slides up from the bottom the first time
-                // the user taps a choice; invisible (and takes no space) while IDLE.
+                // ── Confirm / Next button ──
                 AnimatedVisibility(
                     visible = answeredState != AnsweredState.IDLE,
                     enter = fadeIn(tween(250)) + slideInVertically(
@@ -458,10 +617,25 @@ fun QuizCard(
                             )
                         }
 
-                        Spacer(Modifier.height(12.dp))
+                        Spacer(Modifier.height(24.dp))
                     }
                 }
+
+                // Reserve extra bottom space so the bottom-overlay deck never
+                // hides the last answer choice while collapsed.
+                if (ownedCollectibles.isNotEmpty() && answeredState == AnsweredState.IDLE) {
+                    Spacer(Modifier.height(96.dp))
+                }
             }
+        }
+
+        // ── Bottom-anchored collectibles deck (overlay) ──
+        if (ownedCollectibles.isNotEmpty() && answeredState == AnsweredState.IDLE) {
+            CollectiblesDeck(
+                items = ownedCollectibles,
+                ownedCounts = ownedCounts,
+                onUse = useCollectible
+            )
         }
     }
 }
@@ -546,7 +720,7 @@ private fun AnswerChoiceCard(
             }
         }
 
-        // Score badge — pops out of the top-end corner of the correct answer card
+        // Score badge
         AnimatedVisibility(
             visible = showMark,
             enter = scaleIn(
@@ -579,8 +753,6 @@ private fun AnswerChoiceCard(
 }
 
 // ── Category name → image resource ────────────────────────────────────────────
-// Matches by keyword so it handles both short ("Film") and full ("Entertainment: Film")
-// category name strings without needing to decode categoryUid.
 @DrawableRes
 fun String?.toCategoryImageRes(): Int = when {
     this == null -> R.drawable.img_category_general
@@ -609,4 +781,246 @@ enum class AnsweredState {
     IDLE,
     PICKED,
     LOCKED
+}
+
+/**
+ * A bottom-anchored deck of stylised power-up cards. While collapsed the deck
+ * peeks out from the bottom of the screen with low opacity in a fanned stack;
+ * tapping any card expands the deck into a fan of full-information cards which
+ * the user can pick from. The expanded row is horizontally scrollable so all
+ * cards remain reachable on small screens. A tap on the scrim or a back-press
+ * collapses the deck without leaving the quiz.
+ */
+@Composable
+private fun BoxScope.CollectiblesDeck(
+    items: List<ShopItem>,
+    ownedCounts: Map<String, Int>,
+    onUse: (ShopItem) -> Unit,
+) {
+    var expanded by rememberSaveable { mutableStateOf(false) }
+
+    if (expanded) {
+        BackHandler { expanded = false }
+    }
+
+    val scrimAlpha by animateFloatAsState(
+        targetValue = if (expanded) 0.55f else 0f,
+        animationSpec = tween(durationMillis = 280),
+        label = "collectibles_scrim"
+    )
+
+    // Scrim — only intercepts touches when expanded.
+    if (expanded) {
+        Box(
+            modifier = Modifier
+                .matchParentSize()
+                .background(Color.Black.copy(alpha = scrimAlpha))
+                .clickable(
+                    interactionSource = remember { MutableInteractionSource() },
+                    indication = null
+                ) { SoundManager.play(Sound.TAP); expanded = false }
+        )
+    }
+
+    val collapsedHeight = 110.dp
+    val expandedHeight = 260.dp
+    val containerHeight by animateDpAsState(
+        targetValue = if (expanded) expandedHeight else collapsedHeight,
+        animationSpec = tween(durationMillis = 320),
+        label = "collectibles_height"
+    )
+
+    // Width of the inner card-canvas when expanded — a generous span so the
+    // last card never gets clipped on phones, with horizontal scroll picking
+    // up the slack on narrow displays. Collapsed simply fills the parent.
+    val expandedSpanDp = ((items.size + 1) * 140).dp
+    val scrollState = rememberScrollState()
+
+    // Centre the cards row inside the viewport on expand; reset on collapse so
+    // the next expansion animates from the same starting point.
+    LaunchedEffect(expanded) {
+        if (expanded) {
+            // Wait for the scroll container to be laid out (maxValue becomes
+            // > 0 once the wide inner canvas is measured), then jump to the
+            // middle so the spread is visually centred on screen.
+            snapshotFlow { scrollState.maxValue }.first { it > 0 }
+            scrollState.scrollTo(scrollState.maxValue / 2)
+        } else {
+            scrollState.scrollTo(0)
+        }
+    }
+
+    Box(
+        modifier = Modifier
+            .align(Alignment.BottomCenter)
+            .fillMaxWidth()
+            .height(containerHeight)
+    ) {
+        // Title strip — fixed at the top of the deck, NOT inside the scroll
+        // container, so it stays perfectly centred regardless of scroll
+        // position. Only rendered when expanded.
+        if (expanded) {
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                modifier = Modifier
+                    .align(Alignment.TopCenter)
+                    .fillMaxWidth()
+                    .padding(top = 6.dp)
+            ) {
+                Text(
+                    text = stringResource(R.string.collectibles_tray_title),
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold,
+                    color = Color.White
+                )
+                Text(
+                    text = stringResource(R.string.collectibles_use_hint),
+                    style = MaterialTheme.typography.labelSmall,
+                    color = Color.White.copy(alpha = 0.78f)
+                )
+            }
+        }
+
+        // Cards row — the only horizontally-scrollable element. Anchored to
+        // the bottom of the deck so the title can sit above it without
+        // overlap.
+        Box(
+            modifier = Modifier
+                .align(Alignment.BottomCenter)
+                .fillMaxWidth()
+                .height(180.dp)
+                .then(if (expanded) Modifier.horizontalScroll(scrollState) else Modifier)
+        ) {
+            // Inner canvas: fixed wide when expanded (so horizontalScroll has
+            // something to scroll), fills the parent when collapsed (so the
+            // fanned cards centre naturally on screen).
+            Box(
+                modifier = Modifier
+                    .fillMaxHeight()
+                    .then(
+                        if (expanded) Modifier.width(expandedSpanDp)
+                        else Modifier.fillMaxWidth()
+                    )
+            ) {
+                items.forEachIndexed { index, item ->
+                    val count = ownedCounts[item.id] ?: 0
+                    val centered = index - (items.size - 1) / 2f
+
+                    // Collapsed: cards stack into a fan close to the bottom
+                    // edge with a subtle horizontal spread + rotation.
+                    // Expanded: they spread out evenly across the (scrollable)
+                    // wide canvas.
+                    val targetX = if (expanded) (centered * 140f).dp else (centered * 18f).dp
+                    val absCentered = if (centered < 0f) -centered else centered
+                    val targetY = if (expanded) 0.dp else (absCentered * 4f).dp
+                    val targetRot = if (expanded) 0f else centered * 6f
+                    val targetAlpha = if (expanded) 1f else 0.55f
+                    val targetScale = if (expanded) 1f else 0.78f
+
+                    val animX by animateDpAsState(targetX, tween(320), label = "card_x_$index")
+                    val animY by animateDpAsState(targetY, tween(320), label = "card_y_$index")
+                    val animRot by animateFloatAsState(targetRot, tween(320), label = "card_rot_$index")
+                    val animAlpha by animateFloatAsState(targetAlpha, tween(320), label = "card_alpha_$index")
+                    val animScale by animateFloatAsState(targetScale, tween(320), label = "card_scale_$index")
+
+                    CollectibleBigCard(
+                        item = item,
+                        count = count,
+                        onClick = {
+                            if (expanded) {
+                                onUse(item)
+                                expanded = false
+                            } else {
+                                expanded = true
+                            }
+                        },
+                        modifier = Modifier
+                            .align(Alignment.BottomCenter)
+                            .offset { IntOffset(animX.roundToPx(), animY.roundToPx()) }
+                            .graphicsLayer {
+                                rotationZ = animRot
+                                alpha = animAlpha
+                                scaleX = animScale
+                                scaleY = animScale
+                            }
+                    )
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun CollectibleBigCard(
+    item: ShopItem,
+    count: Int,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    val interactionSource = remember { MutableInteractionSource() }
+    Box(
+        modifier = modifier
+            .size(width = 124.dp, height = 168.dp)
+            .scaleDownOnPress(0.95f, interactionSource)
+            .clip(RoundedCornerShape(16.dp))
+            .background(
+                brush = Brush.linearGradient(
+                    listOf(
+                        Indigo600,
+                        Indigo600.copy(alpha = 0.78f)
+                    )
+                )
+            )
+            .clickable(
+                interactionSource = interactionSource,
+                indication = androidx.compose.foundation.LocalIndication.current,
+                onClick = withTap(onClick)
+            )
+            .padding(12.dp)
+    ) {
+        Column(
+            modifier = Modifier.fillMaxSize(),
+            verticalArrangement = Arrangement.SpaceBetween
+        ) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.Top
+            ) {
+                Text(text = item.icon, fontSize = 28.sp)
+                Box(
+                    modifier = Modifier
+                        .background(Color.White.copy(alpha = 0.22f), CircleShape)
+                        .padding(horizontal = 8.dp, vertical = 3.dp)
+                ) {
+                    Text(
+                        text = "x$count",
+                        style = MaterialTheme.typography.labelSmall,
+                        fontWeight = FontWeight.Bold,
+                        color = Color.White
+                    )
+                }
+            }
+            Column {
+                Text(
+                    text = stringResource(item.nameRes),
+                    style = MaterialTheme.typography.titleSmall,
+                    fontWeight = FontWeight.Bold,
+                    color = Color.White,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
+                Spacer(Modifier.height(2.dp))
+                Text(
+                    text = stringResource(item.descRes),
+                    style = MaterialTheme.typography.labelSmall,
+                    color = Color.White.copy(alpha = 0.85f),
+                    maxLines = 4,
+                    overflow = TextOverflow.Ellipsis,
+                    fontSize = 9.sp,
+                    lineHeight = 12.sp
+                )
+            }
+        }
+    }
 }

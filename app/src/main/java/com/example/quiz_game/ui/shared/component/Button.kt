@@ -37,6 +37,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.quiz_game.R
+import com.example.quiz_game.other.withTap
 import com.example.quiz_game.ui.activity.main.destination.AnsweredState
 import com.example.quiz_game.ui.shared.effect.alphaOutOnPress
 import com.example.quiz_game.ui.shared.effect.bounceOnPress
@@ -54,7 +55,7 @@ fun ButtonFancy(
     val interactionSource = remember { MutableInteractionSource() }
 
     Surface(
-        onClick = onClick,
+        onClick = withTap(onClick),
         enabled = enabled,
         shape = RoundedCornerShape(50),
         color = if (enabled) Color(0xFFFECE44) else Color.LightGray,
@@ -93,7 +94,7 @@ fun ButtonPrimary(
     val interactionSource = remember { MutableInteractionSource() }
 
     Button(
-        onClick = onClick,
+        onClick = withTap(onClick),
         enabled = enabled,
         shape = RoundedCornerShape(50),
         colors = ButtonDefaults.buttonColors(
@@ -136,7 +137,7 @@ fun ButtonSecondary(
     val interactionSource = remember { MutableInteractionSource() }
 
     TextButton(
-        onClick,
+        withTap(onClick),
         enabled = enabled,
         colors = ButtonDefaults.textButtonColors(
             contentColor = MaterialTheme.colorScheme.outline
@@ -171,7 +172,7 @@ fun ButtonDanger(
     val interactionSource = remember { MutableInteractionSource() }
 
     Button(
-        onClick = onClick,
+        onClick = withTap(onClick),
         enabled = enabled,
         shape = RoundedCornerShape(10.dp),
         colors = ButtonDefaults.buttonColors(
@@ -227,7 +228,7 @@ fun ButtonGameChoices(
                 enabled = enabled,
                 interactionSource = interactionSource,
                 indication = null,
-                onClick = onClick
+                onClick = withTap(onClick)
             ),
         headlineContent = {
             content()

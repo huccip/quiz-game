@@ -119,6 +119,10 @@
     <string name="postgame_score_label">النتيجة</string>
     <string name="postgame_achievements_title">الإنجازات</string>
     <string name="postgame_achievements_empty">لا إنجازات هذه الجلسة. استمر في اللعب!</string>
+    <string name="achievements_dialog_title">الجوائز المفتوحة</string>
+    <string name="achievements_dialog_empty">لا توجد جوائز بعد. أنهِ جلسة لتبدأ مجموعتك!</string>
+    <string name="achievements_first_unlocked_prefix">فُتح لأول مرة %1$s</string>
+    <string name="achievement_popup_title">تم فتح إنجاز</string>
 
     <!-- Guide Screen -->
     <string name="guide_welcome_title">مرحباً بك في لعبة الاختبار!</string>
@@ -209,6 +213,17 @@
     <string name="connectivity_online">أنت متصل بالإنترنت الآن!</string>
 
     <string name="onboard_guide_continue">المتابعة</string>
+    <string name="onboard_guide_title">كل شيء جاهز!</string>
+    <string name="onboard_guide_subtitle">جولة سريعة على ما يمكنك فعله.</string>
+    <string name="onboard_guide_tip_play_title">اختر فئة، والعب جولة</string>
+    <string name="onboard_guide_tip_play_body">تصفح المواضيع أو ابدأ اختباراً مميزاً مباشرةً من الشاشة الرئيسية.</string>
+    <string name="onboard_guide_tip_coins_title">اكسب العملات أثناء الإجابة</string>
+    <string name="onboard_guide_tip_coins_body">تكافأ الإجابات الصحيحة بالعملات. أنفقها في المتجر على المعززات.</string>
+    <string name="onboard_guide_tip_trophies_title">اجمع الجوائز والأرقام القياسية</string>
+    <string name="onboard_guide_tip_trophies_body">أنهِ الجلسات لفتح الإنجازات وتحطيم رقمك القياسي.</string>
+    <string name="onboard_guide_tip_daily_title">لا تفوّت تحدي اليوم</string>
+    <string name="onboard_guide_tip_daily_body">يصدر تحدٍّ جديد كل يوم على الشاشة الرئيسية &#8212; حافظ على سلسلتك.</string>
+    <string name="onboard_guide_cta">هيا نلعب</string>
     <string name="postgame_player_fallback">لاعب #0000</string>
 
     <string name="home_title_resume_journey">استكمال الرحلة</string>
@@ -254,4 +269,71 @@
     <string name="browse_no_results">لا توجد نتائج لـ \"%s\"</string>
     <string name="browse_resume_title">لديك اختبار نشط!</string>
     <string name="browse_resume_button">استئناف</string>
+
+    <!-- Home redesign -->
+    <string name="home_greeting_tagline_morning">مستعد لتسخين عقلك؟</string>
+    <string name="home_greeting_tagline_afternoon">هل لديك دقيقة لتحدٍّ سريع؟</string>
+    <string name="home_greeting_tagline_evening">حان وقت الاسترخاء مع بضعة أسئلة.</string>
+    <string name="home_stat_streak">يوم متواصل</string>
+    <string name="home_stat_streak_one">يوم متواصل</string>
+    <string name="home_stat_best">أفضل نتيجة</string>
+    <string name="home_stat_played">اختبارات لُعبت</string>
+    <string name="home_action_continue">متابعة</string>
+    <string name="home_action_continue_subtitle">تابع من حيث توقفت</string>
+    <string name="home_action_start_new">ابدأ لعبة جديدة</string>
+    <string name="home_daily_challenge_label">تحدي اليوم</string>
+    <string name="home_daily_challenge_sub">موضوع جديد كل يوم</string>
+    <string name="home_quick_random">اختبار عشوائي</string>
+    <string name="home_quick_random_sub">فاجئني</string>
+    <string name="home_quick_browse">تصفح المواضيع</string>
+    <string name="home_quick_browse_sub">عرض كل الفئات</string>
+
+    <!-- Shop -->
+    <string name="shop_title">متجر المعززات</string>
+    <string name="shop_subtitle">أنفق العملات لتحصل على ميزة في اختبارك القادم</string>
+    <string name="shop_section_items">العناصر المتاحة</string>
+    <string name="shop_item_skip_name">تخطي السؤال</string>
+    <string name="shop_item_skip_desc">تخطَّ سؤالاً صعباً دون عقوبة</string>
+    <string name="shop_item_time_name">+10 ثوانٍ</string>
+    <string name="shop_item_time_desc">أضف 10 ثوانٍ إضافية إلى المؤقت</string>
+    <string name="shop_item_swap_name">استبدال السؤال</string>
+    <string name="shop_item_swap_desc">استبدل السؤال الحالي بآخر جديد</string>
+    <string name="shop_item_hint_name">بطاقة تلميح</string>
+    <string name="shop_item_hint_desc">احذف إجابتين خاطئتين من الخيارات</string>
+    <string name="shop_buy_button">شراء</string>
+    <string name="shop_sell_button">بيع</string>
+    <string name="shop_owned_label">المملوكة: %d</string>
+    <string name="shop_not_enough_coins">العملات غير كافية!</string>
+    <string name="shop_purchase_success">تم الشراء!</string>
+    <string name="shop_sold_success">بيع مقابل %d عملة</string>
+    <string name="shop_sell_price_label">البيع: %d</string>
+    <string name="shop_banner_title">متجر المعززات</string>
+    <string name="shop_banner_subtitle">اشترِ بطاقات مساعدة لتعزيز لعبتك</string>
+    <string name="shop_banner_cta">افتح المتجر</string>
+    <string name="shop_your_balance">رصيدك</string>
+
+    <!-- Collectibles in-game tray + rewards -->
+    <string name="collectibles_tray_title">المعززات</string>
+    <string name="collectibles_use_hint">اضغط للاستخدام</string>
+    <string name="collectibles_empty_tray">لا توجد معززات — اربحها أو اشترِها!</string>
+    <string name="collectibles_reward_title">حصلت على %d من المعززات!</string>
+    <string name="collectibles_reward_subtitle">أُضيفت إلى مخزونك</string>
+    <string name="collectibles_hint_applied">تمت إزالة إجابتين خاطئتين</string>
+    <string name="collectibles_time_applied">أضيفت +10 ثوانٍ</string>
+    <string name="collectibles_swap_applied">جارٍ استبدال السؤال…</string>
+    <string name="collectibles_skip_applied">تم تخطي السؤال</string>
+
+    <!-- Settings dropdown -->
+    <string name="settings_menu_language">اللغة</string>
+    <string name="settings_menu_about">حول</string>
+    <string name="settings_menu_privacy">سياسة الخصوصية</string>
+    <string name="settings_menu_terms">شروط الاستخدام</string>
+    <string name="settings_about_title">حول لعبة الاختبار</string>
+    <string name="settings_about_body">لعبة الاختبار تطبيق ترفيهي مصمم لاختبار معرفتك في مئات الفئات. أجب عن الأسئلة، اكسب العملات، وافتح المعززات. حظاً موفقاً!</string>
+    <string name="settings_legal_coming_soon">سيتوفر هذا المستند في تحديث مستقبلي.</string>
+    <string name="settings_ok">حسناً</string>
+
+    <!-- Browse redesign -->
+    <string name="browse_title">تصفح المواضيع</string>
+    <string name="browse_subtitle">اعثر على الفئة المناسبة لك</string>
 </resources>

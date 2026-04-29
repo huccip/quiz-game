@@ -35,6 +35,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.quiz_game.R
+import com.example.quiz_game.other.withTap
 import com.example.quiz_game.ui.shared.effect.scaleDownOnPress
 import com.example.quiz_game.ui.theme.Indigo50
 import com.example.quiz_game.ui.theme.Indigo100
@@ -59,7 +60,7 @@ fun CardSelectable(
     val containerColor = if (selected) selectionColor else color
 
     OutlinedCard(
-        onClick = { onSelect() },
+        onClick = withTap(onSelect),
         shape = RoundedCornerShape(16.dp),
         border = BorderStroke(
             width = if (selected) 2.dp else 1.dp,
@@ -163,7 +164,7 @@ fun CardClickable(
                 scaleRatio = .9f,
                 interactionSource = interactionSource
             ),
-        onClick = onClick,
+        onClick = withTap(onClick),
         interactionSource = interactionSource,
         colors =
             CardDefaults.cardColors(

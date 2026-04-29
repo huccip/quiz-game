@@ -122,6 +122,10 @@
     <string name="postgame_score_label">Score</string>
     <string name="postgame_achievements_title">Achievements</string>
     <string name="postgame_achievements_empty">No achievements this session. Keep playing!</string>
+    <string name="achievements_dialog_title">Trophies Unlocked</string>
+    <string name="achievements_dialog_empty">No trophies yet. Finish a session to start your collection!</string>
+    <string name="achievements_first_unlocked_prefix">First unlocked %1$s</string>
+    <string name="achievement_popup_title">Achievement Unlocked</string>
 
     <!-- Guide Screen -->
     <string name="guide_welcome_title">Welcome to Quiz Game!</string>
@@ -210,6 +214,17 @@
     <string name="connectivity_online">You\'re back online!</string>
 
     <string name="onboard_guide_continue">Continue</string>
+    <string name="onboard_guide_title">You\'re all set!</string>
+    <string name="onboard_guide_subtitle">Here\'s a quick tour of what you can do.</string>
+    <string name="onboard_guide_tip_play_title">Pick a category, play a round</string>
+    <string name="onboard_guide_tip_play_body">Browse topics or jump into a featured quiz from the home screen.</string>
+    <string name="onboard_guide_tip_coins_title">Earn coins as you answer</string>
+    <string name="onboard_guide_tip_coins_body">Correct answers reward coins. Spend them in the shop on power-ups.</string>
+    <string name="onboard_guide_tip_trophies_title">Collect trophies and records</string>
+    <string name="onboard_guide_tip_trophies_body">Finish sessions to unlock achievements and beat your best score.</string>
+    <string name="onboard_guide_tip_daily_title">Don\'t miss the daily challenge</string>
+    <string name="onboard_guide_tip_daily_body">A fresh challenge drops on the home screen every day &#8212; keep your streak alive.</string>
+    <string name="onboard_guide_cta">Let\'s play</string>
     <string name="postgame_player_fallback">Player #0000</string>
 
     <string name="home_title_resume_journey">Resume Journey</string>
@@ -273,4 +288,53 @@
     <string name="browse_no_results">No results for \"%s\"</string>
     <string name="browse_resume_title">You have an active quiz!</string>
     <string name="browse_resume_button">Resume</string>
+
+    <!-- Shop -->
+    <string name="shop_title">Power-Up Shop</string>
+    <string name="shop_subtitle">Spend coins to gain an edge in your next quiz</string>
+    <string name="shop_section_items">Available Items</string>
+    <string name="shop_item_skip_name">Skip Question</string>
+    <string name="shop_item_skip_desc">Skip a tricky question without penalty</string>
+    <string name="shop_item_time_name">+10 Seconds</string>
+    <string name="shop_item_time_desc">Add 10 extra seconds to the timer</string>
+    <string name="shop_item_swap_name">Question Swap</string>
+    <string name="shop_item_swap_desc">Swap the current question for a new one</string>
+    <string name="shop_item_hint_name">Hint Card</string>
+    <string name="shop_item_hint_desc">Eliminate two wrong answers from the choices</string>
+    <string name="shop_buy_button">Buy</string>
+    <string name="shop_sell_button">Sell</string>
+    <string name="shop_owned_label">Owned: %d</string>
+    <string name="shop_not_enough_coins">Not enough coins!</string>
+    <string name="shop_purchase_success">Purchased!</string>
+    <string name="shop_sold_success">Sold for %d coins</string>
+    <string name="shop_sell_price_label">Sell: %d</string>
+    <string name="shop_banner_title">Power-Up Shop</string>
+    <string name="shop_banner_subtitle">Buy utility cards to boost your quiz game</string>
+    <string name="shop_banner_cta">Open Shop</string>
+    <string name="shop_your_balance">Your balance</string>
+
+    <!-- Collectibles in-game tray + rewards -->
+    <string name="collectibles_tray_title">Power-Ups</string>
+    <string name="collectibles_use_hint">Tap to use</string>
+    <string name="collectibles_empty_tray">No power-ups — earn or buy some!</string>
+    <string name="collectibles_reward_title">You earned %d power-up(s)!</string>
+    <string name="collectibles_reward_subtitle">Added to your inventory</string>
+    <string name="collectibles_hint_applied">Two wrong answers removed</string>
+    <string name="collectibles_time_applied">+10 seconds added</string>
+    <string name="collectibles_swap_applied">Swapping question…</string>
+    <string name="collectibles_skip_applied">Question skipped</string>
+
+    <!-- Settings dropdown -->
+    <string name="settings_menu_language">Language</string>
+    <string name="settings_menu_about">About</string>
+    <string name="settings_menu_privacy">Privacy Policy</string>
+    <string name="settings_menu_terms">Terms of Use</string>
+    <string name="settings_about_title">About Quiz Game</string>
+    <string name="settings_about_body">Quiz Game is a trivia app built to test your knowledge across hundreds of categories. Answer questions, earn coins, and unlock power-ups. Good luck!</string>
+    <string name="settings_legal_coming_soon">This document will be available in a future update.</string>
+    <string name="settings_ok">OK</string>
+
+    <!-- Browse redesign -->
+    <string name="browse_title">Browse Topics</string>
+    <string name="browse_subtitle">Find the perfect category for you</string>
 </resources>

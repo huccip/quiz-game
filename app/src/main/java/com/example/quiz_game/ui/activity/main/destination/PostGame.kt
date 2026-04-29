@@ -7,10 +7,15 @@ import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -58,7 +63,10 @@ import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.example.quiz_game.App
 import com.example.quiz_game.R
+import com.example.quiz_game.other.Sound
+import com.example.quiz_game.other.SoundManager
 import com.example.quiz_game.other.Utils.achievementIcon
+import com.example.quiz_game.other.withTap
 import com.example.quiz_game.ui.activity.main.MainDestination
 import com.example.quiz_game.ui.shared.component.ButtonPrimary
 import com.example.quiz_game.ui.shared.component.IconButton
@@ -75,6 +83,8 @@ import com.example.quiz_game.ui.viewmodel.QuizState
 import com.example.quiz_game.ui.viewmodel.SessionAction
 import com.example.quiz_game.ui.viewmodel.SessionState
 import com.example.quiz_game.ui.viewmodel.SharedAction
+import com.example.quiz_game.ui.viewmodel.ShopAction
+import com.example.quiz_game.ui.viewmodel.ShopState
 import kotlinx.coroutines.delay
 import kotlin.math.roundToInt
 import kotlin.random.Random
@@ -91,6 +101,8 @@ fun PostGame(
     quizState: QuizState = QuizState(),
     sessionState: SessionState = SessionState(),
     sessionAction: (SessionAction) -> Unit = {},
+    shopState: ShopState = ShopState(),
+    shopAction: (ShopAction) -> Unit = {},
     navController: NavController = rememberNavController()
 ) {
     val sweepAngle = remember { Animatable(0f) }
@@ -158,15 +170,23 @@ fun PostGame(
                 ((score.toFloat().coerceAtLeast(0f) / maxScore.toFloat()) * 360f)
                     .coerceIn(0f, 360f)
             } else 0f
-        sweepAngle.animateTo(
-            target,
-            animationSpec = tween(durationMillis = 1500, easing = FastOutSlowInEasing)
-        )
+        // Looping "counting up" tone that plays for the duration of the
+        // sweep animation, then is stopped once the arc finishes.
+        val streamId = SoundManager.playLooped(Sound.POSTGAME_PROGRESS)
+        try {
+            sweepAngle.animateTo(
+                target,
+                animationSpec = tween(durationMillis = 1500, easing = FastOutSlowInEasing)
+            )
+        } finally {
+            SoundManager.stop(streamId)
+        }
     }
 
+    Box(modifier = modifier.fillMaxSize()) {
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
-        modifier = modifier
+        modifier = Modifier
             .fillMaxSize()
             .verticalScroll(rememberScrollState())
     ) {
@@ -272,39 +292,59 @@ fun PostGame(
         ) {
             Spacer(modifier = Modifier.height(24.dp))
 
-            LayoutSectionHeadline(
-                leadingIcon = R.drawable.ic_new_record,
-                title = stringResource(R.string.postgame_achievements_title)
-            )
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            if (achievements.isEmpty()) {
+            // ── Earned collectibles reward card ──
+            val granted = shopState.lastGranted
+            if (granted.isNotEmpty()) {
                 Card(
                     modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(16.dp),
+                    shape = RoundedCornerShape(20.dp),
+                    elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
                     colors = CardDefaults.cardColors(
-                        containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.6f)
+                        containerColor = Indigo100.copy(alpha = 0.55f)
                     )
                 ) {
-                    TextSmol(
-                        text = stringResource(R.string.postgame_achievements_empty),
-                        textAlign = TextAlign.Center,
+                    Column(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(vertical = 24.dp, horizontal = 16.dp)
-                    )
-                }
-            } else {
-                Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
-                    achievements.forEachIndexed { index, achievement ->
-                        AchievementCard(
-                            achievement = achievement,
-                            revealDelayMs = index * 120L
+                            .padding(horizontal = 18.dp, vertical = 16.dp)
+                    ) {
+                        TextBig(
+                            text = stringResource(R.string.collectibles_reward_title, granted.size),
+                            fontWeight = FontWeight.Bold
                         )
+                        Spacer(Modifier.height(4.dp))
+                        TextBerySmol(
+                            text = stringResource(R.string.collectibles_reward_subtitle),
+                            color = MaterialTheme.colorScheme.outline
+                        )
+                        Spacer(Modifier.height(12.dp))
+                        Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                            granted.forEach { item ->
+                                Box(
+                                    modifier = Modifier
+                                        .size(48.dp)
+                                        .clip(RoundedCornerShape(14.dp))
+                                        .background(MaterialTheme.colorScheme.surface),
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    androidx.compose.material3.Text(
+                                        text = item.icon,
+                                        fontSize = 24.sp
+                                    )
+                                }
+                            }
+                        }
                     }
                 }
+                Spacer(modifier = Modifier.height(20.dp))
+                // Note: granted collectibles intentionally remain visible for
+                // the entire visit to PostGame — the user explicitly requested
+                // a permanent reward summary instead of a fleeting toast.
             }
+
+            // Achievements are revealed exclusively via the Steam-style popup
+            // overlay rendered at the top of the screen — no in-page section
+            // here on purpose.
 
             Spacer(modifier = Modifier.height(32.dp))
 
@@ -324,6 +364,15 @@ fun PostGame(
 
             Spacer(modifier = Modifier.height(24.dp))
         }
+    }
+
+        // ── Steam-style achievement popups (overlay) ────────────────────────
+        AchievementPopupHost(
+            achievements = achievements,
+            modifier = Modifier
+                .align(Alignment.TopCenter)
+                .padding(top = 12.dp, start = 16.dp, end = 16.dp)
+        )
     }
 }
 
@@ -402,6 +451,188 @@ private fun ScatteredCategoryChip(
             lineHeight = 11.sp,
             modifier = Modifier.width(sizeDp.dp + 16.dp)
         )
+    }
+}
+
+@Composable
+private fun AchievementRecapRow(
+    modifier: Modifier = Modifier,
+    achievement: Int,
+) {
+    val (iconRes, descriptionRes) = achievementIcon(achievement)
+    Card(
+        modifier = modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(16.dp),
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surface
+        ),
+        border = BorderStroke(
+            width = 1.dp,
+            color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.6f)
+        )
+    ) {
+        Row(
+            modifier = Modifier
+                .padding(14.dp)
+                .fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Box(
+                modifier = Modifier
+                    .size(48.dp)
+                    .clip(RoundedCornerShape(12.dp))
+                    .background(Indigo100.copy(alpha = 0.6f)),
+                contentAlignment = Alignment.Center
+            ) {
+                IconButton(
+                    painter = painterResource(id = iconRes),
+                    contentDescription = stringResource(descriptionRes),
+                    style = MaterialTheme.typography.titleLarge,
+                    tint = Indigo600
+                )
+            }
+            Spacer(modifier = Modifier.width(14.dp))
+            Column(modifier = Modifier.weight(1f)) {
+                TextBig(
+                    text = stringResource(achievement),
+                    fontWeight = FontWeight.SemiBold
+                )
+                Spacer(modifier = Modifier.height(2.dp))
+                TextBerySmol(
+                    text = stringResource(descriptionRes),
+                    color = MaterialTheme.colorScheme.outline
+                )
+            }
+        }
+    }
+}
+
+/**
+ * Steam-style achievement popup host. Plays an animated, dismissable popup for
+ * each unlocked achievement in [achievements], one at a time, reveling them
+ * shortly after the screen enters and auto-dismissing each after a short
+ * window. Tapping a popup dismisses it immediately.
+ */
+@Composable
+private fun AchievementPopupHost(
+    achievements: List<Int>,
+    modifier: Modifier = Modifier,
+    perPopupDurationMs: Long = 3500L,
+    initialDelayMs: Long = 600L,
+) {
+    if (achievements.isEmpty()) return
+    var currentIndex by remember(achievements) { mutableStateOf(0) }
+    var showing by remember(achievements) { mutableStateOf(false) }
+
+    LaunchedEffect(achievements) {
+        delay(initialDelayMs)
+        while (currentIndex < achievements.size) {
+            // Steam-style "ding" right as each popup slides in.
+            SoundManager.play(Sound.ACHIEVEMENT_POPUP)
+            showing = true
+            delay(perPopupDurationMs)
+            showing = false
+            delay(220L) // exit animation room
+            currentIndex += 1
+        }
+    }
+
+    val current = achievements.getOrNull(currentIndex)
+
+    Box(modifier = modifier) {
+        androidx.compose.animation.AnimatedVisibility(
+            visible = showing && current != null,
+            enter = slideInVertically(
+                animationSpec = tween(durationMillis = 280, easing = FastOutSlowInEasing),
+                initialOffsetY = { -it }
+            ) + fadeIn(tween(220)),
+            exit = slideOutVertically(
+                animationSpec = tween(durationMillis = 220, easing = FastOutSlowInEasing),
+                targetOffsetY = { -it / 2 }
+            ) + fadeOut(tween(180))
+        ) {
+            current?.let {
+                AchievementPopup(
+                    achievement = it,
+                    onDismiss = { showing = false }
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun AchievementPopup(
+    achievement: Int,
+    onDismiss: () -> Unit,
+) {
+    val (iconRes, descriptionRes) = achievementIcon(achievement)
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable(
+                interactionSource = remember { androidx.compose.foundation.interaction.MutableInteractionSource() },
+                indication = null,
+                onClick = withTap(onDismiss)
+            ),
+        shape = RoundedCornerShape(14.dp),
+        elevation = CardDefaults.cardElevation(defaultElevation = 6.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surface
+        ),
+        border = BorderStroke(
+            width = 1.dp,
+            color = Indigo600.copy(alpha = 0.45f)
+        )
+    ) {
+        Row(
+            modifier = Modifier
+                .padding(horizontal = 12.dp, vertical = 10.dp)
+                .fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Box(
+                modifier = Modifier
+                    .size(46.dp)
+                    .clip(RoundedCornerShape(12.dp))
+                    .background(
+                        Brush.linearGradient(
+                            listOf(Indigo600, Indigo600.copy(alpha = 0.75f))
+                        )
+                    ),
+                contentAlignment = Alignment.Center
+            ) {
+                IconButton(
+                    painter = painterResource(id = iconRes),
+                    contentDescription = stringResource(descriptionRes),
+                    style = MaterialTheme.typography.titleLarge,
+                    tint = Color.White
+                )
+            }
+            Spacer(modifier = Modifier.width(12.dp))
+            Column(modifier = Modifier.weight(1f)) {
+                androidx.compose.material3.Text(
+                    text = stringResource(R.string.achievement_popup_title),
+                    style = MaterialTheme.typography.labelSmall,
+                    color = Indigo600,
+                    fontWeight = FontWeight.Bold
+                )
+                Spacer(modifier = Modifier.height(2.dp))
+                androidx.compose.material3.Text(
+                    text = stringResource(achievement),
+                    style = MaterialTheme.typography.titleSmall,
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.onSurface
+                )
+                androidx.compose.material3.Text(
+                    text = stringResource(descriptionRes),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    maxLines = 2
+                )
+            }
+        }
     }
 }
 

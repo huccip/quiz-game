@@ -9,6 +9,7 @@ import com.example.quiz_game.data.Database
 import com.example.quiz_game.data.quote.Quote
 import com.example.quiz_game.data.user.User
 import com.example.quiz_game.other.LocaleHelper
+import com.example.quiz_game.other.SoundManager
 import com.example.quiz_game.other.Utils
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -59,10 +60,13 @@ class App : Application() {
                 commit()
             }
         }
+
+        SoundManager.init(this)
     }
 
     override fun onTerminate() {
         super.onTerminate()
+        SoundManager.release()
         ioScope.cancel("The application was terminated and the ioScope is cancelled")
     }
 

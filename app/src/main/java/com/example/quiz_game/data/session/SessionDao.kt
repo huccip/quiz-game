@@ -32,7 +32,7 @@ interface SessionDao {
     fun updateMaxScore(uid: String, maxScore: Int)
 
     @Query("UPDATE sessions SET achievements = :achievements WHERE uid = :uid")
-    fun updateAchievements(uid: String, achievements: List<String>)
+    fun updateAchievements(uid: String, achievements: List<Int>)
 
     @Query("UPDATE sessions SET createdAt = :startedAt WHERE uid = :uid")
     fun updateCreatedAt(uid: String, startedAt: Long)

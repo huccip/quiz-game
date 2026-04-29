@@ -1,0 +1,337 @@
+<resources>
+    <string name="app_name">Quiz-game</string>
+
+    <string name="textfield_placeholder_default">Tape ici…</string>
+    <string name="textfield_label_default" />
+
+    <string name="onboard_form_loading_subject">Configuration de votre langue</string>
+    <string name="onboard_form_greet">Salut %s,</string>
+    <string name="onboard_form_question">Prêt pour une aventure inoubliable ?</string>
+    <string name="onboard_form_submit">Oui, je suis prêt</string>
+    <string name="onboard_form_error_translator">Une erreur s\'est produite lors de la configuration de votre langue</string>
+    <string name="onboard_form_error_button">Réessayer</string>
+
+    <string name="onboard_name_label">Pseudo</string>
+    <string name="onboard_name_placeholder">Comment doit-on t\'appeler</string>
+    <string name="onboard_name_textfield_max_characters">Le pseudo doit faire moins de 10 caractères</string>
+    <string name="onboard_name_textfield_min_characters">Le pseudo doit faire au moins 4 caractères</string>
+    <string name="onboard_name_textfield_unallowed_characters">Le pseudo ne peut contenir que des lettres et des chiffres</string>
+    <string name="onboard_avatar_label">Avatar</string>
+    <string name="onboard_avatar_hint">Choisis ton héros et c\'est parti 🔥</string>
+    <string name="onboard_button_letsgo">C\'est parti !</string>
+
+    <string name="onboard_language_next_button">Continuer</string>
+    <string name="onboard_language_welcome_title">Bienvenue !</string>
+    <string name="onboard_language_subtitle">Choisis une langue pour commencer</string>
+    <string name="onboard_language_no_internet_warning_positive_button">Oui, continuer</string>
+    <string name="onboard_language_no_internet_warning_negative_button">Annuler</string>
+    <string name="onboard_language_no_wifi_warning_positive_button">Oui, utiliser les données mobiles</string>
+    <string name="onboard_language_no_wifi_warning_negative_button">Non</string>
+
+    <string name="onboard_language_no_internet_warning_message">Pas de connexion internet. Souhaitez-vous continuer sans configurer votre langue préférée.</string>
+    <string name="onboard_language_no_wifi_warning_message">Vous n\'êtes pas connecté au Wi-Fi. Voulez-vous continuer en données mobiles ?</string>
+
+    <string name="onboard_language_downloading">Téléchargement du modèle de langue…</string>
+    <string name="onboard_language_slow_download">Téléchargement en cours, restez connecté…</string>
+    <string name="onboard_language_restarting">Application de la langue, redémarrage…</string>
+    <string name="onboard_language_download_failed">Échec du téléchargement. Vérifiez votre connexion.</string>
+    <string name="onboard_language_auto_retry">Nouvelle tentative automatique au retour de la connexion…</string>
+    <string name="onboard_language_internet_lost">Connexion internet perdue. Téléchargement interrompu.</string>
+    <string name="onboard_language_continue_without">Continuer sans traduction</string>
+    <string name="onboard_language_offline_title">Vous êtes hors ligne</string>
+    <string name="onboard_language_offline_body">Le modèle de traduction nécessite un téléchargement. Connectez-vous à internet, ou continuez sans traduction — il se téléchargera plus tard automatiquement.</string>
+    <string name="onboard_language_back_online_title">Vous êtes de retour en ligne !</string>
+    <string name="onboard_language_back_online_body">Démarrage du téléchargement…</string>
+    <string name="network_recovery_retry_action">Réessayer</string>
+
+    <string name="main_game_answer_state_idle">En attente…</string>
+    <string name="main_game_answer_state_picked">Confirmer la réponse</string>
+    <string name="main_game_answer_state_locked">Question suivante</string>
+
+    <string name="home_button_start">Démarrer</string>
+    <string name="home_button_resume">Reprendre</string>
+    <string name="home_button_browse">Parcourir toutes les catégories</string>
+    <string name="home_greeting_subtitle">Content de te revoir !</string>
+    <string name="home_featured_title">Catégories</string>
+    <string name="home_featured_subtitle">Voir plus</string>
+    <string name="home_quote_label">Sagesse du jour</string>
+    <string name="home_quote_not_found">"Aucune citation aujourd\'hui. Reviens plus tard !"</string>
+
+    <string name="loading_title">Patiente, on charge ton </string>
+    <string name="loading_title_variator_1">Une seconde…</string>
+    <string-array name="home_loading_subjects">
+        <item>liste de quiz</item>
+        <item>trivia</item>
+        <item>moments fun</item>
+        <item>parcours d\'apprentissage</item>
+        <item>monde malin</item>
+        <item>sac à dos de connaissances</item>
+        <item>contrôle surprise 😈</item>
+        <item>GG, EZ !</item>
+        <item>succès</item>
+    </string-array>
+    <string name="game_loading_subject">Quiz</string>
+
+    <string name="home_title">C\'est parti !</string>
+    <string name="home_subtitle">Un des boutons devrait suffire pour commencer</string>
+
+    <string name="avatar_wind">Windy</string>
+    <string name="avatar_fire">Garçon de Feu</string>
+    <string name="avatar_rock">The Rock</string>
+    <string name="avatar_water">Fille de l\'Eau</string>
+
+    <string name="guide_button_finish">Compris !</string>
+
+    <string name="achievements_new_record">Nouveau record !</string>
+    <string name="achievements_no_mistakes">Le Nerd</string>
+    <string name="achievements_one_mistake">Presque parfait</string>
+    <string name="achievements_two_mistakes">Si proche</string>
+    <string name="achievements_rough_session">Session difficile</string>
+    <string name="achievements_first_session">Premiers pas</string>
+    <string name="achievements_empty" />
+
+    <string name="achievements_detailed_new_record">Tu as battu ton record précédent ! Un nouveau meilleur score est établi.</string>
+    <string name="achievements_detailed_no_mistakes">Une victoire sans faute — pas une seule mauvaise réponse. Énergie de nerd absolue.</string>
+    <string name="achievements_detailed_one_mistake">Juste un écart, mais la perfection était à portée. Décerné pour finir avec une seule erreur.</string>
+    <string name="achievements_detailed_two_mistakes">Une partie quasi parfaite — deux trébuchements, mais toujours debout.</string>
+    <string name="achievements_detailed_rough_session">Tout le monde a de mauvais jours. Continue — la prochaine manche est à toi.</string>
+    <string name="achievements_detailed_first_session">Toute légende commence quelque part. Bienvenue dans ton aventure quiz !</string>
+
+    <string name="achievement_timelapse_quick_thinker">Esprit vif</string>
+    <string name="achievement_timelapse_detailed_quick_thinker">Session bouclée en moins d\'une minute. Vitesse et intelligence réunies !</string>
+
+    <string name="achievement_timelapse_casual_cruiser">Joueur tranquille</string>
+    <string name="achievement_timelapse_detailed_casual_cruiser">Session de 1 à 10 minutes. Réfléchi et constant — un quizzeur fiable.</string>
+
+    <string name="achievement_timelapse_brain_marathoner">Marathonien du cerveau</string>
+    <string name="achievement_timelapse_detailed_brain_marathoner">Tu as tenu 10 à 30 minutes d\'affilée. Ton cerveau doit transpirer !</string>
+
+    <string name="achievement_timelapse_eternal_quizzer">Quizzeur éternel</string>
+    <string name="achievement_timelapse_detailed_eternal_quizzer">Plus de 30 minutes et toujours en forme. Le sommet du dévouement aux quiz.</string>
+
+    <string name="dialog_discard_session_confirm_button">Oui. Démarrer une nouvelle session</string>
+    <string name="dialog_discard_session_dissmiss_button">Non</string>
+    <string name="dialog_discard_session_title">Attention</string>
+    <string name="dialog_discard_session_text">Es-tu sûr de vouloir lancer une nouvelle session ? La précédente sera abandonnée</string>
+
+    <string name="postgame_button_navigate_home">Retour à l\'accueil</string>
+    <string name="postgame_title">Session terminée</string>
+    <string name="postgame_score_label">Score</string>
+    <string name="postgame_achievements_title">Succès</string>
+    <string name="postgame_achievements_empty">Aucun succès cette session. Continue de jouer !</string>
+    <string name="achievements_dialog_title">Trophées débloqués</string>
+    <string name="achievements_dialog_empty">Pas encore de trophées. Termine une session pour démarrer ta collection !</string>
+    <string name="achievements_first_unlocked_prefix">Débloqué pour la première fois %1$s</string>
+    <string name="achievement_popup_title">Succès débloqué</string>
+
+    <!-- Guide Screen -->
+    <string name="guide_welcome_title">Bienvenue dans Quiz Game !</string>
+    <string name="guide_welcome_subtitle">Apprenons à jouer et amusons-nous !</string>
+
+    <string name="guide_how_to_play">Comment jouer</string>
+    <string name="guide_tutorial_title">Comment jouer à Quiz Game</string>
+
+    <string name="guide_step_1_title">Choisis une catégorie</string>
+    <string name="guide_step_1_desc">Touche une catégorie qui t\'intéresse !</string>
+
+    <string name="guide_step_2_title">Réponds aux questions</string>
+    <string name="guide_step_2_desc">Lis chaque question attentivement et choisis la bonne réponse avant la fin du temps !</string>
+
+    <string name="guide_step_3_title">Gagne des points</string>
+    <string name="guide_step_3_desc">Obtiens des points pour les bonnes réponses. Plus tu réponds vite, plus tu gagnes !</string>
+
+    <string name="guide_step_4_title">Remporte des trophées</string>
+    <string name="guide_step_4_desc">Collectionne des trophées en finissant les quiz avec de bons scores !</string>
+
+    <string name="guide_utility_cards">Cartes utilitaires</string>
+
+    <string name="guide_utility_time_booster">Booster de temps</string>
+    <string name="guide_utility_time_booster_desc">Te donne du temps en plus pour répondre</string>
+
+    <string name="guide_utility_hint_card">Carte indice</string>
+    <string name="guide_utility_hint_card_desc">Retire une mauvaise réponse parmi les choix</string>
+
+    <string name="guide_utility_double_points">Points doublés</string>
+    <string name="guide_utility_double_points_desc">Double les points gagnés pour une bonne réponse</string>
+
+    <string name="guide_utility_second_chance">Seconde chance</string>
+    <string name="guide_utility_second_chance_desc">Te permet de reprendre une question si tu te trompes</string>
+
+    <string name="guide_coins_shop">Pièces &amp; Boutique</string>
+
+    <string name="guide_earn_coins">Gagne des pièces en :</string>
+    <string name="guide_earn_coins_1">répondant correctement</string>
+    <string name="guide_earn_coins_2">terminant des quiz</string>
+    <string name="guide_earn_coins_3">remportant des trophées</string>
+    <string name="guide_earn_coins_4">récupérant la récompense quotidienne</string>
+
+    <string name="guide_use_coins">Utilise les pièces pour :</string>
+    <string name="guide_use_coins_1">acheter des cartes utilitaires</string>
+    <string name="guide_use_coins_2">débloquer des catégories spéciales</string>
+    <string name="guide_use_coins_3">échanger contre des trophées</string>
+
+    <string name="guide_trading_title">Échanger des cartes contre des pièces</string>
+    <string name="guide_trading_desc">Si tu as des cartes utilitaires en trop, tu peux les échanger contre des pièces dans la boutique ! Touche la carte dans ton inventaire et choisis \'Échanger\'.</string>
+
+    <string name="guide_faq">Questions fréquentes</string>
+
+    <string name="guide_faq_1_q">Comment changer la langue ?</string>
+    <string name="guide_faq_1_a">Tu peux changer la langue dans Paramètres et choisir ta langue préférée dans la liste.</string>
+
+    <string name="guide_faq_2_q">Que se passe-t-il si le temps est écoulé ?</string>
+    <string name="guide_faq_2_a">Si le temps s\'écoule avant que tu répondes, la question est marquée comme incorrecte et tu passes à la suivante.</string>
+
+    <string name="guide_faq_3_q">Puis-je jouer sans internet ?</string>
+    <string name="guide_faq_3_a">Oui ! Certains quiz sont disponibles hors ligne. Cherche le symbole hors ligne à côté de la catégorie.</string>
+
+    <string name="guide_faq_4_q">Comment gagner des trophées ?</string>
+    <string name="guide_faq_4_a">Les trophées s\'obtiennent en finissant les quiz avec de bons scores. Plus tu réponds correctement, meilleur sera le trophée !</string>
+
+    <string name="guide_faq_5_q">Puis-je créer mes propres quiz ?</string>
+    <string name="guide_faq_5_a">Pas encore, mais nous travaillons à ajouter cette fonctionnalité dans une future mise à jour !</string>
+
+    <string name="guide_start_button">Commençons à jouer !</string>
+    <string name="guide_explore_message">Merci d\'explorer toutes les sections avant de continuer</string>
+
+    <!-- Section names for tracking -->
+    <string name="guide_section_welcome">welcome</string>
+    <string name="guide_section_how_to_play">howToPlay</string>
+    <string name="guide_section_utilities">utilities</string>
+    <string name="guide_section_coins">coins</string>
+    <string name="guide_section_faq">faq</string>
+    <string name="language_restart_dialog_title">Note</string>
+    <string name="language_restart_dialog_message">L\'application va redémarrer pour appliquer les changements de langue</string>
+    <string name="language_restart_dialog_button_positive">Redémarrer</string>
+    <string name="language_restart_dialog_button_negative">Annuler</string>
+
+    <string name="generic_error_message">Une erreur est survenue</string>
+    <string name="generic_warning_message">Attention</string>
+
+    <string name="connectivity_offline">Vous êtes hors ligne</string>
+    <string name="connectivity_online">Vous êtes de retour en ligne !</string>
+
+    <string name="onboard_guide_continue">Continuer</string>
+    <string name="onboard_guide_title">Tout est prêt !</string>
+    <string name="onboard_guide_subtitle">Voici un tour rapide de ce que tu peux faire.</string>
+    <string name="onboard_guide_tip_play_title">Choisis une catégorie, lance une partie</string>
+    <string name="onboard_guide_tip_play_body">Parcours les thèmes ou lance un quiz mis en avant depuis l\'accueil.</string>
+    <string name="onboard_guide_tip_coins_title">Gagne des pièces en répondant</string>
+    <string name="onboard_guide_tip_coins_body">Les bonnes réponses rapportent des pièces. Dépense-les en boosts à la boutique.</string>
+    <string name="onboard_guide_tip_trophies_title">Collectionne trophées et records</string>
+    <string name="onboard_guide_tip_trophies_body">Termine des sessions pour débloquer des succès et battre ton meilleur score.</string>
+    <string name="onboard_guide_tip_daily_title">Ne rate pas le défi quotidien</string>
+    <string name="onboard_guide_tip_daily_body">Un nouveau défi apparaît sur l\'accueil chaque jour &#8212; garde ta série !</string>
+    <string name="onboard_guide_cta">On joue</string>
+    <string name="postgame_player_fallback">Joueur #0000</string>
+
+    <string name="home_title_resume_journey">Reprendre l\'aventure</string>
+    <string name="home_title_play_now">Jouer maintenant</string>
+    <string name="home_action_resume">Reprendre</string>
+    <string name="home_action_new_game">Nouvelle partie</string>
+    <string name="home_action_play_now">Jouer maintenant</string>
+    <string name="home_title_featured_categories">Découvrir des thèmes</string>
+    <string name="home_action_browse_all">Voir tout</string>
+    <string name="home_categories_empty_message">Aucune catégorie disponible pour le moment.</string>
+
+    <!-- Home redesign -->
+    <string name="home_greeting_tagline_morning">Prêt à échauffer ton cerveau ?</string>
+    <string name="home_greeting_tagline_afternoon">Une minute pour un défi rapide ?</string>
+    <string name="home_greeting_tagline_evening">Le moment de se détendre avec quelques questions.</string>
+    <string name="home_stat_streak">jours de suite</string>
+    <string name="home_stat_streak_one">jour de suite</string>
+    <string name="home_stat_best">meilleur score</string>
+    <string name="home_stat_played">quiz joués</string>
+    <string name="home_action_continue">Continuer</string>
+    <string name="home_action_continue_subtitle">Reprends là où tu t\'es arrêté</string>
+    <string name="home_action_start_new">Démarrer une nouvelle partie</string>
+    <string name="home_daily_challenge_label">Défi quotidien</string>
+    <string name="home_daily_challenge_sub">Un nouveau thème chaque jour</string>
+    <string name="home_quick_random">Quiz aléatoire</string>
+    <string name="home_quick_random_sub">Surprends-moi</string>
+    <string name="home_quick_browse">Parcourir les thèmes</string>
+    <string name="home_quick_browse_sub">Voir toutes les catégories</string>
+    <string name="category_short_9">Général</string>
+    <string name="category_short_10">Livres</string>
+    <string name="category_short_11">Films</string>
+    <string name="category_short_12">Musique</string>
+    <string name="category_short_13">Comédies musicales</string>
+    <string name="category_short_14">Séries</string>
+    <string name="category_short_15">Jeux vidéo</string>
+    <string name="category_short_16">Jeux de société</string>
+    <string name="category_short_17">Nature</string>
+    <string name="category_short_18">Informatique</string>
+    <string name="category_short_19">Maths</string>
+    <string name="category_short_20">Mythologie</string>
+    <string name="category_short_21">Sport</string>
+    <string name="category_short_22">Géographie</string>
+    <string name="category_short_23">Histoire</string>
+    <string name="category_short_24">Politique</string>
+    <string name="category_short_25">Art</string>
+    <string name="category_short_26">Célébrités</string>
+    <string name="category_short_27">Animaux</string>
+    <string name="category_short_28">Véhicules</string>
+    <string name="category_short_29">BD</string>
+    <string name="category_short_30">Gadgets</string>
+    <string name="category_short_31">Anime</string>
+    <string name="category_short_32">Dessins animés</string>
+    <string name="browse_search_placeholder">Rechercher des catégories…</string>
+    <string name="browse_sort_default">Par défaut</string>
+    <string name="browse_sort_a_z">A-Z</string>
+    <string name="browse_sort_z_a">Z-A</string>
+    <string name="browse_sort_count_high">Plus de quiz</string>
+    <string name="browse_sort_count_low">Moins de quiz</string>
+    <string name="browse_available_quizzes">%d disponibles</string>
+    <string name="browse_no_quizzes">Toucher pour télécharger</string>
+    <string name="browse_no_results">Aucun résultat pour \"%s\"</string>
+    <string name="browse_resume_title">Tu as un quiz en cours !</string>
+    <string name="browse_resume_button">Reprendre</string>
+
+    <!-- Shop -->
+    <string name="shop_title">Boutique de boosts</string>
+    <string name="shop_subtitle">Dépense des pièces pour prendre l\'avantage</string>
+    <string name="shop_section_items">Articles disponibles</string>
+    <string name="shop_item_skip_name">Passer la question</string>
+    <string name="shop_item_skip_desc">Passe une question difficile sans pénalité</string>
+    <string name="shop_item_time_name">+10 secondes</string>
+    <string name="shop_item_time_desc">Ajoute 10 secondes au minuteur</string>
+    <string name="shop_item_swap_name">Changer la question</string>
+    <string name="shop_item_swap_desc">Remplace la question actuelle par une nouvelle</string>
+    <string name="shop_item_hint_name">Carte indice</string>
+    <string name="shop_item_hint_desc">Élimine deux mauvaises réponses</string>
+    <string name="shop_buy_button">Acheter</string>
+    <string name="shop_sell_button">Vendre</string>
+    <string name="shop_owned_label">Possédés : %d</string>
+    <string name="shop_not_enough_coins">Pas assez de pièces !</string>
+    <string name="shop_purchase_success">Acheté !</string>
+    <string name="shop_sold_success">Vendu pour %d pièces</string>
+    <string name="shop_sell_price_label">Vente : %d</string>
+    <string name="shop_banner_title">Boutique de boosts</string>
+    <string name="shop_banner_subtitle">Achète des cartes utilitaires pour booster ton quiz</string>
+    <string name="shop_banner_cta">Ouvrir la boutique</string>
+    <string name="shop_your_balance">Ton solde</string>
+
+    <!-- Collectibles in-game tray + rewards -->
+    <string name="collectibles_tray_title">Boosts</string>
+    <string name="collectibles_use_hint">Touche pour utiliser</string>
+    <string name="collectibles_empty_tray">Aucun boost — gagnes-en ou achètes-en !</string>
+    <string name="collectibles_reward_title">Tu as gagné %d boost(s) !</string>
+    <string name="collectibles_reward_subtitle">Ajoutés à ton inventaire</string>
+    <string name="collectibles_hint_applied">Deux mauvaises réponses retirées</string>
+    <string name="collectibles_time_applied">+10 secondes ajoutées</string>
+    <string name="collectibles_swap_applied">Changement de question…</string>
+    <string name="collectibles_skip_applied">Question passée</string>
+
+    <!-- Settings dropdown -->
+    <string name="settings_menu_language">Langue</string>
+    <string name="settings_menu_about">À propos</string>
+    <string name="settings_menu_privacy">Politique de confidentialité</string>
+    <string name="settings_menu_terms">Conditions d\'utilisation</string>
+    <string name="settings_about_title">À propos de Quiz Game</string>
+    <string name="settings_about_body">Quiz Game est une appli de trivia conçue pour tester ta culture sur des centaines de catégories. Réponds, gagne des pièces et débloque des boosts. Bonne chance !</string>
+    <string name="settings_legal_coming_soon">Ce document sera disponible dans une future mise à jour.</string>
+    <string name="settings_ok">OK</string>
+
+    <!-- Browse redesign -->
+    <string name="browse_title">Parcourir les thèmes</string>
+    <string name="browse_subtitle">Trouve la catégorie idéale</string>
+</resources>

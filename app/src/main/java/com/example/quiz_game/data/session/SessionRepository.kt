@@ -53,7 +53,7 @@ object SessionRepository {
                         ?: throw Exception("Session with uid $uid was not found after update")
             }
 
-    suspend fun updateAchievements(uid: String, achievements: List<String>): Session =
+    suspend fun updateAchievements(uid: String, achievements: List<Int>): Session =
             withContext(Dispatchers.IO) {
                 val session =
                         App.db.sessionDao().getByUid(uid)

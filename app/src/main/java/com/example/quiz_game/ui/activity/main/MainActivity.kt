@@ -9,6 +9,7 @@ import androidx.activity.viewModels
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarDuration
@@ -26,9 +27,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
 import com.example.quiz_game.AppDestination
@@ -43,6 +46,7 @@ import com.example.quiz_game.ui.activity.main.destination.Browse
 import com.example.quiz_game.ui.activity.main.destination.Game
 import com.example.quiz_game.ui.activity.main.destination.Home
 import com.example.quiz_game.ui.activity.main.destination.PostGame
+import com.example.quiz_game.ui.activity.main.destination.Shop
 import com.example.quiz_game.ui.activity.onboard.OnboardActivity
 import com.example.quiz_game.ui.activity.onboard.destination.Language
 import com.example.quiz_game.ui.shared.component.LoadingProgressiveLine
@@ -53,6 +57,7 @@ import com.example.quiz_game.ui.viewmodel.QuizViewModel
 import com.example.quiz_game.ui.viewmodel.QuoteViewModel
 import com.example.quiz_game.ui.viewmodel.SessionViewModel
 import com.example.quiz_game.ui.viewmodel.SharedViewModel
+import com.example.quiz_game.ui.viewmodel.ShopViewModel
 import kotlinx.coroutines.launch
 import kotlinx.serialization.Serializable
 import kotlin.getValue
@@ -65,6 +70,7 @@ class MainActivity : BaseActivity() {
     val sessionViewModel by viewModels<SessionViewModel>()
     val onboardViewModel by viewModels<OnboardViewModel>()
     val quoteViewModel by viewModels<QuoteViewModel>()
+    val shopViewModel by viewModels<ShopViewModel>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -78,6 +84,7 @@ class MainActivity : BaseActivity() {
             val sessionState by sessionViewModel.state.collectAsStateWithLifecycle()
             val onboardState by onboardViewModel.state.collectAsStateWithLifecycle()
             val quoteState by quoteViewModel.state.collectAsStateWithLifecycle()
+            val shopState by shopViewModel.state.collectAsStateWithLifecycle()
 
             val context = LocalContext.current
             val snackbarHostState = remember { SnackbarHostState() }
@@ -105,8 +112,14 @@ class MainActivity : BaseActivity() {
 
             // Observe translator status for background download loading bar
             val translatorStatus by TranslatorManager.status.collectAsStateWithLifecycle()
+            // Suppress the global banner whenever the Language screen is on
+            // top — that screen shows its own full download UI, so a banner
+            // here would render the same indicator twice.
+            val currentBackStackEntry by navController.currentBackStackEntryAsState()
+            val isOnLanguageDestination =
+                currentBackStackEntry?.destination?.route?.contains("Language") == true
             val isTranslatorDownloading =
-                translatorStatus in
+                !isOnLanguageDestination && translatorStatus in
                         listOf(
                             TranslatorStatus.Saving,
                             TranslatorStatus.Downloading,
@@ -208,6 +221,9 @@ class MainActivity : BaseActivity() {
                                         )
                                 }
                             LoadingProgressiveLine(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(horizontal = 24.dp, vertical = 10.dp),
                                 status = translatorStatus,
                                 statusMessage = statusMessage
                             )
@@ -241,6 +257,8 @@ class MainActivity : BaseActivity() {
                                         quizAction = quizViewModel::onAction,
                                         sessionState = sessionViewModel.state,
                                         sessionAction = sessionViewModel::onAction,
+                                        shopState = shopState,
+                                        shopAction = shopViewModel::onAction,
                                         navController = navController
                                     )
                                 }
@@ -278,6 +296,16 @@ class MainActivity : BaseActivity() {
                                         quizAction = quizViewModel::onAction,
                                         sessionState = sessionState,
                                         sessionAction = sessionViewModel::onAction,
+                                        shopState = shopState,
+                                        shopAction = shopViewModel::onAction,
+                                    )
+                                }
+
+                                composable<MainDestination.Shop> {
+                                    Shop(
+                                        shopState = shopState,
+                                        shopAction = shopViewModel::onAction,
+                                        navController = navController
                                     )
                                 }
                             }
@@ -304,4 +332,7 @@ sealed interface MainDestination : AppDestination {
 
     @Serializable
     data object PostGame : MainDestination
+
+    @Serializable
+    data object Shop : MainDestination
 }
