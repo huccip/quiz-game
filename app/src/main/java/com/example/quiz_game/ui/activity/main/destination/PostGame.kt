@@ -61,7 +61,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
-import com.example.quiz_game.App
+import android.app.Activity
+import androidx.compose.ui.platform.LocalContext
+import com.example.quiz_game.other.AdManager
 import com.example.quiz_game.R
 import com.example.quiz_game.other.Sound
 import com.example.quiz_game.other.SoundManager
@@ -160,7 +162,9 @@ fun PostGame(
         }
     }
 
+    val context = LocalContext.current
     BackHandler {
+        AdManager.onQuizCompleted(context as Activity)
         sharedAction(SharedAction.Navigate(MainDestination.Home, navController))
     }
 
@@ -353,6 +357,7 @@ fun PostGame(
                     .fillMaxWidth()
                     .height(54.dp),
                 onClick = {
+                    AdManager.onQuizCompleted(context as Activity)
                     sharedAction(SharedAction.Navigate(MainDestination.Home, navController))
                 }
             ) {

@@ -334,4 +334,34 @@
     <!-- Browse redesign -->
     <string name="browse_title">Темы</string>
     <string name="browse_subtitle">Найди подходящую категорию</string>
+
+    <!-- Score-multiplier power-ups -->
+    <string name="shop_item_mult_x2_name">Множитель ×2</string>
+    <string name="shop_item_mult_x2_desc">Удвойте очки за правильный ответ. Неверный ответ потратит бонус впустую.</string>
+    <string name="shop_item_mult_x3_name">Множитель ×3</string>
+    <string name="shop_item_mult_x3_desc">Тройные очки за правильный ответ. Выше награда — выше риск.</string>
+    <string name="shop_item_mult_x5_name">Множитель ×5</string>
+    <string name="shop_item_mult_x5_desc">Пять раз больше очков, если угадаете. Только для уверенных.</string>
+
+    <string name="game_first_of_day_banner">Первая викторина дня — очки удвоены!</string>
+
+    <string name="streak_reward_title">Ежедневная серия!</string>
+    <string name="streak_reward_day_label">ДЕНЬ</string>
+    <string name="streak_reward_subtitle">С возвращением! Вот ваша награда за сегодня.</string>
+    <string name="streak_reward_button">Забрать</string>
+    <string name="streak_reward_reset_notice">Вы пропустили день, поэтому серия сброшена.</string>
+
+    <string name="loot_box_card_title_available">Ежедневный сундук</string>
+    <string name="loot_box_card_title_claimed">Сундук получен</string>
+    <string name="loot_box_card_subtitle_available">Бесплатная награда уже ждёт. Нажмите, чтобы открыть!</string>
+    <string name="loot_box_card_subtitle_claimed">Возвращайтесь завтра за новой наградой.</string>
+    <string name="loot_box_card_streak">Серия входов: %1$d дн.</string>
+    <string name="loot_box_card_cta">Открыть</string>
+    <string name="loot_box_opening_title">Открываем…</string>
+    <string name="loot_box_opening_subtitle">Посмотрим, что внутри!</string>
+    <string name="loot_box_revealed_title">Сегодняшняя награда</string>
+    <string name="loot_box_button_close">Отлично</string>
+    <string name="loot_box_reward_nothing">Сегодня не повезло — попробуйте завтра!</string>
+    <string name="loot_box_reward_coins">+%1$d монет</string>
+    <string name="loot_box_reward_power_up">Открыт усилитель: %1$s</string>
 </resources>

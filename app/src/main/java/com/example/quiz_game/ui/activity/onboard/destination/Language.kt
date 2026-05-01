@@ -156,10 +156,16 @@ fun Language(
                             R.string.onboard_form_loading_subject
                         )
                 }
-            LoadingProgressiveLine(
-                status = translatorStatus,
-                statusMessage = statusMessage
-            )
+            Box(
+                modifier = Modifier.fillMaxSize(),
+                contentAlignment = Alignment.Center
+            ) {
+                LoadingProgressiveLine(
+                    modifier = Modifier.padding(horizontal = 24.dp),
+                    status = translatorStatus,
+                    statusMessage = statusMessage
+                )
+            }
         }
 
         // Internet lost during download (timeout or disconnection)

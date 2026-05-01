@@ -337,4 +337,37 @@
     <!-- Browse redesign -->
     <string name="browse_title">Browse Topics</string>
     <string name="browse_subtitle">Find the perfect category for you</string>
+
+    <!-- Score-multiplier power-ups (risk/reward) -->
+    <string name="shop_item_mult_x2_name">2x Multiplier</string>
+    <string name="shop_item_mult_x2_desc">Double the points if you answer correctly. Wrong answer wastes the boost.</string>
+    <string name="shop_item_mult_x3_name">3x Multiplier</string>
+    <string name="shop_item_mult_x3_desc">Triple the points on a correct answer. Higher reward, higher risk.</string>
+    <string name="shop_item_mult_x5_name">5x Multiplier</string>
+    <string name="shop_item_mult_x5_desc">Five times the points if you nail it. Only for the confident.</string>
+
+    <!-- First quiz of the day silent bonus -->
+    <string name="game_first_of_day_banner">First quiz of the day — points are doubled!</string>
+
+    <!-- Daily-login streak reward popup -->
+    <string name="streak_reward_title">Daily Streak!</string>
+    <string name="streak_reward_day_label">DAY</string>
+    <string name="streak_reward_subtitle">Welcome back! Here is today\'s reward.</string>
+    <string name="streak_reward_button">Claim</string>
+    <string name="streak_reward_reset_notice">You missed a day, so the streak restarted.</string>
+
+    <!-- Daily loot box -->
+    <string name="loot_box_card_title_available">Daily Loot Box</string>
+    <string name="loot_box_card_title_claimed">Loot Box Claimed</string>
+    <string name="loot_box_card_subtitle_available">A free reward is waiting. Tap to open!</string>
+    <string name="loot_box_card_subtitle_claimed">Come back tomorrow for another reward.</string>
+    <string name="loot_box_card_streak">Login streak: %1$d days</string>
+    <string name="loot_box_card_cta">Open</string>
+    <string name="loot_box_opening_title">Opening…</string>
+    <string name="loot_box_opening_subtitle">Let\'s see what you got!</string>
+    <string name="loot_box_revealed_title">Today\'s Reward</string>
+    <string name="loot_box_button_close">Awesome</string>
+    <string name="loot_box_reward_nothing">No luck today — try again tomorrow!</string>
+    <string name="loot_box_reward_coins">+%1$d coins</string>
+    <string name="loot_box_reward_power_up">Power-up unlocked: %1$s</string>
 </resources>

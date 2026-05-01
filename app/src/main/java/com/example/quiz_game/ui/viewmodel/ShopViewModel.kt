@@ -27,6 +27,7 @@ class ShopViewModel : ViewModel() {
                 is ShopAction.SellItem -> sellItem(action.item)
                 is ShopAction.UseItem -> useItem(action.item)
                 is ShopAction.GrantRandom -> grantRandom(action.count)
+                is ShopAction.GrantSpecific -> grantSpecific(action.item)
                 is ShopAction.ClearLastEvent -> state.value = state.value.copy(lastPurchaseResult = null)
                 is ShopAction.ClearLastGranted -> state.value = state.value.copy(lastGranted = emptyList())
             }
@@ -44,25 +45,35 @@ class ShopViewModel : ViewModel() {
     }
 
     private suspend fun buyItem(item: ShopItem) {
-        val user = Repository.getUser() ?: return
-        if (user.coins < item.price) {
+        var success = false
+        Repository.updateUser { user ->
+            if (user.coins < item.price) {
+                success = false
+                return@updateUser user
+            }
+            success = true
+            user.copy(coins = user.coins - item.price)
+        }
+
+        if (!success) {
             state.value = state.value.copy(lastPurchaseResult = PurchaseResult.NOT_ENOUGH_COINS)
             return
         }
-        Repository.saveUser(user.copy(coins = user.coins - item.price))
+
         incrementOwned(item.id, 1)
         refresh()
         state.value = state.value.copy(lastPurchaseResult = PurchaseResult.SUCCESS)
     }
 
     private suspend fun sellItem(item: ShopItem) {
-        val user = Repository.getUser() ?: return
         val owned = App.userPrefs.getInt("shop_owned_${item.id}", 0)
         if (owned <= 0) {
             state.value = state.value.copy(lastPurchaseResult = PurchaseResult.NONE_OWNED)
             return
         }
-        Repository.saveUser(user.copy(coins = user.coins + item.sellPrice))
+        Repository.updateUser { user ->
+            user.copy(coins = user.coins + item.sellPrice)
+        }
         incrementOwned(item.id, -1)
         refresh()
         state.value = state.value.copy(lastPurchaseResult = PurchaseResult.SOLD)
@@ -82,6 +93,17 @@ class ShopViewModel : ViewModel() {
         granted.forEach { incrementOwned(it.id, 1) }
         refresh()
         state.value = state.value.copy(lastGranted = granted)
+    }
+
+    /**
+     * Grant a single, specific [ShopItem] to the user's inventory. Used by
+     * deterministic-reward flows (e.g. the daily loot box's power-up tier)
+     * where the random roll has already happened upstream.
+     */
+    private fun grantSpecific(item: ShopItem) {
+        incrementOwned(item.id, 1)
+        refresh()
+        state.value = state.value.copy(lastGranted = listOf(item))
     }
 
     private fun incrementOwned(id: String, delta: Int) {
@@ -116,6 +138,7 @@ sealed interface ShopAction {
     data class SellItem(val item: ShopItem) : ShopAction
     data class UseItem(val item: ShopItem) : ShopAction
     data class GrantRandom(val count: Int) : ShopAction
+    data class GrantSpecific(val item: ShopItem) : ShopAction
     data object ClearLastEvent : ShopAction
     data object ClearLastGranted : ShopAction
 }

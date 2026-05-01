@@ -84,7 +84,7 @@ class SessionViewModel : ViewModel() {
                 is SessionAction.UpdateScore ->
                     execute {
                         //update user coins in the process
-                        Repository.getUser()?.let { Repository.saveUser(it.copy(coins = it.coins + action.score)) }
+                        Repository.updateUser { it.copy(coins = it.coins + action.score) }
 
                         val currentSession =
                             state.value.session ?: return@execute
@@ -143,15 +143,7 @@ class SessionViewModel : ViewModel() {
                         // per-answer path in UpdateScore does this, but the
                         // last answer now funnels through CompleteSession).
                         if (action.finalMark != 0) {
-                            Repository.getUser()?.let {
-                                Repository.saveUser(
-                                    it.copy(
-                                        coins =
-                                            it.coins +
-                                                action.finalMark
-                                    )
-                                )
-                            }
+                            Repository.updateUser { it.copy(coins = it.coins + action.finalMark) }
                         }
 
                         // 2. Mark the session expired so `timelapse` is valid.

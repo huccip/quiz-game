@@ -61,6 +61,7 @@ class App : Application() {
             }
         }
 
+        com.example.quiz_game.other.AdManager.initialize(this)
         SoundManager.init(this)
     }
 

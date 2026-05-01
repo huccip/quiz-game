@@ -20,19 +20,27 @@ object QuizRepository {
             withContext(Dispatchers.IO) {
                 var data = App.db.quizDao().get()
 
-                if (data.filter { !it.expired }.size <= amount / 2) {
+                if (data.count { !it.expired } <= amount / 2) {
                     fetchMutex.withLock {
                         // Re-check after lock — another coroutine may have fetched already
                         data = App.db.quizDao().get()
-                        if (data.filter { !it.expired }.size <= amount / 2) {
-                            val remaining = amount - data.size
+                        if (data.count { !it.expired } <= amount / 2) {
+                            // Compute the shortfall against UNEXPIRED quizzes only.
+                            // Using `data.size` here would include the hundreds of
+                            // already-played (expired) rows, yielding 0 / negative
+                            // remaining and starving the API call.
+                            val remaining = (amount - data.count { !it.expired })
+                                    .coerceAtLeast(Constants.DEFAULT_QUIZ_SESSION_AMOUNT + 10)
                             fetchRemote(amount = remaining)
                             data = App.db.quizDao().get()
                         }
                     }
                 }
 
-                data
+                // Shuffle so the generic "Play Now" pool isn't dominated by the
+                // most-recently inserted batch (e.g. a category-specific download
+                // that floods the table with a single category in insertion order).
+                data.shuffled()
             }
 
     suspend fun getByUid(uid: String): Quiz =
@@ -52,12 +60,17 @@ object QuizRepository {
 
                 var data = App.db.quizDao().getByCategoryUid(category.uid)
 
-                if (data.filter { !it.expired }.size <= amount / 2) {
+                if (data.count { !it.expired } <= amount / 2) {
                     fetchMutex.withLock {
                         // Re-check after lock — another coroutine may have fetched already
                         data = App.db.quizDao().getByCategoryUid(category.uid)
-                        if (data.filter { !it.expired }.size <= amount / 2) {
-                            val remaining = amount - data.size
+                        if (data.count { !it.expired } <= amount / 2) {
+                            // Compute the shortfall against UNEXPIRED quizzes only.
+                            // Using `data.size` here would include already-played
+                            // (expired) rows, yielding a 0 / negative remaining and
+                            // starving the API call.
+                            val remaining = (amount - data.count { !it.expired })
+                                    .coerceAtLeast(Constants.DEFAULT_QUIZ_SESSION_AMOUNT + 10)
                             fetchRemote(amount = remaining, category = category.id)
 
                             // Fix: re-link any orphaned quizzes whose categoryUid is null
@@ -83,7 +96,9 @@ object QuizRepository {
                     }
                 }
 
-                data
+                // Shuffle so replays of a cached category don't surface the
+                // exact same ordered sequence every time.
+                data.shuffled()
             }
 
     suspend fun getBySession(uids: List<String>): List<Quiz> =

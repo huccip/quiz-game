@@ -76,8 +76,13 @@ fun Shop(
     modifier: Modifier = Modifier,
     shopState: ShopState = ShopState(),
     shopAction: (ShopAction) -> Unit = {},
+    sharedAction: (com.example.quiz_game.ui.viewmodel.SharedAction) -> Unit = {},
     navController: NavController = rememberNavController()
 ) {
+    LaunchedEffect(Unit) {
+        shopAction(ShopAction.Refresh)
+    }
+
     val dark = isSystemInDarkTheme()
     val coinTint = if (dark) GemCyanDark else GemCyan
 
@@ -230,6 +235,99 @@ fun Shop(
                     }
 
                     Spacer(Modifier.height(22.dp))
+                    
+                    val context = androidx.compose.ui.platform.LocalContext.current
+                    val activity = context as? android.app.Activity
+                    val isRewardedLoaded by com.example.quiz_game.other.AdManager.isRewardedLoaded.collectAsStateWithLifecycle()
+                    
+                    if (isRewardedLoaded && activity != null) {
+                        val interactionSource = remember { androidx.compose.foundation.interaction.MutableInteractionSource() }
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .scaleDownOnPress(.96f, interactionSource)
+                                .clip(RoundedCornerShape(18.dp))
+                                .background(
+                                    brush = Brush.horizontalGradient(
+                                        colors = listOf(
+                                            Color(0xFFFF9800),
+                                            Color(0xFFFF5722)
+                                        )
+                                    )
+                                )
+                                .clickable(
+                                    interactionSource = interactionSource,
+                                    indication = androidx.compose.foundation.LocalIndication.current,
+                                    onClick = withTap {
+                                        com.example.quiz_game.other.AdManager.showRewardedAd(activity) {
+                                            com.example.quiz_game.App.ioScope.launch {
+                                                val user = com.example.quiz_game.data.Repository.getUser()
+                                                if (user != null) {
+                                                    com.example.quiz_game.data.Repository.updateUser { it.copy(coins = it.coins + 10) }
+                                                    sharedAction(com.example.quiz_game.ui.viewmodel.SharedAction.RefreshUser)
+                                                    shopAction(ShopAction.Refresh)
+                                                }
+                                            }
+                                        }
+                                    }
+                                )
+                                .padding(16.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.SpaceBetween
+                        ) {
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                Box(
+                                    modifier = Modifier
+                                        .size(48.dp)
+                                        .background(Color.White.copy(alpha = 0.2f), CircleShape),
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    Icon(
+                                        painter = painterResource(R.drawable.ic_arrow_forward),
+                                        contentDescription = null,
+                                        tint = Color.White,
+                                        modifier = Modifier.size(24.dp)
+                                    )
+                                }
+                                Spacer(modifier = Modifier.width(16.dp))
+                                Column {
+                                    Text(
+                                        text = "Free Coins!",
+                                        style = MaterialTheme.typography.titleMedium,
+                                        fontWeight = FontWeight.ExtraBold,
+                                        color = Color.White
+                                    )
+                                    Text(
+                                        text = "Watch a short ad",
+                                        style = MaterialTheme.typography.bodySmall,
+                                        color = Color.White.copy(alpha = 0.8f)
+                                    )
+                                }
+                            }
+                            
+                            Row(
+                                modifier = Modifier
+                                    .background(Color.White.copy(alpha = 0.25f), RoundedCornerShape(12.dp))
+                                    .padding(horizontal = 10.dp, vertical = 6.dp),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Text(
+                                    text = "+10",
+                                    style = MaterialTheme.typography.titleMedium,
+                                    fontWeight = FontWeight.Bold,
+                                    color = Color.White
+                                )
+                                Spacer(modifier = Modifier.width(4.dp))
+                                Icon(
+                                    painter = painterResource(R.drawable.ic_coin),
+                                    contentDescription = null,
+                                    tint = Color.White,
+                                    modifier = Modifier.size(16.dp)
+                                )
+                            }
+                        }
+                        Spacer(Modifier.height(22.dp))
+                    }
 
                     Text(
                         text = stringResource(R.string.shop_section_items),

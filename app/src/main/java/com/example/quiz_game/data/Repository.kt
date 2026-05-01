@@ -14,9 +14,33 @@ import com.example.quiz_game.data.user.User
 import com.example.quiz_game.other.Utils
 import com.google.mlkit.nl.translate.TranslateLanguage
 import com.google.mlkit.nl.translate.Translator
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import kotlinx.serialization.json.Json
 
 object Repository {
+
+    /**
+     * Guards every read-modify-write on the persisted [User] blob. SharedPreferences
+     * stores the user as a single serialized JSON string, so any flow that loads,
+     * mutates and saves it must hold this lock — otherwise concurrent writers (e.g.
+     * the daily-streak coroutine and a user-driven loot-box claim) clobber each
+     * other's fields with stale snapshots.
+     */
+    private val userMutex = Mutex()
+
+    /**
+     * Atomically read the current [User], apply [transform] and persist the result.
+     * All callers that mutate the user blob MUST go through this method to avoid
+     * lost-update races. If no user exists yet, it creates a fresh [User] before
+     * applying the transform.
+     */
+    suspend fun updateUser(transform: (User) -> User): User = userMutex.withLock {
+        val current = getUser() ?: User()
+        val updated = transform(current)
+        saveUser(updated)
+        updated
+    }
 
     suspend fun prepareTranslator(): Translator {
         val userLanguage =
@@ -31,10 +55,7 @@ object Repository {
                         targetLanguage = userLanguage
                 )
 
-        getUser()?.let { user ->
-            user.translatorReady = true
-            saveUser(user)
-        }
+        updateUser { it.copy(translatorReady = true) }
 
         return translator
     }

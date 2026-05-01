@@ -334,4 +334,34 @@
     <!-- Browse redesign -->
     <string name="browse_title">Themen durchsuchen</string>
     <string name="browse_subtitle">Finde die perfekte Kategorie für dich</string>
+
+    <!-- Score-multiplier power-ups -->
+    <string name="shop_item_mult_x2_name">2× Multiplikator</string>
+    <string name="shop_item_mult_x2_desc">Verdopple die Punkte bei richtiger Antwort. Falsche Antwort verschwendet den Boost.</string>
+    <string name="shop_item_mult_x3_name">3× Multiplikator</string>
+    <string name="shop_item_mult_x3_desc">Dreifache Punkte bei richtiger Antwort. Höhere Belohnung, höheres Risiko.</string>
+    <string name="shop_item_mult_x5_name">5× Multiplikator</string>
+    <string name="shop_item_mult_x5_desc">Fünffache Punkte, wenn du sie triffst. Nur für Selbstsichere.</string>
+
+    <string name="game_first_of_day_banner">Erstes Quiz des Tages — die Punkte sind verdoppelt!</string>
+
+    <string name="streak_reward_title">Tägliche Serie!</string>
+    <string name="streak_reward_day_label">TAG</string>
+    <string name="streak_reward_subtitle">Willkommen zurück! Hier ist deine heutige Belohnung.</string>
+    <string name="streak_reward_button">Einsammeln</string>
+    <string name="streak_reward_reset_notice">Du hast einen Tag verpasst, also wurde die Serie zurückgesetzt.</string>
+
+    <string name="loot_box_card_title_available">Tägliche Beutekiste</string>
+    <string name="loot_box_card_title_claimed">Beutekiste erhalten</string>
+    <string name="loot_box_card_subtitle_available">Eine Gratisbelohnung wartet. Tippe zum Öffnen!</string>
+    <string name="loot_box_card_subtitle_claimed">Komm morgen für eine weitere Belohnung wieder.</string>
+    <string name="loot_box_card_streak">Login-Serie: %1$d Tage</string>
+    <string name="loot_box_card_cta">Öffnen</string>
+    <string name="loot_box_opening_title">Wird geöffnet…</string>
+    <string name="loot_box_opening_subtitle">Mal sehen, was du bekommen hast!</string>
+    <string name="loot_box_revealed_title">Heutige Belohnung</string>
+    <string name="loot_box_button_close">Klasse</string>
+    <string name="loot_box_reward_nothing">Heute kein Glück — versuche es morgen erneut!</string>
+    <string name="loot_box_reward_coins">+%1$d Münzen</string>
+    <string name="loot_box_reward_power_up">Power-up freigeschaltet: %1$s</string>
 </resources>

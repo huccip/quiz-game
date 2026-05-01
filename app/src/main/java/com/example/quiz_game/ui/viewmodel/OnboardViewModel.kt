@@ -26,24 +26,24 @@ class OnboardViewModel : ViewModel() {
                         }
                 is OnboardAction.UpdateUsername ->
                         execute {
-                            Repository.saveUser(state.value.user.copy(username = action.username))
+                            Repository.updateUser { it.copy(username = action.username) }
                             val user = Repository.getUser()
                             user?.let { state.value = state.value.copy(user = it) }
                         }
                 is OnboardAction.UpdateLanguage ->
                         execute {
-                            Repository.saveUser(state.value.user.copy(language = action.language))
+                            Repository.updateUser { it.copy(language = action.language) }
                             val user = Repository.getUser()
                             user?.let { state.value = state.value.copy(user = it) }
                         }
                 is OnboardAction.UpdateCoins ->
                         execute {
-                            Repository.saveUser(state.value.user.copy(coins = action.coins))
+                            Repository.updateUser { it.copy(coins = action.coins) }
                             val user = Repository.getUser()
                             user?.let { state.value = state.value.copy(user = it) }
                         }
                 is OnboardAction.UpdateOnboarded ->
-                        execute { Repository.saveUser(state.value.user.copy(onboarded = true)) }
+                        execute { Repository.updateUser { it.copy(onboarded = true) } }
             }
         }
     }

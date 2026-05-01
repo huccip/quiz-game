@@ -334,4 +334,34 @@
     <!-- Browse redesign -->
     <string name="browse_title">Explora temas</string>
     <string name="browse_subtitle">Encuentra la categoría perfecta para ti</string>
+
+    <!-- Score-multiplier power-ups -->
+    <string name="shop_item_mult_x2_name">Multiplicador ×2</string>
+    <string name="shop_item_mult_x2_desc">Duplica los puntos si aciertas. Si fallas, el potenciador se gasta sin efecto.</string>
+    <string name="shop_item_mult_x3_name">Multiplicador ×3</string>
+    <string name="shop_item_mult_x3_desc">Triplica los puntos en una respuesta correcta. Más recompensa, más riesgo.</string>
+    <string name="shop_item_mult_x5_name">Multiplicador ×5</string>
+    <string name="shop_item_mult_x5_desc">Cinco veces los puntos si aciertas. Solo para los más seguros.</string>
+
+    <string name="game_first_of_day_banner">¡Primer quiz del día — los puntos se duplican!</string>
+
+    <string name="streak_reward_title">¡Racha diaria!</string>
+    <string name="streak_reward_day_label">DÍA</string>
+    <string name="streak_reward_subtitle">¡Bienvenido de nuevo! Aquí tienes tu recompensa de hoy.</string>
+    <string name="streak_reward_button">Reclamar</string>
+    <string name="streak_reward_reset_notice">Te saltaste un día, así que la racha se reinició.</string>
+
+    <string name="loot_box_card_title_available">Caja diaria</string>
+    <string name="loot_box_card_title_claimed">Caja reclamada</string>
+    <string name="loot_box_card_subtitle_available">¡Te espera una recompensa gratis! Toca para abrir.</string>
+    <string name="loot_box_card_subtitle_claimed">Vuelve mañana para otra recompensa.</string>
+    <string name="loot_box_card_streak">Racha de inicio de sesión: %1$d días</string>
+    <string name="loot_box_card_cta">Abrir</string>
+    <string name="loot_box_opening_title">Abriendo…</string>
+    <string name="loot_box_opening_subtitle">¡Veamos qué te tocó!</string>
+    <string name="loot_box_revealed_title">Recompensa de hoy</string>
+    <string name="loot_box_button_close">¡Genial!</string>
+    <string name="loot_box_reward_nothing">Hoy no hubo suerte, ¡intenta mañana!</string>
+    <string name="loot_box_reward_coins">+%1$d monedas</string>
+    <string name="loot_box_reward_power_up">Potenciador desbloqueado: %1$s</string>
 </resources>

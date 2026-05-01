@@ -336,4 +336,34 @@
     <!-- Browse redesign -->
     <string name="browse_title">تصفح المواضيع</string>
     <string name="browse_subtitle">اعثر على الفئة المناسبة لك</string>
+
+    <!-- Score-multiplier power-ups -->
+    <string name="shop_item_mult_x2_name">مضاعف ×2</string>
+    <string name="shop_item_mult_x2_desc">ضاعف النقاط عند الإجابة الصحيحة. الإجابة الخاطئة تضيع التعزيز.</string>
+    <string name="shop_item_mult_x3_name">مضاعف ×3</string>
+    <string name="shop_item_mult_x3_desc">ثلاثة أضعاف النقاط عند الإجابة الصحيحة. مكافأة أعلى ومخاطرة أكبر.</string>
+    <string name="shop_item_mult_x5_name">مضاعف ×5</string>
+    <string name="shop_item_mult_x5_desc">خمسة أضعاف النقاط إذا أصبتها. للواثقين فقط.</string>
+
+    <string name="game_first_of_day_banner">أول اختبار اليوم — النقاط مضاعفة!</string>
+
+    <string name="streak_reward_title">سلسلة يومية!</string>
+    <string name="streak_reward_day_label">يوم</string>
+    <string name="streak_reward_subtitle">مرحبًا بعودتك! إليك مكافأة اليوم.</string>
+    <string name="streak_reward_button">استلام</string>
+    <string name="streak_reward_reset_notice">فاتك يوم، لذا أُعيد تعيين السلسلة.</string>
+
+    <string name="loot_box_card_title_available">صندوق الغنائم اليومي</string>
+    <string name="loot_box_card_title_claimed">تم استلام الصندوق</string>
+    <string name="loot_box_card_subtitle_available">مكافأة مجانية بانتظارك. اضغط للفتح!</string>
+    <string name="loot_box_card_subtitle_claimed">عُد غدًا للحصول على مكافأة أخرى.</string>
+    <string name="loot_box_card_streak">سلسلة الدخول: %1$d أيام</string>
+    <string name="loot_box_card_cta">افتح</string>
+    <string name="loot_box_opening_title">جاري الفتح…</string>
+    <string name="loot_box_opening_subtitle">لنرَ ماذا حصلت!</string>
+    <string name="loot_box_revealed_title">مكافأة اليوم</string>
+    <string name="loot_box_button_close">رائع</string>
+    <string name="loot_box_reward_nothing">لا حظ اليوم — حاول غدًا!</string>
+    <string name="loot_box_reward_coins">+%1$d عملة</string>
+    <string name="loot_box_reward_power_up">تم فتح قدرة: %1$s</string>
 </resources>

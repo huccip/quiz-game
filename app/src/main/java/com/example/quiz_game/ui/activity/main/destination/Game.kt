@@ -75,6 +75,7 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.util.fastFilter
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
+import com.example.quiz_game.App
 import com.example.quiz_game.R
 import com.example.quiz_game.data.Repository
 import com.example.quiz_game.data.quiz.Quiz
@@ -82,6 +83,7 @@ import com.example.quiz_game.data.session.Session
 import com.example.quiz_game.data.shop.ShopItem
 import com.example.quiz_game.data.shop.ShopItemType
 import com.example.quiz_game.other.Constants
+import com.example.quiz_game.other.DailyRewards
 import com.example.quiz_game.other.Sound
 import com.example.quiz_game.other.SoundManager
 import com.example.quiz_game.other.withTap
@@ -172,9 +174,24 @@ fun Game(
         onDispose { currentSession = null }
     }
 
+    val context = androidx.compose.ui.platform.LocalContext.current
+    val activity = context as? android.app.Activity
+
     currentSession?.let { session ->
         var quizIndex by rememberSaveable(session.uid) { mutableIntStateOf(0) }
         var incorrectlyAnswered by rememberSaveable(session.uid) { mutableIntStateOf(0) }
+
+        // First-quiz-of-the-day silent x2 multiplier. Computed ONCE at the
+        // start of this session and frozen for its duration so progress
+        // mid-session won't flip the bonus off after we've already updated
+        // the lastQuizCompletedAt stamp on completion.
+        val sessionFirstOfDay = rememberSaveable(session.uid) {
+            DailyRewards.isFirstQuizOfDay(
+                now = System.currentTimeMillis(),
+                lastQuizCompletedAt = Repository.getUser()?.lastQuizCompletedAt ?: 0L,
+            )
+        }
+        val sessionMultiplier = if (sessionFirstOfDay) DailyRewards.FIRST_QUIZ_OF_DAY_MULTIPLIER else 1
 
         val quiz = currentQuizzes.getOrNull(quizIndex)
 
@@ -209,6 +226,7 @@ fun Game(
                         correctChoice = quiz.correctAnswer,
                         questionIndex = quizIndex,
                         totalQuestions = currentQuizzes.size,
+                        firstOfDayBonus = sessionFirstOfDay,
                         ownedCollectibles = ownedCollectibles,
                         ownedCounts = shopState.ownedCounts,
                         onUseCollectible = { item ->
@@ -237,11 +255,25 @@ fun Game(
                                 incorrectlyAnswered += 1
                             }
 
+                            // Apply the silent first-quiz-of-the-day x2 bonus
+                            // on top of whatever (already-multiplied) mark the
+                            // QuizCard reports. Wrong answers stay 0.
+                            val finalMark = mark * sessionMultiplier
+
                             quizAction(QuizAction.UpdateExpired(quiz.uid))
 
                             if (quizIndex >= currentQuizzes.lastIndex) {
                                 // Award 1-2 random collectibles as session-end reward
                                 shopAction(ShopAction.GrantRandom((1..2).random()))
+
+                                // Stamp lastQuizCompletedAt so subsequent
+                                // sessions today no longer qualify for the
+                                // first-quiz-of-day bonus, and tell SharedVM
+                                // to re-emit the user snapshot.
+                                App.ioScope.launch {
+                                    Repository.updateUser { it.copy(lastQuizCompletedAt = System.currentTimeMillis()) }
+                                    sharedAction(SharedAction.RefreshUser)
+                                }
 
                                 // Funnel the final mark through CompleteSession
                                 // so score, expiredAt, and achievements are
@@ -249,10 +281,14 @@ fun Game(
                                 sessionAction(
                                     SessionAction.CompleteSession(
                                         uid = session.uid,
-                                        finalMark = mark,
+                                        finalMark = finalMark,
                                         incorrectlyAnswered = incorrectlyAnswered
                                     )
                                 )
+
+                                if (activity != null) {
+                                    com.example.quiz_game.other.AdManager.onQuizCompleted(activity)
+                                }
 
                                 sharedAction(
                                     SharedAction.Navigate(
@@ -261,7 +297,10 @@ fun Game(
                                     )
                                 )
                             } else {
-                                sessionAction(SessionAction.UpdateScore(session.uid, mark))
+                                sessionAction(SessionAction.UpdateScore(session.uid, finalMark))
+                                if (activity != null) {
+                                    com.example.quiz_game.other.AdManager.onQuizCompleted(activity)
+                                }
                                 quizIndex += 1
                             }
                         }
@@ -280,6 +319,7 @@ fun QuizCard(
     correctChoice: String? = null,
     questionIndex: Int = 0,
     totalQuestions: Int = 1,
+    firstOfDayBonus: Boolean = false,
     ownedCollectibles: List<ShopItem> = emptyList(),
     ownedCounts: Map<String, Int> = emptyMap(),
     onUseCollectible: (ShopItem) -> Unit = {},
@@ -296,6 +336,14 @@ fun QuizCard(
     var hintUsed by rememberSaveable(quiz.uid) { mutableStateOf(false) }
     var timeUsed by rememberSaveable(quiz.uid) { mutableStateOf(false) }
     var swapUsed by rememberSaveable(quiz.uid) { mutableStateOf(false) }
+    // Score-multiplier state. `pendingMultiplier` is the active risk-bet for
+    // this question (1 == no multiplier). It is committed BEFORE the user
+    // picks any answer; once `answeredState` leaves IDLE, the multiplier is
+    // locked. On a correct lock-in the question's mark is multiplied; on a
+    // wrong / unanswered lock-in the multiplier is consumed for nothing
+    // (soft-penalty model — no coin loss, just a wasted power-up).
+    var pendingMultiplier by rememberSaveable(quiz.uid) { mutableIntStateOf(1) }
+    var multiplierUsed by rememberSaveable(quiz.uid) { mutableStateOf(false) }
 
     val scrollState = rememberScrollState()
     val scope = rememberCoroutineScope()
@@ -345,7 +393,7 @@ fun QuizCard(
                     }
                 )
                 delay(1500L)
-                onAnswered(answer, if (isCorrect) quiz.mark!! else 0)
+                onAnswered(answer, if (isCorrect) (quiz.mark!! * pendingMultiplier) else 0)
             }
             else -> Unit
         }
@@ -353,7 +401,14 @@ fun QuizCard(
 
     LaunchedEffect(quiz.uid) {
         while (timer > 0 && answeredState != AnsweredState.LOCKED) {
-            delay(1000L)
+            delay(100L)
+            if (com.example.quiz_game.other.AdManager.isAdShowing.value) {
+                continue
+            }
+            delay(900L)
+            if (com.example.quiz_game.other.AdManager.isAdShowing.value) {
+                continue
+            }
             if (answeredState != AnsweredState.LOCKED) {
                 timer -= 1
                 // Per-second tick. Switch to the intense variant once the
@@ -423,6 +478,16 @@ fun QuizCard(
                     swapUsed = true
                     onUseCollectible(item)
                     onRequestSwap()
+                }
+            }
+            ShopItemType.SCORE_MULTIPLIER -> {
+                // Only armable while the user has not yet picked an answer
+                // (per the design: the multiplier is a confidence bet placed
+                // BEFORE seeing your own commit). Also one-shot per question.
+                if (!multiplierUsed && answeredState == AnsweredState.IDLE) {
+                    multiplierUsed = true
+                    pendingMultiplier = item.multiplier.coerceAtLeast(1)
+                    onUseCollectible(item)
                 }
             }
         }
@@ -516,6 +581,26 @@ fun QuizCard(
                             )
                         }
 
+                        // Active score-multiplier badge — only visible while
+                        // a SCORE_MULTIPLIER power-up is armed for this
+                        // question. Subtle pulsing glow advertises the risk.
+                        if (pendingMultiplier > 1) {
+                            Surface(
+                                shape = RoundedCornerShape(50),
+                                color = Color(0xFFFFC107),
+                                tonalElevation = 4.dp,
+                                shadowElevation = 4.dp,
+                            ) {
+                                Text(
+                                    text = "x$pendingMultiplier",
+                                    style = MaterialTheme.typography.labelMedium,
+                                    fontWeight = FontWeight.Black,
+                                    color = Color(0xFF3E2723),
+                                    modifier = Modifier.padding(horizontal = 12.dp, vertical = 5.dp)
+                                )
+                            }
+                        }
+
                         // Circular timer
                         Box(contentAlignment = Alignment.Center) {
                             CircularProgressIndicator(
@@ -537,6 +622,27 @@ fun QuizCard(
                 }
 
                 Spacer(Modifier.height(20.dp))
+
+                // ── First-quiz-of-the-day silent bonus banner ──
+                // Only shown on the very first question of the very first
+                // session of the calendar day, as a soft "go for it" cue.
+                if (firstOfDayBonus) {
+                    Surface(
+                        shape = RoundedCornerShape(14.dp),
+                        color = Color(0xFFFFF3CD),
+                        tonalElevation = 1.dp,
+                        modifier = Modifier.fillMaxWidth(),
+                    ) {
+                        Text(
+                            text = stringResource(R.string.game_first_of_day_banner),
+                            style = MaterialTheme.typography.labelLarge,
+                            fontWeight = FontWeight.SemiBold,
+                            color = Color(0xFF7A5A00),
+                            modifier = Modifier.padding(horizontal = 14.dp, vertical = 10.dp),
+                        )
+                    }
+                    Spacer(Modifier.height(14.dp))
+                }
 
                 // ── Question text ──
                 quiz.question?.let {

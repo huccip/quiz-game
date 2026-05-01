@@ -240,10 +240,12 @@ class MainActivity : BaseActivity() {
                                         quizAction = quizViewModel::onAction,
                                         categoryState = categoryState,
                                         sessionState = sessionState,
+                                        sharedState = sharedState,
                                         sharedAction = sharedViewModel::onAction,
                                         navController = navController,
                                         sessionAction = sessionViewModel::onAction,
                                         quoteState = quoteState,
+                                        shopAction = shopViewModel::onAction,
                                         onError = onError
                                     )
                                 }
@@ -305,6 +307,7 @@ class MainActivity : BaseActivity() {
                                     Shop(
                                         shopState = shopState,
                                         shopAction = shopViewModel::onAction,
+                                        sharedAction = sharedViewModel::onAction,
                                         navController = navController
                                     )
                                 }

@@ -50,8 +50,9 @@ object TranslatorManager {
         try {
             // 1. Save language
             _status.value = TranslatorStatus.Saving
-            val user = Repository.getUser() ?: com.example.quiz_game.data.user.User()
-            Repository.saveUser(user.copy(language = language))
+            Repository.updateUser { user ->
+                user.copy(language = language)
+            }
 
             // 2. Skip download for English → English
             if (language == TranslateLanguage.ENGLISH) {

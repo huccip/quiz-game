@@ -85,11 +85,14 @@ import com.example.quiz_game.data.Repository
 import com.example.quiz_game.data.category.Category
 import com.example.quiz_game.data.session.Session
 import com.example.quiz_game.other.Constants
+import com.example.quiz_game.other.DailyRewards
 import com.example.quiz_game.other.TranslatorManager
 import com.example.quiz_game.other.Utils
 import com.example.quiz_game.other.withTap
 import com.example.quiz_game.ui.activity.main.MainDestination
 import com.example.quiz_game.ui.shared.component.CardClickable
+import com.example.quiz_game.ui.shared.component.DialogLootBoxReveal
+import com.example.quiz_game.ui.shared.component.DialogStreakReward
 import com.example.quiz_game.ui.shared.component.DialogYesOrNo
 import com.example.quiz_game.ui.shared.component.InformativeChip
 import com.example.quiz_game.ui.shared.component.LoadingInfiniteLine
@@ -118,6 +121,8 @@ import com.example.quiz_game.ui.viewmodel.QuoteState
 import com.example.quiz_game.ui.viewmodel.SessionAction
 import com.example.quiz_game.ui.viewmodel.SessionState
 import com.example.quiz_game.ui.viewmodel.SharedAction
+import com.example.quiz_game.ui.viewmodel.SharedState
+import com.example.quiz_game.ui.viewmodel.ShopAction
 import java.util.Calendar
 import java.util.concurrent.TimeUnit
 
@@ -139,10 +144,12 @@ fun Home(
     categoryState: CategoryState = CategoryState(),
     quoteState: QuoteState = QuoteState(),
     quoteAction: (QuoteAction) -> Unit = {},
+    sharedState: SharedState = SharedState(),
     sharedAction: (SharedAction) -> Unit = {},
     sessionState: SessionState = SessionState(),
     sessionAction: (SessionAction) -> Unit = {},
     categoryAction: (CategoryAction) -> Unit = {},
+    shopAction: (ShopAction) -> Unit = {},
     navController: NavController = rememberNavController(),
     onError: (String) -> Unit = {}
 ) {
@@ -175,6 +182,11 @@ fun Home(
         if (categoryState.categories.isEmpty() && !categoryState.executing) {
             categoryAction(CategoryAction.GetAll)
         }
+
+        // Daily-login streak: this is the single canonical entry-point. The
+        // ViewModel itself short-circuits if the user already logged in today,
+        // so it's safe to fire on every Home composition without spamming.
+        sharedAction(SharedAction.EvaluateDailyLogin)
     }
 
     // ── Regular Start Game Flow ──
@@ -260,40 +272,69 @@ fun Home(
         selectedCategory = null
     }
 
-    // ── Confirmation Dialog for Active Session Interruption ──
-    if (pendingSessionAction != null) {
-        DialogYesOrNo(
-            modifier = Modifier.fillMaxWidth(),
-            title = R.string.dialog_discard_session_title,
-            text = R.string.dialog_discard_session_text,
-            icon = R.drawable.ic_warning,
-            buttonConfirmText = R.string.dialog_discard_session_confirm_button,
-            buttonDismissText = R.string.dialog_discard_session_dissmiss_button,
-            onConfirm = {
-                currentSession?.let { sessionAction(SessionAction.EndSession(it.uid)) }
-                when (val action = pendingSessionAction) {
-                    is PendingSessionAction.StartNewGame -> startGameTrigger = true
-                    is PendingSessionAction.StartCategory -> selectedCategory = action.category
-                    is PendingSessionAction.BrowseAll -> sharedAction(
-                        SharedAction.Navigate(
-                            MainDestination.Browse,
-                            navController
-                        )
-                    )
-
-                    null -> {}
-                }
-                pendingSessionAction = null
-            },
-            onDismiss = { pendingSessionAction = null }
-        )
-    }
-
     val isDarkTheme = isSystemInDarkTheme()
 
     if (quizState.executing || categoryState.executing || startGameTrigger || isCategoryLoading) {
         LoadingInfiniteLine(subject = stringArrayResource(R.array.home_loading_subjects))
     } else {
+        // ── Confirmation Dialog for Active Session Interruption ──
+        if (pendingSessionAction != null) {
+            DialogYesOrNo(
+                modifier = Modifier.fillMaxWidth(),
+                title = R.string.dialog_discard_session_title,
+                text = R.string.dialog_discard_session_text,
+                icon = R.drawable.ic_warning,
+                buttonConfirmText = R.string.dialog_discard_session_confirm_button,
+                buttonDismissText = R.string.dialog_discard_session_dissmiss_button,
+                onConfirm = {
+                    currentSession?.let { sessionAction(SessionAction.EndSession(it.uid)) }
+                    when (val action = pendingSessionAction) {
+                        is PendingSessionAction.StartNewGame -> startGameTrigger = true
+                        is PendingSessionAction.StartCategory -> selectedCategory = action.category
+                        is PendingSessionAction.BrowseAll -> sharedAction(
+                            SharedAction.Navigate(
+                                MainDestination.Browse,
+                                navController
+                            )
+                        )
+
+                        null -> {}
+                    }
+                    pendingSessionAction = null
+                },
+                onDismiss = { pendingSessionAction = null }
+            )
+        }
+
+        // ── Daily-login streak popup (one-shot, surfaced by SharedViewModel) ──
+        sharedState.pendingStreakReward?.let { event ->
+            DialogStreakReward(
+                streakDays = event.streakDays,
+                coinsGranted = event.coinsGranted,
+                wasReset = event.wasReset,
+                onDismiss = { sharedAction(SharedAction.ConsumeStreakReward) },
+            )
+        }
+
+        // ── Daily loot box reveal (modal). The reward is rolled and persisted by
+        //    [SharedViewModel.claimLootBox] under the same mutex as the daily-login
+        //    flow, then surfaced here via [SharedState.pendingLootBoxReward]. The
+        //    dialog itself is purely presentational. ──
+        sharedState.pendingLootBoxReward?.let { reward ->
+            // Power-up rewards still need to land in the inventory; do this once
+            // when the reward first appears so the grant is exactly-once and is
+            // not re-fired on recomposition.
+            LaunchedEffect(reward) {
+                if (reward is DailyRewards.LootBoxReward.PowerUp) {
+                    shopAction(ShopAction.GrantSpecific(reward.item))
+                }
+            }
+            DialogLootBoxReveal(
+                reward = reward,
+                onDismiss = { sharedAction(SharedAction.ConsumeLootBoxReward) },
+            )
+        }
+
         val scrollState = rememberScrollState()
 
         Box(
@@ -363,6 +404,26 @@ fun Home(
 
                         // ── 3. Stats strip ──
                         StatsStrip(sessions = sessionState.sessions)
+                        Spacer(Modifier.height(18.dp))
+
+                        // ── 3b. Daily loot box CTA ──
+                        // Visible only while the 24h cooldown has rolled
+                        // over. Tapping dispatches a shared action that
+                        // rolls + persists the reward atomically (same mutex
+                        // as the daily-login streak grant) and stages the
+                        // reveal dialog via [SharedState.pendingLootBoxReward].
+                        val now = System.currentTimeMillis()
+                        val lastClaim = sharedState.user?.lastLootBoxClaimAt ?: 0L
+                        val streakDays = sharedState.user?.loginStreakDays ?: 0
+                        val canClaim = DailyRewards.lootBoxAvailable(now, lastClaim)
+                        DailyLootBoxSection(
+                            available = canClaim,
+                            streakDays = streakDays,
+                            onClaim = {
+                                if (!canClaim) return@DailyLootBoxSection
+                                sharedAction(SharedAction.ClaimLootBox)
+                            },
+                        )
                         Spacer(Modifier.height(18.dp))
 
                         // ── 4. Wisdom card ──
@@ -438,14 +499,27 @@ fun Home(
                             )
                         }
                     )
+
+                    Spacer(Modifier.height(80.dp)) // Extra padding at the bottom so scroll reaches below sticky banner
                 }
             }
 
-            // ── 8. Sticky top-right: gems + trophies + settings pills ──
+            // ── 8. Banner Ad ──
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .align(Alignment.BottomCenter)
+                    .background(MaterialTheme.colorScheme.background)
+            ) {
+                com.example.quiz_game.ui.shared.component.BannerAd()
+            }
+
+            // ── 9. Sticky top-right: gems + trophies + settings pills ──
             TopBar(
                 navController = navController,
                 sharedAction = sharedAction,
-                sessions = sessionState.sessions
+                sessions = sessionState.sessions,
+                userCoins = sharedState.user?.coins ?: Repository.getUser()?.coins ?: 0,
             )
         }
     }
@@ -1226,13 +1300,123 @@ private fun ShopBannerSection(
 
 private enum class SettingsDialog { ABOUT, PRIVACY, TERMS }
 
+/**
+ * Daily-loot-box CTA. Glowing call-to-action while [available]; collapses to
+ * a calm "come back tomorrow" footer once today's claim has been made so the
+ * card never disappears entirely (keeps the layout stable and reinforces the
+ * habit cue).
+ */
+@Composable
+private fun DailyLootBoxSection(
+    available: Boolean,
+    streakDays: Int,
+    onClaim: () -> Unit,
+) {
+    val interactionSource = remember { MutableInteractionSource() }
+    val gradient = if (available) {
+        Brush.linearGradient(
+            listOf(Color(0xFFFFB300), Color(0xFFFF7043))
+        )
+    } else {
+        Brush.linearGradient(
+            listOf(
+                MaterialTheme.colorScheme.surfaceVariant,
+                MaterialTheme.colorScheme.surfaceVariant,
+            )
+        )
+    }
+    val onColor = if (available) Color.White else MaterialTheme.colorScheme.onSurfaceVariant
+
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .scaleDownOnPress(.97f, interactionSource)
+            .background(brush = gradient, shape = RoundedCornerShape(20.dp))
+            .clickable(
+                enabled = available,
+                interactionSource = interactionSource,
+                indication = LocalIndication.current,
+                onClick = withTap(onClaim),
+            )
+            .padding(horizontal = 18.dp, vertical = 16.dp)
+    ) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier.fillMaxWidth(),
+        ) {
+            Box(
+                modifier = Modifier
+                    .size(48.dp)
+                    .background(
+                        color = if (available) Color.White.copy(alpha = 0.22f)
+                        else Color.Black.copy(alpha = 0.05f),
+                        shape = RoundedCornerShape(14.dp),
+                    ),
+                contentAlignment = Alignment.Center,
+            ) {
+                Text(text = "\uD83C\uDF81", fontSize = 26.sp) // 🎁
+            }
+            Spacer(Modifier.width(14.dp))
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    text = stringResource(
+                        if (available) R.string.loot_box_card_title_available
+                        else R.string.loot_box_card_title_claimed
+                    ),
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold,
+                    color = onColor,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                )
+                Spacer(Modifier.height(2.dp))
+                Text(
+                    text = if (available) stringResource(R.string.loot_box_card_subtitle_available)
+                    else stringResource(R.string.loot_box_card_subtitle_claimed),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = onColor.copy(alpha = 0.88f),
+                    maxLines = 2,
+                    overflow = TextOverflow.Ellipsis,
+                )
+                if (streakDays > 0) {
+                    Spacer(Modifier.height(4.dp))
+                    Text(
+                        text = stringResource(R.string.loot_box_card_streak, streakDays),
+                        style = MaterialTheme.typography.labelSmall,
+                        fontWeight = FontWeight.SemiBold,
+                        color = onColor.copy(alpha = 0.92f),
+                    )
+                }
+            }
+            if (available) {
+                Spacer(Modifier.width(10.dp))
+                Box(
+                    modifier = Modifier
+                        .background(
+                            Color.White.copy(alpha = 0.25f),
+                            RoundedCornerShape(999.dp),
+                        )
+                        .padding(horizontal = 14.dp, vertical = 7.dp)
+                ) {
+                    Text(
+                        text = stringResource(R.string.loot_box_card_cta),
+                        style = MaterialTheme.typography.labelLarge,
+                        fontWeight = FontWeight.Black,
+                        color = Color.White,
+                    )
+                }
+            }
+        }
+    }
+}
+
 @Composable
 private fun TopBar(
     navController: NavController,
     sharedAction: (SharedAction) -> Unit,
-    sessions: List<Session> = emptyList()
+    sessions: List<Session> = emptyList(),
+    userCoins: Int = 0,
 ) {
-    val userCoins = Repository.getUser()?.coins ?: 0
     val surface = MaterialTheme.colorScheme.surface
     val onSurface = MaterialTheme.colorScheme.onSurface
     val coinTint = if (isSystemInDarkTheme()) GemCyanDark else GemCyan

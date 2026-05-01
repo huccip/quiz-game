@@ -106,7 +106,7 @@ fun Form(
                     title =
                         stringResource(
                             R.string.onboard_form_greet,
-                            if (!buttonEnabled) "you" else usernameState
+                            usernameState
                         ),
                     subtitle = stringResource(R.string.onboard_form_question),
                 )
