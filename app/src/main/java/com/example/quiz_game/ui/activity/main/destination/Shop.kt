@@ -1,5 +1,7 @@
 package com.example.quiz_game.ui.activity.main.destination
 
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.LocalIndication
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -8,7 +10,6 @@ import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -42,15 +43,12 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
@@ -123,7 +121,7 @@ fun Shop(
     ) {
         // ── Parallax hero image ──
         Image(
-            painter = painterResource(R.drawable.img_illustration_home),
+            painter = painterResource(if (dark) R.drawable.img_illustration_home_dark else R.drawable.img_illustration_home_light),
             contentDescription = null,
             contentScale = ContentScale.Crop,
             modifier = Modifier
@@ -165,8 +163,8 @@ fun Shop(
             // Hero spacer
             item { Spacer(modifier = Modifier.height(240.dp)) }
 
-            // Sticky content card
-            stickyHeader {
+            // Header content card
+            item {
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -203,7 +201,10 @@ fun Shop(
                     // ── Balance pill ──
                     Row(
                         modifier = Modifier
-                            .background(MaterialTheme.colorScheme.surface, RoundedCornerShape(14.dp))
+                            .background(
+                                MaterialTheme.colorScheme.surface,
+                                RoundedCornerShape(14.dp)
+                            )
                             .drawBehind {
                                 drawRoundRect(
                                     color = Color(0xFFE2E8F0).copy(alpha = 0.5f),
@@ -235,13 +236,14 @@ fun Shop(
                     }
 
                     Spacer(Modifier.height(22.dp))
-                    
+
                     val context = androidx.compose.ui.platform.LocalContext.current
                     val activity = context as? android.app.Activity
                     val isRewardedLoaded by com.example.quiz_game.other.AdManager.isRewardedLoaded.collectAsStateWithLifecycle()
-                    
+
                     if (isRewardedLoaded && activity != null) {
-                        val interactionSource = remember { androidx.compose.foundation.interaction.MutableInteractionSource() }
+                        val interactionSource =
+                            remember { androidx.compose.foundation.interaction.MutableInteractionSource() }
                         Row(
                             modifier = Modifier
                                 .fillMaxWidth()
@@ -259,11 +261,18 @@ fun Shop(
                                     interactionSource = interactionSource,
                                     indication = androidx.compose.foundation.LocalIndication.current,
                                     onClick = withTap {
-                                        com.example.quiz_game.other.AdManager.showRewardedAd(activity) {
+                                        com.example.quiz_game.other.AdManager.showRewardedAd(
+                                            activity
+                                        ) {
                                             com.example.quiz_game.App.ioScope.launch {
-                                                val user = com.example.quiz_game.data.Repository.getUser()
+                                                val user =
+                                                    com.example.quiz_game.data.Repository.getUser()
                                                 if (user != null) {
-                                                    com.example.quiz_game.data.Repository.updateUser { it.copy(coins = it.coins + 10) }
+                                                    com.example.quiz_game.data.Repository.updateUser {
+                                                        it.copy(
+                                                            coins = it.coins + 10
+                                                        )
+                                                    }
                                                     sharedAction(com.example.quiz_game.ui.viewmodel.SharedAction.RefreshUser)
                                                     shopAction(ShopAction.Refresh)
                                                 }
@@ -304,10 +313,13 @@ fun Shop(
                                     )
                                 }
                             }
-                            
+
                             Row(
                                 modifier = Modifier
-                                    .background(Color.White.copy(alpha = 0.25f), RoundedCornerShape(12.dp))
+                                    .background(
+                                        Color.White.copy(alpha = 0.25f),
+                                        RoundedCornerShape(12.dp)
+                                    )
                                     .padding(horizontal = 10.dp, vertical = 6.dp),
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
@@ -342,15 +354,21 @@ fun Shop(
             // ── Shop items ──
             items(items = shopState.items, key = { it.id }) { item ->
                 val owned = shopState.ownedCounts[item.id] ?: 0
-                ShopItemCard(
-                    item = item,
-                    ownedCount = owned,
-                    userCoins = shopState.userCoins,
-                    onBuy = { shopAction(ShopAction.BuyItem(item)) },
-                    onSell = { shopAction(ShopAction.SellItem(item)) },
-                    modifier = Modifier.padding(horizontal = 24.dp)
-                )
-                Spacer(modifier = Modifier.height(14.dp))
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .background(MaterialTheme.colorScheme.background)
+                ) {
+                    ShopItemCard(
+                        item = item,
+                        ownedCount = owned,
+                        userCoins = shopState.userCoins,
+                        onBuy = { shopAction(ShopAction.BuyItem(item)) },
+                        onSell = { shopAction(ShopAction.SellItem(item)) },
+                        modifier = Modifier.padding(horizontal = 24.dp)
+                    )
+                    Spacer(modifier = Modifier.height(14.dp))
+                }
             }
 
             // Bottom padding
@@ -414,7 +432,12 @@ private fun ShopItemCard(
                 ),
             contentAlignment = Alignment.Center
         ) {
-            Text(text = item.icon, fontSize = 26.sp)
+            Icon(
+                painter = painterResource(item.icon),
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.primary,
+                modifier = Modifier.size(26.dp)
+            )
         }
 
         // Name + description

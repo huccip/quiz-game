@@ -17,11 +17,8 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
@@ -45,11 +42,8 @@ import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.drawBehind
-import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
@@ -62,8 +56,6 @@ import androidx.compose.ui.util.fastFilter
 import androidx.compose.ui.util.fastMap
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
-import kotlinx.coroutines.flow.drop
-import kotlinx.coroutines.flow.first
 import com.example.quiz_game.R
 import com.example.quiz_game.data.category.Category
 import com.example.quiz_game.other.Constants
@@ -83,6 +75,8 @@ import com.example.quiz_game.ui.viewmodel.SessionAction
 import com.example.quiz_game.ui.viewmodel.SessionState
 import com.example.quiz_game.ui.viewmodel.SharedAction
 import com.example.quiz_game.ui.viewmodel.SharedState
+import kotlinx.coroutines.flow.drop
+import kotlinx.coroutines.flow.first
 
 
 enum class SortOrder {
@@ -189,6 +183,7 @@ fun Browse(
                 SortOrder.COUNT_HIGH_LOW -> list.sortedByDescending {
                     quizState.unexpiredCounts[it.first.uid] ?: 0
                 }
+
                 SortOrder.COUNT_LOW_HIGH -> list.sortedBy {
                     quizState.unexpiredCounts[it.first.uid] ?: 0
                 }
@@ -210,7 +205,7 @@ fun Browse(
         ) {
             // ── Parallax hero image ──
             Image(
-                painter = painterResource(R.drawable.img_illustration_home),
+                painter = painterResource(if (dark) R.drawable.img_illustration_home_dark else R.drawable.img_illustration_home_light),
                 contentDescription = null,
                 contentScale = ContentScale.Crop,
                 modifier = Modifier
@@ -308,8 +303,12 @@ fun Browse(
                                     shape = RoundedCornerShape(16.dp),
                                     singleLine = true,
                                     colors = OutlinedTextFieldDefaults.colors(
-                                        focusedContainerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f),
-                                        unfocusedContainerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f),
+                                        focusedContainerColor = MaterialTheme.colorScheme.surfaceVariant.copy(
+                                            alpha = 0.5f
+                                        ),
+                                        unfocusedContainerColor = MaterialTheme.colorScheme.surfaceVariant.copy(
+                                            alpha = 0.5f
+                                        ),
                                         focusedBorderColor = MaterialTheme.colorScheme.primary,
                                         unfocusedBorderColor = Color.Transparent
                                     )
@@ -353,19 +352,31 @@ fun Browse(
                                     ) {
                                         DropdownMenuItem(
                                             text = { Text(stringResource(R.string.browse_sort_a_z)) },
-                                            onClick = { sortOrder = SortOrder.A_Z; sortMenuExpanded = false }
+                                            onClick = {
+                                                sortOrder = SortOrder.A_Z; sortMenuExpanded = false
+                                            }
                                         )
                                         DropdownMenuItem(
                                             text = { Text(stringResource(R.string.browse_sort_z_a)) },
-                                            onClick = { sortOrder = SortOrder.Z_A; sortMenuExpanded = false }
+                                            onClick = {
+                                                sortOrder = SortOrder.Z_A; sortMenuExpanded = false
+                                            }
                                         )
                                         DropdownMenuItem(
                                             text = { Text(stringResource(R.string.browse_sort_count_high)) },
-                                            onClick = { sortOrder = SortOrder.COUNT_HIGH_LOW; sortMenuExpanded = false }
+                                            onClick = {
+                                                sortOrder =
+                                                    SortOrder.COUNT_HIGH_LOW; sortMenuExpanded =
+                                                false
+                                            }
                                         )
                                         DropdownMenuItem(
                                             text = { Text(stringResource(R.string.browse_sort_count_low)) },
-                                            onClick = { sortOrder = SortOrder.COUNT_LOW_HIGH; sortMenuExpanded = false }
+                                            onClick = {
+                                                sortOrder =
+                                                    SortOrder.COUNT_LOW_HIGH; sortMenuExpanded =
+                                                false
+                                            }
                                         )
                                     }
                                 }
@@ -394,7 +405,8 @@ fun Browse(
                                         sharedAction(
                                             SharedAction.Navigate(
                                                 MainDestination.Game(
-                                                    quizzesUids = currentSession.quizzesUids ?: emptyList()
+                                                    quizzesUids = currentSession.quizzesUids
+                                                        ?: emptyList()
                                                 ),
                                                 navController
                                             )
@@ -463,7 +475,8 @@ fun Browse(
                                 modifier = Modifier.weight(1f),
                                 onClick = {
                                     if (hasActiveSession) {
-                                        pendingSessionAction = PendingSessionAction.StartCategory(category)
+                                        pendingSessionAction =
+                                            PendingSessionAction.StartCategory(category)
                                     } else {
                                         selectedCategory = category
                                     }
@@ -500,7 +513,9 @@ fun Browse(
                     onConfirm = {
                         currentSession?.let { sessionAction(SessionAction.EndSession(it.uid)) }
                         when (val action = pendingSessionAction) {
-                            is PendingSessionAction.StartCategory -> selectedCategory = action.category
+                            is PendingSessionAction.StartCategory -> selectedCategory =
+                                action.category
+
                             else -> {}
                         }
                         pendingSessionAction = null

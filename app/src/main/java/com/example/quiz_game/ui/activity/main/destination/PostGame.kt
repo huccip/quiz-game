@@ -331,9 +331,11 @@ fun PostGame(
                                         .background(MaterialTheme.colorScheme.surface),
                                     contentAlignment = Alignment.Center
                                 ) {
-                                    androidx.compose.material3.Text(
-                                        text = item.icon,
-                                        fontSize = 24.sp
+                                    androidx.compose.material3.Icon(
+                                        painter = painterResource(id = item.icon),
+                                        contentDescription = null,
+                                        tint = MaterialTheme.colorScheme.primary,
+                                        modifier = Modifier.size(24.dp)
                                     )
                                 }
                             }

@@ -10,7 +10,6 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.PaddingValues
@@ -25,9 +24,7 @@ import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.layout.wrapContentWidth
-import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
@@ -39,12 +36,10 @@ import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -53,7 +48,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawBehind
-import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
@@ -62,21 +56,17 @@ import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringArrayResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.util.fastFilter
 import androidx.compose.ui.util.fastForEach
 import androidx.compose.ui.util.fastMap
-import androidx.core.graphics.toColorInt
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
@@ -90,16 +80,13 @@ import com.example.quiz_game.other.TranslatorManager
 import com.example.quiz_game.other.Utils
 import com.example.quiz_game.other.withTap
 import com.example.quiz_game.ui.activity.main.MainDestination
-import com.example.quiz_game.ui.shared.component.CardClickable
 import com.example.quiz_game.ui.shared.component.DialogLootBoxReveal
 import com.example.quiz_game.ui.shared.component.DialogStreakReward
 import com.example.quiz_game.ui.shared.component.DialogYesOrNo
-import com.example.quiz_game.ui.shared.component.InformativeChip
 import com.example.quiz_game.ui.shared.component.LoadingInfiniteLine
 import com.example.quiz_game.ui.shared.effect.scaleDownOnPress
 import com.example.quiz_game.ui.theme.GemCyan
 import com.example.quiz_game.ui.theme.GemCyanDark
-import com.example.quiz_game.ui.theme.Indigo100
 import com.example.quiz_game.ui.theme.Indigo500
 import com.example.quiz_game.ui.theme.Indigo600
 import com.example.quiz_game.ui.theme.Indigo700
@@ -344,7 +331,7 @@ fun Home(
         ) {
             // ── 1. Edge-to-edge Illustration (Parallax) ──
             Image(
-                painter = painterResource(R.drawable.img_illustration_home),
+                painter = painterResource(if (isDarkTheme) R.drawable.img_illustration_home_dark else R.drawable.img_illustration_home_light),
                 contentDescription = null,
                 contentScale = ContentScale.Crop,
                 modifier = Modifier
@@ -588,7 +575,7 @@ private fun GreetingSection() {
             style = MaterialTheme.typography.headlineLarge,
             fontWeight = FontWeight.Bold,
             color = MaterialTheme.colorScheme.onBackground,
-            maxLines = 1,
+            maxLines = 2,
             overflow = TextOverflow.Ellipsis,
         )
         Spacer(Modifier.height(4.dp))
@@ -646,9 +633,7 @@ private fun QuoteSection(quoteState: QuoteState) {
                     stringResource(R.string.home_quote_not_found),
                 style = MaterialTheme.typography.bodyMedium,
                 fontStyle = FontStyle.Italic,
-                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.88f),
-                maxLines = 3,
-                overflow = TextOverflow.Ellipsis
+                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.88f)
             )
 
             if (!quoteState.quote?.author.isNullOrBlank()) {
@@ -1429,8 +1414,10 @@ private fun TopBar(
         val (title, body) = when (dialog) {
             SettingsDialog.ABOUT -> stringResource(R.string.settings_about_title) to
                     stringResource(R.string.settings_about_body)
+
             SettingsDialog.PRIVACY -> stringResource(R.string.settings_menu_privacy) to
                     stringResource(R.string.settings_legal_coming_soon)
+
             SettingsDialog.TERMS -> stringResource(R.string.settings_menu_terms) to
                     stringResource(R.string.settings_legal_coming_soon)
         }

@@ -251,9 +251,11 @@ fun DialogLootBoxReveal(
                                 text = "\uD83D\uDCB0", // 💰
                                 fontSize = 56.sp,
                             )
-                            is DailyRewards.LootBoxReward.PowerUp -> Text(
-                                text = reward.item.icon,
-                                fontSize = 56.sp,
+                            is DailyRewards.LootBoxReward.PowerUp -> Icon(
+                                painter = painterResource(reward.item.icon),
+                                contentDescription = null,
+                                tint = Color.White,
+                                modifier = Modifier.size(56.dp)
                             )
                         }
                     }
