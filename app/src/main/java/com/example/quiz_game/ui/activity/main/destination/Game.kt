@@ -1093,7 +1093,12 @@ private fun CollectibleBigCard(
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.Top
             ) {
-                Text(text = item.icon, fontSize = 28.sp)
+                androidx.compose.material3.Icon(
+                    painter = painterResource(item.icon),
+                    contentDescription = null,
+                    tint = Color.White,
+                    modifier = Modifier.size(28.dp)
+                )
                 Box(
                     modifier = Modifier
                         .background(Color.White.copy(alpha = 0.22f), CircleShape)

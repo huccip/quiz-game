@@ -1,5 +1,6 @@
 package com.example.quiz_game.data.shop
 
+import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
 import com.example.quiz_game.R
 
@@ -16,7 +17,7 @@ data class ShopItem(
     val id: String,
     @StringRes val nameRes: Int,
     @StringRes val descRes: Int,
-    val icon: String,          // emoji used as visual
+    @DrawableRes val icon: Int,          // drawable resource used as visual
     val price: Int,
     val type: ShopItemType,
     /**
@@ -34,7 +35,7 @@ object ShopCatalog {
             id = "skip_question",
             nameRes = R.string.shop_item_skip_name,
             descRes = R.string.shop_item_skip_desc,
-            icon = "\u23ED\uFE0F", // ⏭️
+            icon = R.drawable.ic_powerup_skip,
             price = 50,
             type = ShopItemType.SKIP
         ),
@@ -42,7 +43,7 @@ object ShopCatalog {
             id = "time_bonus",
             nameRes = R.string.shop_item_time_name,
             descRes = R.string.shop_item_time_desc,
-            icon = "\u23F1\uFE0F", // ⏱️
+            icon = R.drawable.ic_powerup_time,
             price = 30,
             type = ShopItemType.TIME_BONUS
         ),
@@ -50,7 +51,7 @@ object ShopCatalog {
             id = "hint_card",
             nameRes = R.string.shop_item_hint_name,
             descRes = R.string.shop_item_hint_desc,
-            icon = "\uD83D\uDCA1", // 💡
+            icon = R.drawable.ic_powerup_hint,
             price = 40,
             type = ShopItemType.HINT
         ),
@@ -58,7 +59,7 @@ object ShopCatalog {
             id = "swap_question",
             nameRes = R.string.shop_item_swap_name,
             descRes = R.string.shop_item_swap_desc,
-            icon = "\uD83D\uDD04", // 🔄
+            icon = R.drawable.ic_powerup_swap,
             price = 45,
             type = ShopItemType.SWAP
         ),
@@ -70,7 +71,7 @@ object ShopCatalog {
             id = "multiplier_x2",
             nameRes = R.string.shop_item_mult_x2_name,
             descRes = R.string.shop_item_mult_x2_desc,
-            icon = "\u2728", // ✨
+            icon = R.drawable.ic_powerup_mult_x2,
             price = 60,
             type = ShopItemType.SCORE_MULTIPLIER,
             multiplier = 2
@@ -79,7 +80,7 @@ object ShopCatalog {
             id = "multiplier_x3",
             nameRes = R.string.shop_item_mult_x3_name,
             descRes = R.string.shop_item_mult_x3_desc,
-            icon = "\uD83D\uDD25", // 🔥
+            icon = R.drawable.ic_powerup_mult_x3,
             price = 110,
             type = ShopItemType.SCORE_MULTIPLIER,
             multiplier = 3
@@ -88,7 +89,7 @@ object ShopCatalog {
             id = "multiplier_x5",
             nameRes = R.string.shop_item_mult_x5_name,
             descRes = R.string.shop_item_mult_x5_desc,
-            icon = "\uD83D\uDC8E", // 💎
+            icon = R.drawable.ic_powerup_mult_x5,
             price = 220,
             type = ShopItemType.SCORE_MULTIPLIER,
             multiplier = 5

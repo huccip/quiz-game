@@ -95,34 +95,34 @@ object Utils {
     fun achievementIcon(achievement: Int): Pair<Int, Int> {
         return when (achievement) {
             R.string.achievements_new_record ->
-                R.drawable.ic_new_record to R.string.achievements_detailed_new_record
+                R.drawable.ic_achievement_new_record to R.string.achievements_detailed_new_record
 
             R.string.achievements_no_mistakes ->
-                R.drawable.ic_no_mistake to R.string.achievements_detailed_no_mistakes
+                R.drawable.ic_achievement_no_mistakes to R.string.achievements_detailed_no_mistakes
 
             R.string.achievements_one_mistake ->
-                R.drawable.ic_one_mistake to R.string.achievements_detailed_one_mistake
+                R.drawable.ic_achievement_one_mistake to R.string.achievements_detailed_one_mistake
 
             R.string.achievements_two_mistakes ->
-                R.drawable.ic_two_mistake to R.string.achievements_detailed_two_mistakes
+                R.drawable.ic_achievement_two_mistakes to R.string.achievements_detailed_two_mistakes
 
             R.string.achievements_rough_session ->
-                R.drawable.ic_frown to R.string.achievements_detailed_rough_session
+                R.drawable.ic_achievement_rough_session to R.string.achievements_detailed_rough_session
 
             R.string.achievements_first_session ->
-                R.drawable.ic_arrow_forward to R.string.achievements_detailed_first_session
+                R.drawable.ic_achievement_first_session to R.string.achievements_detailed_first_session
 
             R.string.achievement_timelapse_quick_thinker ->
-                R.drawable.ic_fire to R.string.achievement_timelapse_detailed_quick_thinker
+                R.drawable.ic_achievement_quick_thinker to R.string.achievement_timelapse_detailed_quick_thinker
 
             R.string.achievement_timelapse_casual_cruiser ->
-                R.drawable.ic_feather to R.string.achievement_timelapse_detailed_casual_cruiser
+                R.drawable.ic_achievement_casual_cruiser to R.string.achievement_timelapse_detailed_casual_cruiser
 
             R.string.achievement_timelapse_brain_marathoner ->
-                R.drawable.ic_arrow_north_east to R.string.achievement_timelapse_detailed_brain_marathoner
+                R.drawable.ic_achievement_brain_marathoner to R.string.achievement_timelapse_detailed_brain_marathoner
 
             R.string.achievement_timelapse_eternal_quizzer ->
-                R.drawable.ic_wave to R.string.achievement_timelapse_detailed_eternal_quizzer
+                R.drawable.ic_achievement_eternal_quizzer to R.string.achievement_timelapse_detailed_eternal_quizzer
 
             else ->
                 R.drawable.ic_launcher_foreground to R.string.achievements_empty

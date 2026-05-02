@@ -1,0 +1,4 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android" android:width="24dp" android:height="24dp" android:viewportWidth="24" android:viewportHeight="24">
+    <!-- Shield shape with a small dent/check -->
+    <path android:pathData="M 12 3 L 5 6 L 5 11 C 5 16 8 20 12 22 C 16 20 19 16 19 11 L 19 6 Z M 9 12 L 11 14 L 15 10" android:strokeColor="@android:color/white" android:strokeWidth="2" android:strokeLineCap="round" android:strokeLineJoin="round" android:fillColor="#00000000" />
+</vector>
