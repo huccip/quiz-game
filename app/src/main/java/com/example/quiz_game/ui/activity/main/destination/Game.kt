@@ -869,22 +869,28 @@ fun String?.toCategoryImageRes(): Int = when {
     this == null -> R.drawable.img_category_general
     contains("General", ignoreCase = true) -> R.drawable.img_category_general
     contains("Book", ignoreCase = true) -> R.drawable.img_category_books
-    contains("Film", ignoreCase = true) || contains("Movie", ignoreCase = true) -> R.drawable.img_category_movies
-    contains("Musical", ignoreCase = true) || contains("Theatre", ignoreCase = true) -> R.drawable.img_category_musicals
+    contains("Film", ignoreCase = true) || contains("Movie", ignoreCase = true) -> R.drawable.img_category_film
+    contains("Musical", ignoreCase = true) || contains("Theatre", ignoreCase = true) -> R.drawable.img_category_musicals_theatres
     contains("Music", ignoreCase = true) -> R.drawable.img_category_music
-    contains("Television", ignoreCase = true) || contains("TV", ignoreCase = true) || contains("Series", ignoreCase = true) -> R.drawable.img_category_series
-    contains("Video Game", ignoreCase = true) -> R.drawable.img_category_video_games
-    contains("Board Game", ignoreCase = true) -> R.drawable.img_category_board_games
-    contains("Nature", ignoreCase = true) -> R.drawable.img_category_nature
-    contains("Science", ignoreCase = true) -> R.drawable.img_category_science
-    contains("Computer", ignoreCase = true) || contains("Gadget", ignoreCase = true) -> R.drawable.img_category_computers
-    contains("Math", ignoreCase = true) -> R.drawable.img_category_math
+    contains("Television", ignoreCase = true) || contains("TV", ignoreCase = true) || contains("Series", ignoreCase = true) -> R.drawable.img_category_television
+    contains("Video Game", ignoreCase = true) -> R.drawable.img_category_videogames
+    contains("Board Game", ignoreCase = true) -> R.drawable.img_category_boardgames
+    contains("Science", ignoreCase = true) || contains("Nature", ignoreCase = true) -> R.drawable.img_category_science_nature
+    contains("Computer", ignoreCase = true) -> R.drawable.img_category_computers
+    contains("Gadget", ignoreCase = true) -> R.drawable.img_category_gadgets
+    contains("Math", ignoreCase = true) -> R.drawable.img_category_mathematics
     contains("Mythology", ignoreCase = true) -> R.drawable.img_category_mythology
     contains("Sport", ignoreCase = true) -> R.drawable.img_category_sports
     contains("Geography", ignoreCase = true) -> R.drawable.img_category_geography
     contains("History", ignoreCase = true) -> R.drawable.img_category_history
     contains("Politics", ignoreCase = true) -> R.drawable.img_category_politics
+    contains("Art", ignoreCase = true) -> R.drawable.img_category_art
+    contains("Celebrit", ignoreCase = true) -> R.drawable.img_category_celebrities
     contains("Animal", ignoreCase = true) -> R.drawable.img_category_animals
+    contains("Vehicle", ignoreCase = true) -> R.drawable.img_category_vehicles
+    contains("Comic", ignoreCase = true) -> R.drawable.img_category_comics
+    contains("Anime", ignoreCase = true) || contains("Manga", ignoreCase = true) -> R.drawable.img_category_japaneseanime_manga
+    contains("Cartoon", ignoreCase = true) || contains("Animation", ignoreCase = true) -> R.drawable.img_category_cartoon_animations
     else -> R.drawable.img_category_general
 }
 

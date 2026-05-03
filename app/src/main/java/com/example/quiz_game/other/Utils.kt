@@ -64,30 +64,30 @@ object Utils {
 
     fun categoryImageRes(categoryId: Int?): Int {
         return when (categoryId) {
-            9 -> R.drawable.img_category_general
+            9  -> R.drawable.img_category_general
             10 -> R.drawable.img_category_books
-            11 -> R.drawable.img_category_movies
+            11 -> R.drawable.img_category_film
             12 -> R.drawable.img_category_music
-            13 -> R.drawable.img_category_musicals
-            14 -> R.drawable.img_category_series
-            15 -> R.drawable.img_category_video_games
-            16 -> R.drawable.img_category_board_games
-            17 -> R.drawable.img_category_nature
+            13 -> R.drawable.img_category_musicals_theatres
+            14 -> R.drawable.img_category_television
+            15 -> R.drawable.img_category_videogames
+            16 -> R.drawable.img_category_boardgames
+            17 -> R.drawable.img_category_science_nature
             18 -> R.drawable.img_category_computers
-            19 -> R.drawable.img_category_math
+            19 -> R.drawable.img_category_mathematics
             20 -> R.drawable.img_category_mythology
             21 -> R.drawable.img_category_sports
             22 -> R.drawable.img_category_geography
             23 -> R.drawable.img_category_history
             24 -> R.drawable.img_category_politics
-            25 -> R.drawable.img_category_history
-            26 -> R.drawable.img_category_movies
+            25 -> R.drawable.img_category_art
+            26 -> R.drawable.img_category_celebrities
             27 -> R.drawable.img_category_animals
-            28 -> R.drawable.img_category_general
-            29 -> R.drawable.img_category_books
-            30 -> R.drawable.img_category_computers
-            31 -> R.drawable.img_category_movies
-            32 -> R.drawable.img_category_movies
+            28 -> R.drawable.img_category_vehicles
+            29 -> R.drawable.img_category_comics
+            30 -> R.drawable.img_category_gadgets
+            31 -> R.drawable.img_category_japaneseanime_manga
+            32 -> R.drawable.img_category_cartoon_animations
             else -> R.drawable.img_category_general
         }
     }
@@ -125,7 +125,7 @@ object Utils {
                 R.drawable.ic_achievement_eternal_quizzer to R.string.achievement_timelapse_detailed_eternal_quizzer
 
             else ->
-                R.drawable.ic_launcher_foreground to R.string.achievements_empty
+                R.drawable.ic_achievement_no_mistakes to R.string.achievements_empty
         }
     }
 

@@ -756,55 +756,41 @@ fun AchievementCard(
  */
 private fun categoryNameToImageRes(name: String): Int {
     return when {
-        name.contains("General", ignoreCase = true) || name.contains(
-            "Knowledge",
-            ignoreCase = true
-        ) ->
+        name.contains("General", ignoreCase = true) || name.contains("Knowledge", ignoreCase = true) ->
             R.drawable.img_category_general
 
-        name.contains("Book", ignoreCase = true) || name.contains(
-            "Literature",
-            ignoreCase = true
-        ) ->
+        name.contains("Book", ignoreCase = true) || name.contains("Literature", ignoreCase = true) ->
             R.drawable.img_category_books
 
-        name.contains("Musical", ignoreCase = true) || name.contains(
-            "Theatre",
-            ignoreCase = true
-        ) ->
-            R.drawable.img_category_musicals
+        name.contains("Film", ignoreCase = true) || name.contains("Movie", ignoreCase = true) ->
+            R.drawable.img_category_film
 
-        name.contains("Film", ignoreCase = true) || name.contains("Movie", ignoreCase = true) ||
-                name.contains("Cartoon", ignoreCase = true) || name.contains(
-            "Anime",
-            ignoreCase = true
-        ) ||
-                name.contains("Television", ignoreCase = true) || name.contains(
-            "Celebrit",
-            ignoreCase = true
-        ) ->
-            R.drawable.img_category_movies
+        name.contains("Musical", ignoreCase = true) || name.contains("Theatre", ignoreCase = true) ->
+            R.drawable.img_category_musicals_theatres
 
         name.contains("Music", ignoreCase = true) ->
             R.drawable.img_category_music
 
+        name.contains("Television", ignoreCase = true) || name.contains("TV", ignoreCase = true) || name.contains("Series", ignoreCase = true) ->
+            R.drawable.img_category_television
+
         name.contains("Video Game", ignoreCase = true) ->
-            R.drawable.img_category_video_games
+            R.drawable.img_category_videogames
 
         name.contains("Board Game", ignoreCase = true) ->
-            R.drawable.img_category_board_games
+            R.drawable.img_category_boardgames
 
-        name.contains("Nature", ignoreCase = true) ->
-            R.drawable.img_category_nature
+        name.contains("Science", ignoreCase = true) || name.contains("Nature", ignoreCase = true) || name.contains("Biolog", ignoreCase = true) ->
+            R.drawable.img_category_science_nature
 
-        name.contains("Computer", ignoreCase = true) || name.contains(
-            "Gadget",
-            ignoreCase = true
-        ) ->
+        name.contains("Computer", ignoreCase = true) ->
             R.drawable.img_category_computers
 
+        name.contains("Gadget", ignoreCase = true) ->
+            R.drawable.img_category_gadgets
+
         name.contains("Math", ignoreCase = true) || name.contains("Mathemat", ignoreCase = true) ->
-            R.drawable.img_category_math
+            R.drawable.img_category_mathematics
 
         name.contains("Mytholog", ignoreCase = true) ->
             R.drawable.img_category_mythology
@@ -815,14 +801,32 @@ private fun categoryNameToImageRes(name: String): Int {
         name.contains("Geograph", ignoreCase = true) ->
             R.drawable.img_category_geography
 
-        name.contains("Histor", ignoreCase = true) || name.contains("Politic", ignoreCase = true) ->
+        name.contains("Histor", ignoreCase = true) ->
             R.drawable.img_category_history
+
+        name.contains("Politic", ignoreCase = true) ->
+            R.drawable.img_category_politics
+
+        name.contains("Art", ignoreCase = true) ->
+            R.drawable.img_category_art
+
+        name.contains("Celebrit", ignoreCase = true) ->
+            R.drawable.img_category_celebrities
 
         name.contains("Animal", ignoreCase = true) ->
             R.drawable.img_category_animals
 
-        name.contains("Science", ignoreCase = true) || name.contains("Biolog", ignoreCase = true) ->
-            R.drawable.img_category_science
+        name.contains("Vehicle", ignoreCase = true) ->
+            R.drawable.img_category_vehicles
+
+        name.contains("Comic", ignoreCase = true) ->
+            R.drawable.img_category_comics
+
+        name.contains("Anime", ignoreCase = true) || name.contains("Manga", ignoreCase = true) ->
+            R.drawable.img_category_japaneseanime_manga
+
+        name.contains("Cartoon", ignoreCase = true) || name.contains("Animation", ignoreCase = true) ->
+            R.drawable.img_category_cartoon_animations
 
         else -> R.drawable.img_category_general
     }
