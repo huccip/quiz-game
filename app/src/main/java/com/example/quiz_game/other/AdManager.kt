@@ -12,6 +12,9 @@ import com.google.android.gms.ads.interstitial.InterstitialAd
 import com.google.android.gms.ads.interstitial.InterstitialAdLoadCallback
 import com.google.android.gms.ads.rewarded.RewardedAd
 import com.google.android.gms.ads.rewarded.RewardedAdLoadCallback
+import com.google.android.ump.ConsentRequestParameters
+import com.google.android.ump.UserMessagingPlatform
+import com.example.quiz_game.BuildConfig
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -19,10 +22,12 @@ import kotlinx.coroutines.flow.asStateFlow
 object AdManager {
     private const val TAG = "AdManager"
 
-    // Test Ad Unit IDs
-    const val BANNER_AD_UNIT_ID = "***REMOVED***"
-    private const val INTERSTITIAL_AD_UNIT_ID = "***REMOVED***"
-    private const val REWARDED_AD_UNIT_ID = "***REMOVED***"
+    // Ad Unit IDs — automatically swapped by BuildConfig:
+    //   debug build  → Google test IDs (safe to click, won't flag your account)
+    //   release build → your real AdMob IDs
+    val BANNER_AD_UNIT_ID: String           get() = BuildConfig.ADMOB_BANNER_ID
+    private val INTERSTITIAL_AD_UNIT_ID: String get() = BuildConfig.ADMOB_INTERSTITIAL_ID
+    private val REWARDED_AD_UNIT_ID: String     get() = BuildConfig.ADMOB_REWARDED_ID
 
     private var interstitialAd: InterstitialAd? = null
     private var rewardedAd: RewardedAd? = null
@@ -32,9 +37,40 @@ object AdManager {
 
     private val _isAdShowing = MutableStateFlow(false)
     val isAdShowing: StateFlow<Boolean> = _isAdShowing.asStateFlow()
-    
+
     private val _isRewardedLoaded = MutableStateFlow(false)
     val isRewardedLoaded: StateFlow<Boolean> = _isRewardedLoaded.asStateFlow()
+
+    /**
+     * Entry point called from each Activity's onCreate.
+     * Runs the UMP consent flow first; once consent is resolved (or not
+     * required) it initialises MobileAds and pre-loads all ad formats.
+     */
+    fun requestConsentAndInitialize(activity: Activity) {
+        val params = ConsentRequestParameters.Builder().build()
+        val consentInfo = UserMessagingPlatform.getConsentInformation(activity)
+
+        consentInfo.requestConsentInfoUpdate(activity, params, {
+            UserMessagingPlatform.loadAndShowConsentFormIfRequired(activity) { formError ->
+                if (formError != null) {
+                    Log.w(TAG, "Consent form error: ${formError.message}")
+                }
+                if (consentInfo.canRequestAds()) {
+                    initialize(activity)
+                }
+            }
+        }, { requestError ->
+            Log.w(TAG, "Consent request error: ${requestError.message}")
+            // Fail open — still try to show ads (non-EEA users unaffected)
+            initialize(activity)
+        })
+
+        // If consent was already gathered in a previous session, start ads
+        // immediately without waiting for the (no-op) form round-trip.
+        if (consentInfo.canRequestAds()) {
+            initialize(activity)
+        }
+    }
 
     fun initialize(context: Context) {
         MobileAds.initialize(context) { initializationStatus ->
@@ -123,7 +159,6 @@ object AdManager {
             interstitialAd?.show(activity)
         } else {
             Log.d(TAG, "The interstitial ad wasn't ready yet.")
-            // Try to load again just in case
             loadInterstitialAd(activity)
         }
     }

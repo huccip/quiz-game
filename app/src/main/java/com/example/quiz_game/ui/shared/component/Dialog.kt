@@ -5,6 +5,7 @@ import androidx.annotation.StringRes
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -37,7 +38,7 @@ fun DialogYesOrNo(
                 ButtonSecondary(
                         onClick = onDismiss,
                 ) {
-                    Text(stringResource(buttonDismissText))
+                    Text(stringResource(buttonDismissText), color = MaterialTheme.colorScheme.onSurface)
                     buttonDismissIcon?.let { IconButton(painter = painterResource(it)) }
                 }
             },

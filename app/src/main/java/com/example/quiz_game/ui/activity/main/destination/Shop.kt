@@ -57,6 +57,7 @@ import com.example.quiz_game.data.shop.ShopItem
 import com.example.quiz_game.other.Sound
 import com.example.quiz_game.other.SoundManager
 import com.example.quiz_game.other.withTap
+import com.example.quiz_game.ui.shared.component.BannerAd
 import com.example.quiz_game.ui.shared.effect.scaleDownOnPress
 import com.example.quiz_game.ui.theme.GemCyan
 import com.example.quiz_game.ui.theme.GemCyanDark
@@ -380,6 +381,16 @@ fun Shop(
                         .background(MaterialTheme.colorScheme.background)
                 )
             }
+        }
+
+        // ── 8. Banner Ad ──
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .align(Alignment.BottomCenter)
+                .background(MaterialTheme.colorScheme.background)
+        ) {
+            BannerAd()
         }
 
         // Snackbar

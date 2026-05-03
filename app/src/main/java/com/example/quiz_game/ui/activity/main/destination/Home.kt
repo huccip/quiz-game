@@ -80,6 +80,7 @@ import com.example.quiz_game.other.TranslatorManager
 import com.example.quiz_game.other.Utils
 import com.example.quiz_game.other.withTap
 import com.example.quiz_game.ui.activity.main.MainDestination
+import com.example.quiz_game.ui.shared.component.BannerAd
 import com.example.quiz_game.ui.shared.component.DialogLootBoxReveal
 import com.example.quiz_game.ui.shared.component.DialogStreakReward
 import com.example.quiz_game.ui.shared.component.DialogYesOrNo
@@ -498,7 +499,7 @@ fun Home(
                     .align(Alignment.BottomCenter)
                     .background(MaterialTheme.colorScheme.background)
             ) {
-                com.example.quiz_game.ui.shared.component.BannerAd()
+                BannerAd()
             }
 
             // ── 9. Sticky top-right: gems + trophies + settings pills ──

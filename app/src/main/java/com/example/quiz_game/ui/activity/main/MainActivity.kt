@@ -76,6 +76,9 @@ class MainActivity : BaseActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
 
+        // UMP consent → AdMob initialisation (swaps to real IDs on release builds)
+        com.example.quiz_game.other.AdManager.requestConsentAndInitialize(this)
+
         setContent {
             val navController = rememberNavController()
             val sharedState by sharedViewModel.state.collectAsStateWithLifecycle()

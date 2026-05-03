@@ -22,12 +22,25 @@ android {
     }
 
     buildTypes {
+        debug {
+            manifestPlaceholders["admobAppId"] = "***REMOVED***"
+            buildConfigField("String", "ADMOB_APP_ID",           "\"***REMOVED***\"")
+            buildConfigField("String", "ADMOB_BANNER_ID",        "\"***REMOVED***\"")
+            buildConfigField("String", "ADMOB_INTERSTITIAL_ID",  "\"***REMOVED***\"")
+            buildConfigField("String", "ADMOB_REWARDED_ID",      "\"***REMOVED***\"")
+        }
         release {
-            isMinifyEnabled = false
+            isMinifyEnabled = true
+            isShrinkResources = true
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
+            manifestPlaceholders["admobAppId"] = "***REMOVED***"
+            buildConfigField("String", "ADMOB_APP_ID",           "\"***REMOVED***\"")
+            buildConfigField("String", "ADMOB_BANNER_ID",        "\"***REMOVED***\"")
+            buildConfigField("String", "ADMOB_INTERSTITIAL_ID",  "\"***REMOVED***\"")
+            buildConfigField("String", "ADMOB_REWARDED_ID",      "\"***REMOVED***\"")
         }
     }
     compileOptions {
@@ -39,6 +52,7 @@ android {
     }
     buildFeatures {
         compose = true
+        buildConfig = true
     }
 }
 
@@ -88,4 +102,10 @@ dependencies {
     implementation(libs.androidx.media3.common)
 
     implementation(libs.play.services.ads)
+
+    // UMP (GDPR consent)
+    implementation("com.google.android.ump:user-messaging-platform:3.0.0")
+
+    // In-App Review
+    implementation("com.google.android.play:review-ktx:2.0.1")
 }

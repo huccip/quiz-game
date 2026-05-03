@@ -35,6 +35,9 @@ class OnboardActivity : BaseActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+        // UMP consent → AdMob initialisation (swaps to real IDs on release builds)
+        com.example.quiz_game.other.AdManager.requestConsentAndInitialize(this)
+
         // Skip onboarding entirely if the user has already completed the guide.
         if (Repository.getUser()?.onboarded == true) {
             startActivity(Intent(this, MainActivity::class.java))
