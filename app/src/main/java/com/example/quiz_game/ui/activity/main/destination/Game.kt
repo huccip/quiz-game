@@ -207,7 +207,7 @@ fun Game(
                 }
 
                 currentQuizzes.isEmpty() -> {
-                    TextSmol(text = "No available quizzes")
+                    Text(text = "No available quizzes")
                 }
 
                 quiz != null -> {
@@ -416,7 +416,7 @@ fun QuizCard(
                 // the timer-color threshold below). Stop the previous tick
                 // first so back-to-back longer samples don't overlap.
                 if (timer > 0) {
-                    val intense = timer < Constants.DEFAULT_QUIZ_TIMER / 6
+                    val intense = timer < Constants.DEFAULT_QUIZ_TIMER / 3
                     SoundManager.stop(tickStreamId)
                     tickStreamId = SoundManager.play(
                         if (intense) Sound.COUNTDOWN_TICK_INTENSE
@@ -438,7 +438,7 @@ fun QuizCard(
     val timerColor = when (timer) {
         in Constants.DEFAULT_QUIZ_TIMER / 2..Constants.DEFAULT_QUIZ_TIMER ->
             MaterialTheme.colorScheme.primary
-        in Constants.DEFAULT_QUIZ_TIMER / 6..Constants.DEFAULT_QUIZ_TIMER / 2 -> Color(0xFFF59E0B)
+        in Constants.DEFAULT_QUIZ_TIMER / 3..Constants.DEFAULT_QUIZ_TIMER / 2 -> Color(0xFFF59E0B)
         else -> MaterialTheme.colorScheme.error
     }
 
@@ -483,7 +483,7 @@ fun QuizCard(
             ShopItemType.SCORE_MULTIPLIER -> {
                 // Only armable while the user has not yet picked an answer
                 // (per the design: the multiplier is a confidence bet placed
-                // BEFORE seeing your own commit). Also one-shot per question.
+                // BEFORE seeing your own commit). Also, one-shot per question.
                 if (!multiplierUsed && answeredState == AnsweredState.IDLE) {
                     multiplierUsed = true
                     pendingMultiplier = item.multiplier.coerceAtLeast(1)
@@ -679,8 +679,13 @@ fun QuizCard(
                                     mark = quiz.mark ?: 0,
                                     wasAnswered = answer == choice,
                                     onClick = {
-                                        answer = choice
-                                        answeredState = AnsweredState.PICKED
+                                        if (answer == choice) {
+                                            answer = ""
+                                            answeredState = AnsweredState.IDLE
+                                        } else {
+                                            answer = choice
+                                            answeredState = AnsweredState.PICKED
+                                        }
                                     }
                                 )
                             }
@@ -696,7 +701,7 @@ fun QuizCard(
                         animationSpec = tween(350),
                         initialOffsetY = { it }
                     ),
-                    exit = fadeOut() + slideOutVertically { it }
+                    exit = fadeOut()
                 ) {
                     Column {
                         HorizontalDivider(
@@ -798,7 +803,7 @@ private fun AnswerChoiceCard(
             enabled = !locked && enabled,
             shape = RoundedCornerShape(16.dp),
             border = BorderStroke(
-                width = if ((isSelected && !locked) || (locked && isCorrect) || (locked && wasAnswered && !isCorrect)) 2.dp else 1.dp,
+                width = if ((isSelected && !locked) || (locked && isCorrect) || (locked && wasAnswered)) 2.dp else 1.dp,
                 color = borderColor
             ),
             colors = CardDefaults.outlinedCardColors(

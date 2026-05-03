@@ -94,7 +94,7 @@ fun TextMedium(
 fun TextSmol(
     modifier: Modifier = Modifier,
     text: String,
-    color: Color = MaterialTheme.colorScheme.outline,
+    color: Color = MaterialTheme.colorScheme.onSurface,
     textAlign: TextAlign = TextAlign.Start
 ) {
     Text(
@@ -102,7 +102,7 @@ fun TextSmol(
         text = text,
         textAlign = textAlign,
         color = color,
-        style = MaterialTheme.typography.titleMedium,
+        style = MaterialTheme.typography.titleSmall,
         fontFamily = FontFamily(Font(R.font.regular))
     )
 }

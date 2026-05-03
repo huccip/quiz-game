@@ -61,7 +61,7 @@ class App : Application() {
             }
         }
 
-        com.example.quiz_game.other.AdManager.initialize(this)
+        // AdMob is initialised from each Activity after UMP consent is resolved.
         SoundManager.init(this)
     }
 

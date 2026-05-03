@@ -22,12 +22,25 @@ android {
     }
 
     buildTypes {
+        debug {
+            manifestPlaceholders["admobAppId"] = "ca-app-pub-3940256099942544~3347511713"
+            buildConfigField("String", "ADMOB_APP_ID",           "\"ca-app-pub-3940256099942544~3347511713\"")
+            buildConfigField("String", "ADMOB_BANNER_ID",        "\"ca-app-pub-3940256099942544/6300978111\"")
+            buildConfigField("String", "ADMOB_INTERSTITIAL_ID",  "\"ca-app-pub-3940256099942544/1033173712\"")
+            buildConfigField("String", "ADMOB_REWARDED_ID",      "\"ca-app-pub-3940256099942544/5224354917\"")
+        }
         release {
-            isMinifyEnabled = false
+            isMinifyEnabled = true
+            isShrinkResources = true
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
+            manifestPlaceholders["admobAppId"] = "ca-app-pub-5424448580881561~3007264292"
+            buildConfigField("String", "ADMOB_APP_ID",           "\"ca-app-pub-5424448580881561~3007264292\"")
+            buildConfigField("String", "ADMOB_BANNER_ID",        "\"ca-app-pub-5424448580881561/6689600841\"")
+            buildConfigField("String", "ADMOB_INTERSTITIAL_ID",  "\"ca-app-pub-5424448580881561/7684875905\"")
+            buildConfigField("String", "ADMOB_REWARDED_ID",      "\"ca-app-pub-5424448580881561/1280302001\"")
         }
     }
     compileOptions {
@@ -39,6 +52,7 @@ android {
     }
     buildFeatures {
         compose = true
+        buildConfig = true
     }
 }
 
@@ -88,4 +102,10 @@ dependencies {
     implementation(libs.androidx.media3.common)
 
     implementation(libs.play.services.ads)
+
+    // UMP (GDPR consent)
+    implementation("com.google.android.ump:user-messaging-platform:3.0.0")
+
+    // In-App Review
+    implementation("com.google.android.play:review-ktx:2.0.1")
 }
