@@ -89,7 +89,8 @@ import com.example.quiz_game.other.SoundManager
 import com.example.quiz_game.other.withTap
 import com.example.quiz_game.ui.activity.main.MainDestination
 import com.example.quiz_game.ui.shared.component.ButtonPrimary
-import com.example.quiz_game.ui.shared.component.LoadingFullScreenLowOpacityWithInfiniteSpinner
+import com.example.quiz_game.ui.shared.component.BannerAd
+import com.example.quiz_game.ui.shared.component.GameSkeletonLoader
 import com.example.quiz_game.ui.shared.component.TextBig
 import com.example.quiz_game.ui.shared.component.TextButton
 import com.example.quiz_game.ui.shared.component.TextFancy
@@ -203,7 +204,7 @@ fun Game(
         Box(modifier = modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
             when {
                 loading -> {
-                    LoadingFullScreenLowOpacityWithInfiniteSpinner()
+                    GameSkeletonLoader()
                 }
 
                 currentQuizzes.isEmpty() -> {
@@ -733,23 +734,46 @@ fun QuizCard(
                 }
 
                 // Reserve extra bottom space so the bottom-overlay deck never
-                // hides the last answer choice while collapsed.
+                // hides the last answer choice while collapsed. Always reserve
+                // an additional BANNER_AD_HEIGHT so the banner ad pinned at
+                // the very bottom of the screen never overlaps the scrollable
+                // content either.
                 if (ownedCollectibles.isNotEmpty() && answeredState == AnsweredState.IDLE) {
-                    Spacer(Modifier.height(96.dp))
+                    Spacer(Modifier.height(96.dp + BANNER_AD_HEIGHT))
+                } else {
+                    Spacer(Modifier.height(BANNER_AD_HEIGHT))
                 }
             }
         }
 
         // ── Bottom-anchored collectibles deck (overlay) ──
+        // The deck lifts itself by BANNER_AD_HEIGHT so neither its collapsed
+        // fan nor its expanded row overlaps the banner ad pinned below. The
+        // scrim still covers the entire screen because it lives inside the
+        // outer Box (not the deck's own offset wrapper).
         if (ownedCollectibles.isNotEmpty() && answeredState == AnsweredState.IDLE) {
             CollectiblesDeck(
                 items = ownedCollectibles,
                 ownedCounts = ownedCounts,
-                onUse = useCollectible
+                onUse = useCollectible,
+                bottomInset = BANNER_AD_HEIGHT
             )
+        }
+
+        // ── Banner ad pinned at the very bottom of the screen ──
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .align(Alignment.BottomCenter)
+                .background(MaterialTheme.colorScheme.background)
+        ) {
+            BannerAd()
         }
     }
 }
+
+/** Standard AdMob BANNER size is 320×50dp; we reserve 50dp for layout. */
+private val BANNER_AD_HEIGHT = 50.dp
 
 @Composable
 private fun AnswerChoiceCard(
@@ -913,6 +937,7 @@ private fun BoxScope.CollectiblesDeck(
     items: List<ShopItem>,
     ownedCounts: Map<String, Int>,
     onUse: (ShopItem) -> Unit,
+    bottomInset: androidx.compose.ui.unit.Dp = 0.dp,
 ) {
     var expanded by rememberSaveable { mutableStateOf(false) }
 
@@ -971,6 +996,7 @@ private fun BoxScope.CollectiblesDeck(
         modifier = Modifier
             .align(Alignment.BottomCenter)
             .fillMaxWidth()
+            .padding(bottom = bottomInset)
             .height(containerHeight)
     ) {
         // Title strip — fixed at the top of the deck, NOT inside the scroll

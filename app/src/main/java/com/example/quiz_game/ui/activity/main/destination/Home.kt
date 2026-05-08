@@ -57,7 +57,6 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.res.stringArrayResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -84,7 +83,7 @@ import com.example.quiz_game.ui.shared.component.BannerAd
 import com.example.quiz_game.ui.shared.component.DialogLootBoxReveal
 import com.example.quiz_game.ui.shared.component.DialogStreakReward
 import com.example.quiz_game.ui.shared.component.DialogYesOrNo
-import com.example.quiz_game.ui.shared.component.LoadingInfiniteLine
+import com.example.quiz_game.ui.shared.component.HomeSkeletonLoader
 import com.example.quiz_game.ui.shared.effect.scaleDownOnPress
 import com.example.quiz_game.ui.theme.GemCyan
 import com.example.quiz_game.ui.theme.GemCyanDark
@@ -263,7 +262,7 @@ fun Home(
     val isDarkTheme = isSystemInDarkTheme()
 
     if (quizState.executing || categoryState.executing || startGameTrigger || isCategoryLoading) {
-        LoadingInfiniteLine(subject = stringArrayResource(R.array.home_loading_subjects))
+        HomeSkeletonLoader()
     } else {
         // ── Confirmation Dialog for Active Session Interruption ──
         if (pendingSessionAction != null) {

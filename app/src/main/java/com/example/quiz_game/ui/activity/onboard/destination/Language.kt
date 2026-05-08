@@ -91,6 +91,19 @@ fun Language(
     // Observe TranslatorManager status directly
     val translatorStatus by TranslatorManager.status.collectAsStateWithLifecycle()
     val translator by TranslatorManager.translator.collectAsStateWithLifecycle()
+    // The language the user chose but hasn't finished downloading yet — kept
+    // alive in the singleton so it survives navigation away from this screen.
+    // We seed our local `selectedLanguage` from it on (re)entry so the
+    // OfflineStateSection's Retry button is always available, even when the
+    // user lands on this screen after a background retry has failed and they
+    // never re-tapped a language card.
+    val pendingLang by TranslatorManager.pendingLanguage.collectAsStateWithLifecycle()
+
+    LaunchedEffect(pendingLang) {
+        if (selectedLanguage.isEmpty() && !pendingLang.isNullOrEmpty()) {
+            selectedLanguage = pendingLang!!
+        }
+    }
 
     LaunchedEffect(translator) {
         if (translator == null) {

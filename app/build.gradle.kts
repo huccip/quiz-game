@@ -233,4 +233,7 @@ dependencies {
 
     // In-App Review
     implementation("com.google.android.play:review-ktx:2.0.1")
+
+    // Shimmer for skeleton loaders (compose-shimmer)
+    implementation("com.valentinilk.shimmer:compose-shimmer:1.3.1")
 }

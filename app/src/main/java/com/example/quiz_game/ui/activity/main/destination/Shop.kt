@@ -54,6 +54,7 @@ import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.example.quiz_game.R
 import com.example.quiz_game.data.shop.ShopItem
+import com.example.quiz_game.other.AdManager.showRewardedAd
 import com.example.quiz_game.other.Sound
 import com.example.quiz_game.other.SoundManager
 import com.example.quiz_game.other.withTap
@@ -92,22 +93,32 @@ fun Shop(
     val failMsg = stringResource(R.string.shop_not_enough_coins)
     val soldMsg = stringResource(R.string.shop_sold_success).replace("%d", "")
 
-    // Show snackbar on purchase result
+    // Show snackbar on purchase result. The state field is treated as a
+    // one-shot event: we play SFX + show the snackbar then immediately clear
+    // it via ClearLastEvent so consecutive identical results (e.g. two buys
+    // in a row) re-trigger the effect every time. Without the clear, the key
+    // never changes and the effect would only fire on the first occurrence.
     LaunchedEffect(shopState.lastPurchaseResult) {
+        val result = shopState.lastPurchaseResult ?: return@LaunchedEffect
+
         // SFX: distinct cues for buy vs sell. Failed-buy / nothing-to-sell
         // remain silent (the snackbar message is feedback enough).
-        when (shopState.lastPurchaseResult) {
+        when (result) {
             PurchaseResult.SUCCESS -> SoundManager.play(Sound.SHOP_BUY)
             PurchaseResult.SOLD -> SoundManager.play(Sound.SHOP_SELL)
             else -> Unit
         }
-        val msg = when (shopState.lastPurchaseResult) {
+        val msg = when (result) {
             PurchaseResult.SUCCESS -> successMsg
             PurchaseResult.NOT_ENOUGH_COINS -> failMsg
             PurchaseResult.SOLD -> soldMsg
             PurchaseResult.NONE_OWNED -> null
-            null -> null
         }
+        // Clear the one-shot event BEFORE awaiting the snackbar so subsequent
+        // mutations to lastPurchaseResult always emit a fresh null → value
+        // transition (which is what re-triggers this LaunchedEffect).
+        shopAction(ShopAction.ClearLastEvent)
+
         msg?.let {
             scope.launch { snackbarHostState.showSnackbar(it, duration = SnackbarDuration.Short) }
         }
@@ -262,7 +273,7 @@ fun Shop(
                                     interactionSource = interactionSource,
                                     indication = androidx.compose.foundation.LocalIndication.current,
                                     onClick = withTap {
-                                        com.example.quiz_game.other.AdManager.showRewardedAd(
+                                        showRewardedAd(
                                             activity
                                         ) {
                                             com.example.quiz_game.App.ioScope.launch {
@@ -302,13 +313,13 @@ fun Shop(
                                 Spacer(modifier = Modifier.width(16.dp))
                                 Column {
                                     Text(
-                                        text = "Free Coins!",
+                                        text = stringResource(R.string.shop_watch_ad_title),
                                         style = MaterialTheme.typography.titleMedium,
                                         fontWeight = FontWeight.ExtraBold,
                                         color = Color.White
                                     )
                                     Text(
-                                        text = "Watch a short ad",
+                                        text = stringResource(R.string.shop_watch_ad_subtitle),
                                         style = MaterialTheme.typography.bodySmall,
                                         color = Color.White.copy(alpha = 0.8f)
                                     )
