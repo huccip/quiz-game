@@ -3,6 +3,7 @@ package com.example.quiz_game.other
 import android.content.Context
 import android.net.ConnectivityManager
 import android.net.Network
+import android.net.NetworkCapabilities
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
@@ -19,7 +20,19 @@ class NetworkConnectivityObserver(context: Context) {
             val callback = object : ConnectivityManager.NetworkCallback() {
                 override fun onAvailable(network: Network) {
                     super.onAvailable(network)
-                    launch { send(Status.Available) }
+                    // Wait for onCapabilitiesChanged to confirm true internet access
+                }
+
+                override fun onCapabilitiesChanged(
+                    network: Network,
+                    networkCapabilities: NetworkCapabilities
+                ) {
+                    super.onCapabilitiesChanged(network, networkCapabilities)
+                    if (networkCapabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_VALIDATED)) {
+                        launch { send(Status.Available) }
+                    } else {
+                        launch { send(Status.Lost) }
+                    }
                 }
 
                 override fun onLosing(network: Network, maxMsToLive: Int) {

@@ -76,6 +76,7 @@ import com.example.quiz_game.data.session.Session
 import com.example.quiz_game.other.Constants
 import com.example.quiz_game.other.DailyRewards
 import com.example.quiz_game.other.TranslatorManager
+import com.example.quiz_game.other.TranslatorStatus
 import com.example.quiz_game.other.Utils
 import com.example.quiz_game.other.withTap
 import com.example.quiz_game.ui.activity.main.MainDestination
@@ -260,8 +261,15 @@ fun Home(
     }
 
     val isDarkTheme = isSystemInDarkTheme()
+    
+    val translatorStatus by TranslatorManager.status.collectAsStateWithLifecycle()
+    val isTranslatorBusy = translatorStatus in listOf(
+        TranslatorStatus.Saving,
+        TranslatorStatus.Downloading,
+        TranslatorStatus.SlowDownload
+    )
 
-    if (quizState.executing || categoryState.executing || startGameTrigger || isCategoryLoading) {
+    if (quizState.executing || categoryState.executing || startGameTrigger || isCategoryLoading || isTranslatorBusy) {
         HomeSkeletonLoader()
     } else {
         // ── Confirmation Dialog for Active Session Interruption ──
