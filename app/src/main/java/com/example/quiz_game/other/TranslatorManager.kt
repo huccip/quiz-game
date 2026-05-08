@@ -152,6 +152,23 @@ object TranslatorManager {
                     TAG,
                     "initIfReady: user not ready (translatorReady=${user.translatorReady}, language=${user.language})"
             )
+            if (!user.language.isNullOrEmpty() && !user.translatorReady) {
+                val lang = user.language!!
+                _pendingLanguage.value = lang
+                if (Utils.hasInternet()) {
+                    Log.d(TAG, "initIfReady: resuming pending download for $lang")
+                    App.ioScope.launch { prepare(lang) }
+                } else {
+                    Log.d(TAG, "initIfReady: offline, queuing pending download for $lang")
+                    App.ioScope.launch {
+                        NetworkRecoveryManager.addPendingTask(
+                                NetworkRecoveryManager.PendingTask(id = TASK_ID, label = "Translation model") {
+                                    prepare(lang)
+                                }
+                        )
+                    }
+                }
+            }
             return
         }
 
@@ -209,6 +226,7 @@ object TranslatorManager {
         _pendingLanguage.value = language
         _status.value = TranslatorStatus.Idle
         App.ioScope.launch {
+            Repository.updateUser { it.copy(language = language) }
             NetworkRecoveryManager.addPendingTask(
                     NetworkRecoveryManager.PendingTask(id = TASK_ID, label = "Translation model") {
                         prepare(language)
