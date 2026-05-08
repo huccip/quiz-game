@@ -61,8 +61,9 @@ import com.example.quiz_game.data.category.Category
 import com.example.quiz_game.other.Constants
 import com.example.quiz_game.other.withTap
 import com.example.quiz_game.ui.activity.main.MainDestination
+import com.example.quiz_game.ui.shared.component.BannerAd
+import com.example.quiz_game.ui.shared.component.BrowseSkeletonLoader
 import com.example.quiz_game.ui.shared.component.DialogYesOrNo
-import com.example.quiz_game.ui.shared.component.LoadingFullScreenLowOpacityWithInfiniteSpinner
 import com.example.quiz_game.ui.shared.effect.scaleDownOnPress
 import com.example.quiz_game.ui.theme.Indigo500
 import com.example.quiz_game.ui.theme.Indigo600
@@ -194,7 +195,7 @@ fun Browse(
     val hasActiveSession = currentSession != null && currentSession.expiredAt == null
 
     if (loading) {
-        LoadingFullScreenLowOpacityWithInfiniteSpinner()
+        BrowseSkeletonLoader()
     } else {
         val lazyListState = rememberLazyListState()
 
@@ -522,6 +523,18 @@ fun Browse(
                     },
                     onDismiss = { pendingSessionAction = null }
                 )
+            }
+
+            // ── Banner ad pinned to the bottom edge. The LazyColumn already
+            // reserves a 100.dp bottom spacer (line ~497) so the last list
+            // item never disappears under it. ──
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .align(Alignment.BottomCenter)
+                    .background(MaterialTheme.colorScheme.background)
+            ) {
+                BannerAd()
             }
         }
     }
