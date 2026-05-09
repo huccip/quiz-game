@@ -78,8 +78,8 @@ import com.example.quiz_game.ui.shared.component.TextBerySmol
 import com.example.quiz_game.ui.shared.component.TextBig
 import com.example.quiz_game.ui.shared.component.TextButton
 import com.example.quiz_game.ui.shared.component.TextFancy
-import com.example.quiz_game.ui.theme.Indigo100
-import com.example.quiz_game.ui.theme.Indigo600
+import com.example.quiz_game.ui.theme.Violet100
+import com.example.quiz_game.ui.theme.Violet600
 import com.example.quiz_game.ui.viewmodel.QuizAction
 import com.example.quiz_game.ui.viewmodel.QuizState
 import com.example.quiz_game.ui.viewmodel.SessionAction
@@ -120,7 +120,7 @@ fun PostGame(
     // Percentage text is colored by performance
     val scoreTextColor = when {
         scorePercentage >= 80 -> Color(0xFF22C55E)
-        scorePercentage >= 50 -> Indigo600
+        scorePercentage >= 50 -> Violet600
         else -> Color(0xFFEF4444)
     }
 
@@ -313,7 +313,7 @@ fun PostGame(
                         shape = RoundedCornerShape(20.dp),
                         elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
                         colors = CardDefaults.cardColors(
-                            containerColor = Indigo100.copy(alpha = 0.55f)
+                            containerColor = Violet100.copy(alpha = 0.55f)
                         )
                     ) {
                         Column(
@@ -511,14 +511,14 @@ private fun AchievementRecapRow(
                 modifier = Modifier
                     .size(48.dp)
                     .clip(RoundedCornerShape(12.dp))
-                    .background(Indigo100.copy(alpha = 0.6f)),
+                    .background(Violet100.copy(alpha = 0.6f)),
                 contentAlignment = Alignment.Center
             ) {
                 IconButton(
                     painter = painterResource(id = iconRes),
                     contentDescription = stringResource(descriptionRes),
                     style = MaterialTheme.typography.titleLarge,
-                    tint = Indigo600
+                    tint = Violet600
                 )
             }
             Spacer(modifier = Modifier.width(14.dp))
@@ -612,7 +612,7 @@ private fun AchievementPopup(
         ),
         border = BorderStroke(
             width = 1.dp,
-            color = Indigo600.copy(alpha = 0.45f)
+            color = Violet600.copy(alpha = 0.45f)
         )
     ) {
         Row(
@@ -627,7 +627,7 @@ private fun AchievementPopup(
                     .clip(RoundedCornerShape(12.dp))
                     .background(
                         Brush.linearGradient(
-                            listOf(Indigo600, Indigo600.copy(alpha = 0.75f))
+                            listOf(Violet600, Violet600.copy(alpha = 0.75f))
                         )
                     ),
                 contentAlignment = Alignment.Center
@@ -644,7 +644,7 @@ private fun AchievementPopup(
                 androidx.compose.material3.Text(
                     text = stringResource(R.string.achievement_popup_title),
                     style = MaterialTheme.typography.labelSmall,
-                    color = Indigo600,
+                    color = Violet600,
                     fontWeight = FontWeight.Bold
                 )
                 Spacer(modifier = Modifier.height(2.dp))
@@ -723,14 +723,14 @@ fun AchievementCard(
                 modifier = Modifier
                     .size(48.dp)
                     .clip(RoundedCornerShape(12.dp))
-                    .background(Indigo100.copy(alpha = 0.6f)),
+                    .background(Violet100.copy(alpha = 0.6f)),
                 contentAlignment = Alignment.Center
             ) {
                 IconButton(
                     painter = painterResource(id = iconRes),
                     contentDescription = stringResource(descriptionRes),
                     style = MaterialTheme.typography.titleLarge,
-                    tint = Indigo600
+                    tint = Violet600
                 )
             }
 

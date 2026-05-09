@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -18,10 +19,12 @@ import androidx.navigation.compose.rememberNavController
 import com.example.quiz_game.AppDestination
 import com.example.quiz_game.BaseActivity
 import com.example.quiz_game.data.Repository
+import com.example.quiz_game.other.AdManager
 import com.example.quiz_game.ui.activity.main.MainActivity
 import com.example.quiz_game.ui.activity.onboard.destination.Form
 import com.example.quiz_game.ui.activity.onboard.destination.Guide
 import com.example.quiz_game.ui.activity.onboard.destination.Language
+import com.example.quiz_game.ui.activity.onboard.destination.Welcome
 import com.example.quiz_game.ui.theme.QuizgameTheme
 import com.example.quiz_game.ui.viewmodel.OnboardViewModel
 import com.example.quiz_game.ui.viewmodel.SharedViewModel
@@ -36,7 +39,7 @@ class OnboardActivity : BaseActivity() {
         super.onCreate(savedInstanceState)
 
         // UMP consent → AdMob initialisation (swaps to real IDs on release builds)
-        com.example.quiz_game.other.AdManager.requestConsentAndInitialize(this)
+        AdManager.requestConsentAndInitialize(this)
 
         // Skip onboarding entirely if the user has already completed the guide.
         if (Repository.getUser()?.onboarded == true) {
@@ -70,6 +73,16 @@ class OnboardActivity : BaseActivity() {
                                     else -> OnboardDestination.Guide
                                 }
                         ) {
+                            composable<OnboardDestination.Language> {
+                                Language(
+                                    onboardState = onboardState,
+                                    sharedState = sharedState,
+                                    navController = navController,
+                                    sharedAction = sharedViewModel::onAction,
+                                    onboardAction = onboardViewModel::onAction,
+                                )
+                            }
+
                             composable<OnboardDestination.Form> {
                                 Form(
                                     sharedAction = sharedViewModel::onAction,
@@ -81,17 +94,14 @@ class OnboardActivity : BaseActivity() {
                             composable<OnboardDestination.Guide> {
                                 Guide(
                                     sharedAction = sharedViewModel::onAction,
-                                    onboardAction = onboardViewModel::onAction
+                                    onboardAction = onboardViewModel::onAction,
+                                    navController = navController
                                 )
                             }
 
-                            composable<OnboardDestination.Language> {
-                                Language(
-                                    onboardState = onboardState,
-                                    sharedState = sharedState,
-                                    navController = navController,
-                                    sharedAction = sharedViewModel::onAction,
-                                    onboardAction = onboardViewModel::onAction,
+                            composable<OnboardDestination.Welcome> {
+                                Welcome(
+                                    sharedAction = sharedViewModel::onAction
                                 )
                             }
                         }
@@ -111,4 +121,7 @@ sealed interface OnboardDestination : AppDestination {
 
     @Serializable
     data object Language : OnboardDestination
+
+    @Serializable
+    data object Welcome : OnboardDestination
 }

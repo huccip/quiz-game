@@ -1,7 +1,6 @@
 package com.example.quiz_game.data.collectible
 
 import android.util.Base64
-import androidx.compose.ui.util.fastJoinToString
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 import kotlinx.serialization.Serializable
@@ -23,7 +22,7 @@ data class Collectible(
         (symbol + name + description + type)
             .split("")
             .shuffled()
-            .fastJoinToString("")
+            .joinToString("")
             .toByteArray(),
         Base64.NO_WRAP
     )

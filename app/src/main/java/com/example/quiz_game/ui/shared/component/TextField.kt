@@ -31,7 +31,7 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.unit.dp
 import com.example.quiz_game.R
-import com.example.quiz_game.ui.theme.Indigo600
+import com.example.quiz_game.ui.theme.Violet600
 
 @Composable
 fun TextFieldPrimary(
@@ -94,7 +94,7 @@ fun TextFieldPrimary(
     val borderColor by animateColorAsState(
         targetValue = when {
             errors.isNotEmpty() -> MaterialTheme.colorScheme.error
-            isFocused -> Indigo600
+            isFocused -> Violet600
             else -> MaterialTheme.colorScheme.outlineVariant
         },
         animationSpec = tween(200),
@@ -110,7 +110,7 @@ fun TextFieldPrimary(
                 fontWeight = FontWeight.Medium,
                 color = when {
                     errors.isNotEmpty() -> MaterialTheme.colorScheme.error
-                    isFocused -> Indigo600
+                    isFocused -> Violet600
                     else -> MaterialTheme.colorScheme.onSurfaceVariant
                 }
             )
@@ -127,7 +127,7 @@ fun TextFieldPrimary(
             shape = RoundedCornerShape(16.dp),
             colors = OutlinedTextFieldDefaults.colors(
                 // Normal state
-                focusedBorderColor = Indigo600,
+                focusedBorderColor = Violet600,
                 unfocusedBorderColor = MaterialTheme.colorScheme.outlineVariant,
                 focusedContainerColor = MaterialTheme.colorScheme.surface,
                 unfocusedContainerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
@@ -137,7 +137,7 @@ fun TextFieldPrimary(
                 errorCursorColor = MaterialTheme.colorScheme.error,
                 errorTextColor = MaterialTheme.colorScheme.onSurface,
                 // Cursor
-                cursorColor = Indigo600,
+                cursorColor = Violet600,
                 // Text
                 focusedTextColor = MaterialTheme.colorScheme.onSurface,
                 unfocusedTextColor = MaterialTheme.colorScheme.onSurface,

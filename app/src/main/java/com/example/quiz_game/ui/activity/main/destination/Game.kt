@@ -96,7 +96,7 @@ import com.example.quiz_game.ui.shared.component.TextButton
 import com.example.quiz_game.ui.shared.component.TextFancy
 import com.example.quiz_game.ui.shared.component.TextSmol
 import com.example.quiz_game.ui.shared.effect.scaleDownOnPress
-import com.example.quiz_game.ui.theme.Indigo600
+import com.example.quiz_game.ui.theme.Violet600
 import com.example.quiz_game.ui.viewmodel.QuizAction
 import com.example.quiz_game.ui.viewmodel.QuizState
 import com.example.quiz_game.ui.viewmodel.SessionAction
@@ -808,8 +808,8 @@ private fun AnswerChoiceCard(
             textColor = MaterialTheme.colorScheme.error
         }
         isSelected && !locked -> {
-            borderColor = Indigo600
-            containerColor = Indigo600.copy(alpha = 0.10f)
+            borderColor = Violet600
+            containerColor = Violet600.copy(alpha = 0.10f)
             textColor = MaterialTheme.colorScheme.onSurface
         }
         else -> {
@@ -1109,8 +1109,8 @@ private fun CollectibleBigCard(
             .background(
                 brush = Brush.linearGradient(
                     listOf(
-                        Indigo600,
-                        Indigo600.copy(alpha = 0.78f)
+                        Violet600,
+                        Violet600.copy(alpha = 0.78f)
                     )
                 )
             )
