@@ -25,6 +25,8 @@ import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.material3.Icon
+import androidx.compose.foundation.layout.Box
 import androidx.compose.material3.contentColorFor
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
@@ -42,7 +44,10 @@ import com.example.quiz_game.ui.activity.main.destination.AnsweredState
 import com.example.quiz_game.ui.shared.effect.alphaOutOnPress
 import com.example.quiz_game.ui.shared.effect.bounceOnPress
 import com.example.quiz_game.ui.shared.effect.scaleDownOnPress
-import com.example.quiz_game.ui.theme.Indigo600
+import com.example.quiz_game.ui.theme.Violet600
+import com.example.quiz_game.ui.shared.effect.gamePressEffect
+import com.example.quiz_game.ui.shared.effect.cartoonBorder
+import com.example.quiz_game.ui.shared.shape.WobblyCardShape
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
@@ -87,9 +92,9 @@ fun ButtonPrimary(
     modifier: Modifier = Modifier,
     onClick: () -> Unit = {},
     enabled: Boolean = true,
-    color: Color = Indigo600,
+    color: Color = Violet600,
     contentColor: Color = Color.White,
-    content: @Composable () -> Unit = {}
+    content: @Composable androidx.compose.foundation.layout.RowScope.() -> Unit = {}
 ) {
     val interactionSource = remember { MutableInteractionSource() }
 
@@ -104,15 +109,22 @@ fun ButtonPrimary(
             disabledContentColor = contentColor.copy(alpha = 0.6f)
         ),
         elevation = ButtonDefaults.buttonElevation(
-            defaultElevation = 6.dp,
-            pressedElevation = 2.dp,
-            focusedElevation = 4.dp,
-            hoveredElevation = 8.dp,
+            defaultElevation = 0.dp,
+            pressedElevation = 0.dp,
+            focusedElevation = 0.dp,
+            hoveredElevation = 0.dp,
         ),
         interactionSource = interactionSource,
         modifier = modifier
             .height(52.dp)
-            .scaleDownOnPress(.95f, interactionSource),
+            .cartoonBorder(
+                color = color.copy(alpha = 0.1f),
+                width = 0.dp,
+                shape = RoundedCornerShape(50),
+                shadowColor = color.copy(alpha = if (enabled) 0.5f else 0.2f),
+                shadowOffset = 4.dp
+            )
+            .gamePressEffect(interactionSource),
         contentPadding = PaddingValues(horizontal = 24.dp, vertical = 0.dp)
     ) {
         Row(
@@ -217,26 +229,45 @@ fun ButtonGameChoices(
         else -> MaterialTheme.colorScheme.onSurface
     }
 
-    ListItem(
-        colors = ListItemDefaults.colors(
-            headlineColor = contentColor,
-            trailingIconColor = contentColor,
-        ),
+    val containerColor = MaterialTheme.colorScheme.surface
+    val borderColor = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f)
+
+    Surface(
         modifier = modifier
-            .scaleDownOnPress(.9f, interactionSource)
+            .fillMaxWidth()
+            .cartoonBorder(
+                color = borderColor,
+                width = 2.dp,
+                shape = WobblyCardShape,
+                shadowColor = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.8f),
+                shadowOffset = 4.dp
+            )
+            .gamePressEffect(interactionSource)
             .clickable(
                 enabled = enabled,
                 interactionSource = interactionSource,
                 indication = null,
                 onClick = withTap(onClick)
             ),
-        headlineContent = {
-            content()
-        },
-        trailingContent = {
+        shape = WobblyCardShape,
+        color = containerColor,
+        contentColor = contentColor
+    ) {
+        Row(
+            modifier = Modifier.padding(horizontal = 16.dp, vertical = 16.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            Box(modifier = Modifier.weight(1f)) {
+                content()
+            }
             if (!enabled && answeredState == AnsweredState.PICKED) {
-                IconButton(painter = painterResource(R.drawable.ic_pin))
+                Icon(
+                    painter = painterResource(R.drawable.ic_pin),
+                    contentDescription = null,
+                    tint = contentColor
+                )
             }
         }
-    )
+    }
 }

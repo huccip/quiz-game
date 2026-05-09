@@ -64,8 +64,8 @@ import com.example.quiz_game.ui.shared.component.IconButton
 import com.example.quiz_game.ui.shared.component.LoadingProgressiveLine
 import com.example.quiz_game.ui.shared.component.Preview
 import com.example.quiz_game.ui.shared.component.ScreenHeader
-import com.example.quiz_game.ui.theme.Indigo100
-import com.example.quiz_game.ui.theme.Indigo600
+import com.example.quiz_game.ui.theme.Violet100
+import com.example.quiz_game.ui.theme.Violet600
 import com.example.quiz_game.ui.viewmodel.OnboardAction
 import com.example.quiz_game.ui.viewmodel.OnboardState
 import com.example.quiz_game.ui.viewmodel.SharedAction
@@ -445,9 +445,9 @@ fun Language(
                                                     ) {
                                                         if (isSystemInDarkTheme()
                                                         )
-                                                            Indigo100
+                                                            Violet100
                                                         else
-                                                            Indigo600
+                                                            Violet600
                                                     } else {
                                                         MaterialTheme
                                                             .colorScheme

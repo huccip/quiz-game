@@ -36,10 +36,13 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.quiz_game.R
 import com.example.quiz_game.other.withTap
-import com.example.quiz_game.ui.shared.effect.scaleDownOnPress
-import com.example.quiz_game.ui.theme.Indigo50
-import com.example.quiz_game.ui.theme.Indigo100
-import com.example.quiz_game.ui.theme.Indigo600
+import com.example.quiz_game.ui.shared.effect.cartoonBorder
+import com.example.quiz_game.ui.shared.shape.WobblyCardShape
+import com.example.quiz_game.ui.shared.effect.gamePressEffect
+import androidx.compose.material3.Surface
+import com.example.quiz_game.ui.theme.Violet50
+import com.example.quiz_game.ui.theme.Violet100
+import com.example.quiz_game.ui.theme.Violet600
 
 
 @Composable
@@ -48,37 +51,35 @@ fun CardSelectable(
     selected: Boolean = false,
     onSelect: () -> Unit,
     color: Color = MaterialTheme.colorScheme.surface,
-    selectionColor: Color = Indigo600.copy(alpha = 0.12f),
+    selectionColor: Color = Violet600.copy(alpha = 0.12f),
     showCheckmark: Boolean = false,
     content: @Composable (Modifier) -> Unit = {},
 ) {
     val interactionSource = remember { MutableInteractionSource() }
     val borderColor = when {
-        selected -> Indigo600
+        selected -> Violet600
         else -> MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f)
     }
     val containerColor = if (selected) selectionColor else color
 
-    OutlinedCard(
+    Surface(
         onClick = withTap(onSelect),
-        shape = RoundedCornerShape(16.dp),
-        border = BorderStroke(
-            width = if (selected) 2.dp else 1.dp,
-            color = borderColor
-        ),
-        elevation = CardDefaults.outlinedCardElevation(
-            defaultElevation = if (selected) 0.dp else 1.dp,
-        ),
-        colors = CardDefaults.outlinedCardColors(
-            containerColor = containerColor,
-            contentColor = MaterialTheme.colorScheme.onSurface,
-        ),
+        shape = WobblyCardShape,
+        color = containerColor,
+        contentColor = MaterialTheme.colorScheme.onSurface,
         interactionSource = interactionSource,
         modifier = modifier
             .fillMaxWidth()
-            .scaleDownOnPress(
+            .cartoonBorder(
+                color = borderColor,
+                width = if (selected) 2.dp else 1.dp,
+                shape = WobblyCardShape,
+                shadowColor = borderColor.copy(alpha = if (selected) 0.5f else 0.2f),
+                shadowOffset = 3.dp
+            )
+            .gamePressEffect(
                 interactionSource = interactionSource,
-                scaleRatio = .97f
+                offsetDp = 3f
             )
     ) {
         Row(
@@ -91,7 +92,7 @@ fun CardSelectable(
                 Icon(
                     painter = painterResource(R.drawable.ic_check),
                     contentDescription = null,
-                    tint = if (isSystemInDarkTheme()) Indigo100 else Indigo600,
+                    tint = if (isSystemInDarkTheme()) Violet100 else Violet600,
                     modifier = Modifier.size(22.dp)
                 )
             }
@@ -110,10 +111,22 @@ fun CardButton(
     @DrawableRes contextualIcon: Int? = null,
     @DrawableRes buttonIcon: Int? = null,
 ) {
-    OutlinedCard {
+    Surface(
+        modifier = modifier
+            .fillMaxWidth()
+            .cartoonBorder(
+                color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f),
+                width = 1.dp,
+                shape = WobblyCardShape,
+                shadowColor = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.3f),
+                shadowOffset = 2.dp
+            ),
+        shape = WobblyCardShape,
+        color = MaterialTheme.colorScheme.surface
+    ) {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
-            modifier = modifier
+            modifier = Modifier
                 .fillMaxWidth()
                 .padding(15.dp)
         ) {
@@ -158,19 +171,24 @@ fun CardClickable(
 ) {
     val interactionSource = remember { MutableInteractionSource() }
 
-    Card(
-        modifier =
-            modifier.scaleDownOnPress(
-                scaleRatio = .9f,
-                interactionSource = interactionSource
+    Surface(
+        modifier = modifier
+            .cartoonBorder(
+                color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f),
+                width = 1.dp,
+                shape = WobblyCardShape,
+                shadowColor = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.3f),
+                shadowOffset = 2.dp
+            )
+            .gamePressEffect(
+                interactionSource = interactionSource,
+                offsetDp = 2f
             ),
+        shape = WobblyCardShape,
         onClick = withTap(onClick),
         interactionSource = interactionSource,
-        colors =
-            CardDefaults.cardColors(
-                containerColor = color,
-                contentColor = contentColorFor(color)
-            )
+        color = color,
+        contentColor = contentColorFor(color)
     ) { content() }
 }
 

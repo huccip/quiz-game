@@ -1,7 +1,6 @@
 package com.example.quiz_game.data.session
 
 import android.util.Base64
-import androidx.compose.ui.util.fastJoinToString
 import androidx.room.Entity
 import androidx.room.Ignore
 import androidx.room.PrimaryKey
@@ -21,11 +20,11 @@ data class Session(
 ) {
     fun generateUid(): String =
         Base64.encodeToString(
-            ((nickname + createdAt + quizzesUids?.fastJoinToString("") + maxScore) +
+            ((nickname + createdAt + quizzesUids?.joinToString("") + maxScore) +
                     (UUID.randomUUID().mostSignificantBits))
                 .split("")
                 .shuffled()
-                .fastJoinToString("")
+                .joinToString("")
                 .toByteArray(),
             Base64.NO_WRAP
         )
@@ -35,7 +34,7 @@ data class Session(
         if (createdAt == null || expiredAt == null) return@lazy null
         return@lazy expiredAt!! - createdAt!!
     }
-    fun timelapse(): String? {
+    fun timelapse(): String {
         if (timelapse == null) return "Undefined"
 
         val seconds = timelapse!! / 1000

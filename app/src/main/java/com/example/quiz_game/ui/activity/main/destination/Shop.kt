@@ -62,9 +62,9 @@ import com.example.quiz_game.ui.shared.component.BannerAd
 import com.example.quiz_game.ui.shared.effect.scaleDownOnPress
 import com.example.quiz_game.ui.theme.GemCyan
 import com.example.quiz_game.ui.theme.GemCyanDark
-import com.example.quiz_game.ui.theme.Indigo500
-import com.example.quiz_game.ui.theme.Indigo600
-import com.example.quiz_game.ui.theme.Indigo700
+import com.example.quiz_game.ui.theme.Violet500
+import com.example.quiz_game.ui.theme.Violet600
+import com.example.quiz_game.ui.theme.Violet700
 import com.example.quiz_game.ui.viewmodel.PurchaseResult
 import com.example.quiz_game.ui.viewmodel.ShopAction
 import com.example.quiz_game.ui.viewmodel.ShopState
@@ -448,8 +448,8 @@ private fun ShopItemCard(
             modifier = Modifier
                 .size(52.dp)
                 .background(
-                    if (dark) Indigo700.copy(alpha = 0.4f)
-                    else Indigo500.copy(alpha = 0.10f),
+                    if (dark) Violet700.copy(alpha = 0.4f)
+                    else Violet500.copy(alpha = 0.10f),
                     RoundedCornerShape(14.dp)
                 ),
             contentAlignment = Alignment.Center
@@ -528,8 +528,8 @@ private fun ShopItemCard(
                     .background(
                         brush = if (canAfford) Brush.linearGradient(
                             listOf(
-                                if (dark) Indigo500 else Indigo600,
-                                if (dark) Indigo700 else Indigo500
+                                if (dark) Violet500 else Violet600,
+                                if (dark) Violet700 else Violet500
                             )
                         ) else Brush.linearGradient(
                             listOf(
