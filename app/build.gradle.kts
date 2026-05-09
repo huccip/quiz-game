@@ -98,14 +98,12 @@ val compressCategoryImages by tasks.registering {
             val newH  = (original.height * scale).toInt()
 
             val scaled = BufferedImage(newW, newH, BufferedImage.TYPE_INT_RGB)
-            val g = scaled.createGraphics().also { g ->
-                g.setRenderingHint(RenderingHints.KEY_INTERPOLATION,
-                    RenderingHints.VALUE_INTERPOLATION_BICUBIC)
-                g.setRenderingHint(RenderingHints.KEY_RENDERING,
-                    RenderingHints.VALUE_RENDER_QUALITY)
-                g.drawImage(original, 0, 0, newW, newH, null)
-                g.dispose()
-            }
+            val g = scaled.createGraphics()
+            g.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR)
+            g.setRenderingHint(RenderingHints.KEY_RENDERING,     RenderingHints.VALUE_RENDER_QUALITY)
+            g.setRenderingHint(RenderingHints.KEY_ANTIALIASING,  RenderingHints.VALUE_ANTIALIAS_ON)
+            g.drawImage(original, 0, 0, newW, newH, null)
+            g.dispose()
 
             val writer = ImageIO.getImageWritersByFormatName("jpeg").next()
             val params = writer.defaultWriteParam.apply {
@@ -229,11 +227,17 @@ dependencies {
     implementation(libs.play.services.ads)
 
     // UMP (GDPR consent)
-    implementation("com.google.android.ump:user-messaging-platform:3.0.0")
+    implementation(libs.user.messaging.platform)
 
     // In-App Review
-    implementation("com.google.android.play:review-ktx:2.0.1")
+    implementation(libs.review.ktx)
 
     // Shimmer for skeleton loaders (compose-shimmer)
-    implementation("com.valentinilk.shimmer:compose-shimmer:1.3.1")
+    implementation(libs.compose.shimmer)
+
+    // Splashscreen API
+    implementation(libs.androidx.core.splashscreen)
+
+    // LottieFiles
+    implementation(libs.lottie)
 }

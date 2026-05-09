@@ -65,9 +65,9 @@ import com.example.quiz_game.ui.shared.component.BannerAd
 import com.example.quiz_game.ui.shared.component.BrowseSkeletonLoader
 import com.example.quiz_game.ui.shared.component.DialogYesOrNo
 import com.example.quiz_game.ui.shared.effect.scaleDownOnPress
-import com.example.quiz_game.ui.theme.Indigo500
-import com.example.quiz_game.ui.theme.Indigo600
-import com.example.quiz_game.ui.theme.Indigo700
+import com.example.quiz_game.ui.theme.Violet500
+import com.example.quiz_game.ui.theme.Violet600
+import com.example.quiz_game.ui.theme.Violet700
 import com.example.quiz_game.ui.viewmodel.CategoryAction
 import com.example.quiz_game.ui.viewmodel.CategoryState
 import com.example.quiz_game.ui.viewmodel.QuizAction
@@ -329,8 +329,8 @@ fun Browse(
                                             .background(
                                                 brush = Brush.linearGradient(
                                                     listOf(
-                                                        if (dark) Indigo500 else Indigo600,
-                                                        if (dark) Indigo700 else Indigo500
+                                                        if (dark) Violet500 else Violet600,
+                                                        if (dark) Violet700 else Violet500
                                                     )
                                                 ),
                                                 shape = RoundedCornerShape(14.dp)
@@ -395,8 +395,8 @@ fun Browse(
                                     .background(
                                         brush = Brush.linearGradient(
                                             listOf(
-                                                if (dark) Indigo500 else Indigo600,
-                                                if (dark) Indigo700 else Indigo500
+                                                if (dark) Violet500 else Violet600,
+                                                if (dark) Violet700 else Violet500
                                             )
                                         ),
                                         shape = RoundedCornerShape(16.dp)

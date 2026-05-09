@@ -8,6 +8,13 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
 import com.example.quiz_game.R
 
+val Fredoka = FontFamily(
+    Font(R.font.fredoka_regular, FontWeight.Normal),
+    Font(R.font.fredoka_medium, FontWeight.Medium),
+    Font(R.font.fredoka_semibold, FontWeight.SemiBold),
+    Font(R.font.fredoka_bold, FontWeight.Bold),
+)
+
 val Poppins = FontFamily(
     Font(R.font.poppins_regular, FontWeight.Normal),
     Font(R.font.poppins_medium, FontWeight.Medium),
@@ -17,35 +24,35 @@ val Poppins = FontFamily(
 
 val Typography = Typography(
     headlineLarge = TextStyle(
-        fontFamily = Poppins,
+        fontFamily = Fredoka,
         fontWeight = FontWeight.Bold,
         fontSize = 30.sp,
         lineHeight = 38.sp,
         letterSpacing = (-0.5).sp
     ),
     headlineMedium = TextStyle(
-        fontFamily = Poppins,
+        fontFamily = Fredoka,
         fontWeight = FontWeight.SemiBold,
         fontSize = 24.sp,
         lineHeight = 32.sp,
         letterSpacing = 0.sp
     ),
     titleLarge = TextStyle(
-        fontFamily = Poppins,
+        fontFamily = Fredoka,
         fontWeight = FontWeight.SemiBold,
         fontSize = 20.sp,
         lineHeight = 28.sp,
         letterSpacing = 0.sp
     ),
     titleMedium = TextStyle(
-        fontFamily = Poppins,
+        fontFamily = Fredoka,
         fontWeight = FontWeight.Medium,
         fontSize = 16.sp,
         lineHeight = 24.sp,
         letterSpacing = 0.15.sp
     ),
     titleSmall = TextStyle(
-        fontFamily = Poppins,
+        fontFamily = Fredoka,
         fontWeight = FontWeight.Medium,
         fontSize = 14.sp,
         lineHeight = 20.sp,
@@ -73,21 +80,21 @@ val Typography = Typography(
         letterSpacing = 0.4.sp
     ),
     labelLarge = TextStyle(
-        fontFamily = Poppins,
+        fontFamily = Fredoka,
         fontWeight = FontWeight.Medium,
         fontSize = 14.sp,
         lineHeight = 20.sp,
         letterSpacing = 0.1.sp
     ),
     labelMedium = TextStyle(
-        fontFamily = Poppins,
+        fontFamily = Fredoka,
         fontWeight = FontWeight.Medium,
         fontSize = 12.sp,
         lineHeight = 16.sp,
         letterSpacing = 0.5.sp
     ),
     labelSmall = TextStyle(
-        fontFamily = Poppins,
+        fontFamily = Fredoka,
         fontWeight = FontWeight.Medium,
         fontSize = 11.sp,
         lineHeight = 16.sp,
