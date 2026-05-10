@@ -81,7 +81,11 @@ class QuizViewModel : ViewModel() {
                                     Repository.quizRepository.get(
                                             amount = Constants.DEFAULT_QUIZ_AMOUNT
                                     )
-                            state.value = state.value.copy(quizzes = quizzes)
+                            // Sync the expired flag to the active session list as well
+                            val sessionQuizzes = state.value.sessionQuizzes.map {
+                                if (it.uid == action.uid) it.copy(expired = true) else it
+                            }
+                            state.value = state.value.copy(quizzes = quizzes, sessionQuizzes = sessionQuizzes)
                         }
             }
         }

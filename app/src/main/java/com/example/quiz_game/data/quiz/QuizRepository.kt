@@ -194,14 +194,14 @@ object QuizRepository {
                                                     },
                                             category = quiz.category?.let { Utils.decodeHtml(it) },
                                     )
-                            val categoryUid =
-                                    decoded.category?.let { name ->
-                                        App.db.categoryDao().getByName(name)?.uid
-                                    }
+                            val categoryEntity = decoded.category?.let { name ->
+                                App.db.categoryDao().getByName(name)
+                            }
                             decoded.copy(
                                     uid = decoded.generateUid(),
                                     mark = decoded.generateMark(),
-                                    categoryUid = categoryUid
+                                    categoryUid = categoryEntity?.uid,
+                                    categoryId = categoryEntity?.id
                             )
                         }
                 App.db.quizDao().insert(*processed.toTypedArray())

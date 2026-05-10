@@ -38,6 +38,7 @@ class App : Application() {
                 Database::class.java,
                 "quiz-game.db"
             )
+            .addMigrations(Database.MIGRATION_1_2)
             .build()
 
         quotePrefs = getSharedPreferences(Quote.KEY_QUOTE, MODE_PRIVATE)

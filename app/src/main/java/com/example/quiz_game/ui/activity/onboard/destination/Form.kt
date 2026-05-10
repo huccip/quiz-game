@@ -24,6 +24,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -76,6 +77,9 @@ fun Form(
                     stringResource(R.string.onboard_name_textfield_unallowed_characters)
         )
 
+    val configuration = LocalConfiguration.current
+    val isLandscape = configuration.screenHeightDp < configuration.screenWidthDp
+
     Column(
         modifier =
             modifier
@@ -88,14 +92,16 @@ fun Form(
                 .weight(1f)
                 .verticalScroll(rememberScrollState())) {
             // ── Edge-to-edge illustration (no horizontal padding) ──
-            Image(
-                painter = painterResource(R.drawable.illustration_form),
-                contentDescription = null,
-                contentScale = ContentScale.Fit,
-                modifier = Modifier
-                        .fillMaxWidth()
-                        .height(220.dp)
-            )
+            if (!isLandscape) {
+                Image(
+                    painter = painterResource(R.drawable.illustration_form),
+                    contentDescription = null,
+                    contentScale = ContentScale.Fit,
+                    modifier = Modifier
+                            .fillMaxWidth()
+                            .height(220.dp)
+                )
+            }
 
             // ── Padded content below illustration ──
             Column(modifier = Modifier.padding(horizontal = 20.dp)) {

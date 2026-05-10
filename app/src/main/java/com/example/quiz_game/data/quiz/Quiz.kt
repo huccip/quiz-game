@@ -12,6 +12,7 @@ data class Quiz(
         var difficulty: String? = null,
         var category: String? = null,
         var categoryUid: String? = null,
+        var categoryId: Int? = null,
         var question: String? = null,
         @SerializedName("correct_answer") var correctAnswer: String? = null,
         @SerializedName("incorrect_answers") var incorrectAnswers: List<String>? = null,
