@@ -207,6 +207,7 @@
     <string name="generic_error_message">Etwas ist schiefgelaufen</string>
     <string name="generic_warning_message">Achtung</string>
 
+    <string name="generic_internet_loss_message">Keine Internetverbindung</string>
     <string name="connectivity_offline">Du bist offline</string>
     <string name="connectivity_online">Du bist wieder online!</string>
 
@@ -332,6 +333,11 @@
     <string name="settings_about_body">Quiz-Spiel ist eine Trivia-App, die dein Wissen in hunderten Kategorien testet. Beantworte Fragen, sammle Münzen und schalte Power-Ups frei. Viel Glück!</string>
     <string name="settings_legal_coming_soon">Dieses Dokument wird in einem zukünftigen Update verfügbar sein.</string>
     <string name="settings_ok">OK</string>
+
+    <string name="home_screen">Startbildschirm</string>
+    <string name="home_quizzes_list_empty">Quizze konnten nicht geladen werden. Bitte überprüfe deine Internetverbindung.</string>
+    <string name="browse_screen">Suchbildschirm</string>
+    <string name="browse_quizzes_list_empty">Quizze konnten nicht geladen werden. Bitte überprüfe deine Internetverbindung.</string>
 
     <!-- Browse redesign -->
     <string name="browse_title">Themen durchsuchen</string>

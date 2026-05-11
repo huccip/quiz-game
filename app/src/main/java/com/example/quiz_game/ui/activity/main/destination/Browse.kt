@@ -46,6 +46,7 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -59,6 +60,7 @@ import androidx.navigation.compose.rememberNavController
 import com.example.quiz_game.R
 import com.example.quiz_game.data.category.Category
 import com.example.quiz_game.other.Constants
+import com.example.quiz_game.other.Utils
 import com.example.quiz_game.other.withTap
 import com.example.quiz_game.ui.activity.main.MainDestination
 import com.example.quiz_game.ui.shared.component.BannerAd
@@ -98,6 +100,7 @@ fun Browse(
     navController: NavController = rememberNavController(),
     onError: (String) -> Unit = {}
 ) {
+    val context = LocalContext.current
     var selectedCategory by remember { mutableStateOf<Category?>(null) }
     var loading by rememberSaveable { mutableStateOf(false) }
 
@@ -131,7 +134,7 @@ fun Browse(
         loading = false
 
         if (result.errors.isNotEmpty()) {
-            onError("Failed to load quizzes: ${result.errors.first().message}")
+            onError("${context.getString(R.string.browse_screen)}: ${if (!Utils.hasInternet()) context.getString(R.string.generic_internet_loss_message) else context.getString(R.string.generic_error_message)}.")
             selectedCategory = null
             return@LaunchedEffect
         }
@@ -142,7 +145,7 @@ fun Browse(
                 .take(Constants.DEFAULT_QUIZ_SESSION_AMOUNT)
 
         if (sessionQuizzes.isEmpty()) {
-            onError("Not enough quizzes for this category. Please try another.")
+            onError(context.getString(R.string.browse_screen) + ": " + context.getString(R.string.browse_quizzes_list_empty))
             selectedCategory = null
             return@LaunchedEffect
         }

@@ -207,6 +207,7 @@
     <string name="generic_error_message">Algo salió mal</string>
     <string name="generic_warning_message">Atención</string>
 
+    <string name="generic_internet_loss_message">Sin conexion a internet</string>
     <string name="connectivity_offline">Estás sin conexión</string>
     <string name="connectivity_online">¡Estás de vuelta en línea!</string>
 
@@ -332,6 +333,11 @@
     <string name="settings_about_body">Quiz Game es una app de trivia diseñada para poner a prueba tus conocimientos en cientos de categorías. Responde, gana monedas y desbloquea power-ups. ¡Buena suerte!</string>
     <string name="settings_legal_coming_soon">Este documento estará disponible en una futura actualización.</string>
     <string name="settings_ok">OK</string>
+
+    <string name="home_screen">Pantalla de inicio</string>
+    <string name="home_quizzes_list_empty">No pudimos cargar los quizzes. Revisa tu conexión a internet.</string>
+    <string name="browse_screen">Pantalla de exploración</string>
+    <string name="browse_quizzes_list_empty">No pudimos cargar los quizzes. Revisa tu conexión a internet.</string>
 
     <!-- Browse redesign -->
     <string name="browse_title">Explora temas</string>

@@ -208,7 +208,8 @@
     <string name="language_restart_dialog_button_negative">إلغاء</string>
 
     <string name="loading_title_variator_1">ثانية واحدة…</string>
-    
+
+    <string name="generic_internet_loss_message">غير متصل بالانترنيت</string>
     <string name="connectivity_offline">أنت غير متصل بالإنترنت</string>
     <string name="connectivity_online">أنت متصل بالإنترنت الآن!</string>
 
@@ -336,6 +337,11 @@
     <string name="settings_ok">حسناً</string>
 
     <!-- Browse redesign -->
+    <string name="home_screen">الشاشة الرئيسية</string>
+    <string name="home_quizzes_list_empty">تعذّر تحميل الاختبارات. يرجى التحقق من اتصالك بالإنترنت.</string>
+    <string name="browse_screen">شاشة التصفح</string>
+    <string name="browse_quizzes_list_empty">تعذّر تحميل الاختبارات. يرجى التحقق من اتصالك بالإنترنت.</string>
+
     <string name="browse_title">تصفح المواضيع</string>
     <string name="browse_subtitle">اعثر على الفئة المناسبة لك</string>
 

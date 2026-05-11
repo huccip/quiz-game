@@ -57,6 +57,7 @@ import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontStyle
@@ -82,22 +83,19 @@ import com.example.quiz_game.other.Utils
 import com.example.quiz_game.other.withTap
 import com.example.quiz_game.ui.activity.main.MainDestination
 import com.example.quiz_game.ui.shared.component.BannerAd
+import com.example.quiz_game.ui.shared.component.ButtonPrimary
 import com.example.quiz_game.ui.shared.component.DialogLootBoxReveal
 import com.example.quiz_game.ui.shared.component.DialogStreakReward
 import com.example.quiz_game.ui.shared.component.DialogYesOrNo
 import com.example.quiz_game.ui.shared.component.HomeSkeletonLoader
-import com.example.quiz_game.ui.shared.effect.scaleDownOnPress
+import com.example.quiz_game.ui.shared.effect.cartoonBorder
 import com.example.quiz_game.ui.shared.effect.dottedBackground
+import com.example.quiz_game.ui.shared.effect.gamePressEffect
+import com.example.quiz_game.ui.shared.effect.scaleDownOnPress
 import com.example.quiz_game.ui.shared.shape.TicketShape
 import com.example.quiz_game.ui.shared.shape.WobblyCardShape
-import com.example.quiz_game.ui.shared.component.ButtonPrimary
-import com.example.quiz_game.ui.shared.effect.cartoonBorder
-import com.example.quiz_game.ui.shared.effect.gamePressEffect
 import com.example.quiz_game.ui.theme.GemCyan
 import com.example.quiz_game.ui.theme.GemCyanDark
-import com.example.quiz_game.ui.theme.Violet500
-import com.example.quiz_game.ui.theme.Violet600
-import com.example.quiz_game.ui.theme.Violet700
 import com.example.quiz_game.ui.theme.PlayedTeal
 import com.example.quiz_game.ui.theme.PlayedTealBg
 import com.example.quiz_game.ui.theme.PlayedTealBgDark
@@ -107,6 +105,9 @@ import com.example.quiz_game.ui.theme.StreakOrangeBgDark
 import com.example.quiz_game.ui.theme.TrophyAmber
 import com.example.quiz_game.ui.theme.TrophyAmberBg
 import com.example.quiz_game.ui.theme.TrophyAmberBgDark
+import com.example.quiz_game.ui.theme.Violet500
+import com.example.quiz_game.ui.theme.Violet600
+import com.example.quiz_game.ui.theme.Violet700
 import com.example.quiz_game.ui.viewmodel.CategoryAction
 import com.example.quiz_game.ui.viewmodel.CategoryState
 import com.example.quiz_game.ui.viewmodel.QuizAction
@@ -148,6 +149,7 @@ fun Home(
     navController: NavController = rememberNavController(),
     onError: (String) -> Unit = {}
 ) {
+    val context = LocalContext.current
     var translated by remember { mutableStateOf("Undefined") }
     var selectedCountryCode by remember { mutableStateOf("Undefined") }
     var startGameTrigger by remember { mutableStateOf(false) }
@@ -190,7 +192,7 @@ fun Home(
         if (quizState.executing) return@LaunchedEffect
 
         if (!quizState.ready && quizState.errors.isNotEmpty()) {
-            onError("Failed to load quizzes, reason : ${quizState.errors.joinToString()}.")
+            onError("${context.getString(R.string.home_screen)}: ${if (!Utils.hasInternet()) context.getString(R.string.generic_internet_loss_message) else context.getString(R.string.generic_error_message)}.")
             quizState.errors.fastForEach { e -> Log.e("Home", "Home: ${e.message}") }
             startGameTrigger = false
             return@LaunchedEffect
@@ -203,7 +205,7 @@ fun Home(
                 .take(Constants.DEFAULT_QUIZ_SESSION_AMOUNT)
 
         if (sessionQuizzes.isEmpty()) {
-            onError("We couldn't get quizzes. Please check your internet connection.")
+            onError(context.getString(R.string.home_screen) + ": " + context.getString(R.string.home_quizzes_list_empty))
             startGameTrigger = false
             return@LaunchedEffect
         }
@@ -268,7 +270,7 @@ fun Home(
     }
 
     val isDarkTheme = isSystemInDarkTheme()
-    
+
     val translatorStatus by TranslatorManager.status.collectAsStateWithLifecycle()
     val isTranslatorBusy = translatorStatus in listOf(
         TranslatorStatus.Saving,
@@ -715,7 +717,9 @@ private fun ContinueHeroButton(
 ) {
     ButtonPrimary(
         onClick = onClick,
-        modifier = Modifier.fillMaxWidth().height(68.dp),
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(68.dp),
         color = MaterialTheme.colorScheme.primary,
         content = {
             Box(
@@ -758,7 +762,9 @@ private fun PrimaryCtaButton(
 ) {
     ButtonPrimary(
         onClick = onClick,
-        modifier = modifier.fillMaxWidth().height(64.dp),
+        modifier = modifier
+            .fillMaxWidth()
+            .height(64.dp),
         color = MaterialTheme.colorScheme.primary,
         content = {
             Text(
