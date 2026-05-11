@@ -372,4 +372,8 @@
     <string name="loot_box_reward_nothing">Hoy no hubo suerte, ¡intenta mañana!</string>
     <string name="loot_box_reward_coins">+%1$d monedas</string>
     <string name="loot_box_reward_power_up">Potenciador desbloqueado: %1$s</string>
+    <!-- Juridical / onboarding consent -->
+    <string name="juridical_consent_prefix">Al continuar, aceptas</string>
+    <string name="juridical_terms">los Términos de uso</string>
+    <string name="juridical_privacy">la Política de privacidad</string>
 </resources>

@@ -132,7 +132,8 @@ fun TextButton(
     text: String,
     textDecoration: TextDecoration? = TextDecoration.None,
     textAlign: TextAlign = TextAlign.Start,
-    fontWeight: FontWeight = FontWeight.Normal
+    fontWeight: FontWeight = FontWeight.Normal,
+    color: Color = MaterialTheme.colorScheme.onBackground
 ) {
     Text(
         modifier = modifier,
@@ -142,5 +143,6 @@ fun TextButton(
         fontWeight = fontWeight,
         textDecoration = textDecoration,
         style = MaterialTheme.typography.labelLarge,
+        color = color
     )
 }

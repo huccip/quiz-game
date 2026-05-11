@@ -64,8 +64,8 @@ fun TextFieldPrimary(
 
     val onValidate: (String) -> Unit = { newValue ->
         var isValid = true
-        regex.filter { it != null }.onEach {
-            val (regex, description) = it!!
+        regex.filterNotNull().onEach {
+            val (regex, description) = it
 
             if (newValue.matches(regex)) {
                 errors = errors.minusElement(description)
@@ -87,7 +87,7 @@ fun TextFieldPrimary(
     }
 
     LaunchedEffect(cleared) {
-        value = ""
+        if (cleared) value = ""
     }
 
     // ── Animated border color ──

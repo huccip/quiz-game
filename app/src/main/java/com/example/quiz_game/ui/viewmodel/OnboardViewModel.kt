@@ -44,6 +44,14 @@ class OnboardViewModel : ViewModel() {
                         }
                 is OnboardAction.UpdateOnboarded ->
                         execute { Repository.updateUser { it.copy(onboarded = true) } }
+
+                is OnboardAction.UpdateJuridicalAgreement -> {
+                    execute {
+                        Repository.updateUser { it.copy(agreedToTermsAndPolicy = true) }
+                        val user = Repository.getUser()
+                        user?.let { state.value = state.value.copy(user = it) }
+                    }
+                }
             }
         }
     }
@@ -70,6 +78,7 @@ data class OnboardState(
 sealed interface OnboardAction {
     data object GetUser : OnboardAction
     data class UpdateUsername(val username: String) : OnboardAction
+    data object UpdateJuridicalAgreement : OnboardAction
     data class UpdateLanguage(val language: String) : OnboardAction
     data class UpdateCoins(val coins: Int) : OnboardAction
     data object UpdateOnboarded : OnboardAction

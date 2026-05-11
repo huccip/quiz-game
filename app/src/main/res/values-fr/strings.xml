@@ -372,4 +372,8 @@
     <string name="loot_box_reward_nothing">Pas de chance aujourd\'hui — réessayez demain !</string>
     <string name="loot_box_reward_coins">+%1$d pièces</string>
     <string name="loot_box_reward_power_up">Bonus débloqué : %1$s</string>
+    <!-- Juridical / onboarding consent -->
+    <string name="juridical_consent_prefix">En continuant, vous acceptez</string>
+    <string name="juridical_terms">les Conditions d\'utilisation</string>
+    <string name="juridical_privacy">la Politique de confidentialité</string>
 </resources>

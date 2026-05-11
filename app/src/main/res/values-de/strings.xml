@@ -372,4 +372,8 @@
     <string name="loot_box_reward_nothing">Heute kein Glück — versuche es morgen erneut!</string>
     <string name="loot_box_reward_coins">+%1$d Münzen</string>
     <string name="loot_box_reward_power_up">Power-up freigeschaltet: %1$s</string>
+    <!-- Juridical / onboarding consent -->
+    <string name="juridical_consent_prefix">Mit dem Fortfahren stimmst du zu</string>
+    <string name="juridical_terms">Nutzungsbedingungen</string>
+    <string name="juridical_privacy">Datenschutzrichtlinie</string>
 </resources>

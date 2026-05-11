@@ -12,6 +12,7 @@ data class User(
     var language: String? = null,
     var onboarded: Boolean = false,
     var translatorReady: Boolean = false,
+    var agreedToTermsAndPolicy: Boolean = false,
 
     // ── Retention bookkeeping ─────────────────────────────────────────────
     /**

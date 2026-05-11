@@ -372,4 +372,8 @@
     <string name="loot_box_reward_nothing">Сегодня не повезло — попробуйте завтра!</string>
     <string name="loot_box_reward_coins">+%1$d монет</string>
     <string name="loot_box_reward_power_up">Открыт усилитель: %1$s</string>
+    <!-- Juridical / onboarding consent -->
+    <string name="juridical_consent_prefix">Продолжая, вы соглашаетесь с</string>
+    <string name="juridical_terms">Условиями использования</string>
+    <string name="juridical_privacy">Политикой конфиденциальности</string>
 </resources>
