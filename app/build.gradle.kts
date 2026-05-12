@@ -1,5 +1,6 @@
 import java.awt.RenderingHints
 import java.awt.image.BufferedImage
+import java.util.Properties
 import javax.imageio.IIOImage
 import javax.imageio.ImageIO
 import javax.imageio.ImageWriteParam
@@ -126,17 +127,32 @@ android {
     namespace = "com.example.quiz_game"
     compileSdk = 35
 
+    // ── Signing config — credentials loaded from local.properties ─────────
+    val localProps = Properties().also { props ->
+        val f = rootProject.file("local.properties")
+        if (f.exists()) props.load(f.inputStream())
+    }
+
+    signingConfigs {
+        create("release") {
+            storeFile     = file(localProps.getProperty("RELEASE_STORE_FILE", "kwikkwiz-release.jks"))
+            storePassword = localProps.getProperty("RELEASE_STORE_PASSWORD", "")
+            keyAlias      = localProps.getProperty("RELEASE_KEY_ALIAS",      "kwikkwiz-key")
+            keyPassword   = localProps.getProperty("RELEASE_KEY_PASSWORD",   "")
+        }
+    }
+
     // Add the compressed-images generated folder as a res source-set
     sourceSets["main"].res.srcDir(
         layout.buildDirectory.dir("generated/res/compressed")
     )
 
     defaultConfig {
-        applicationId = "com.example.quiz_game"
+        applicationId = "com.hucciproduction.kwikkwiz"
         minSdk = 24
         targetSdk = 35
-        versionCode = 1
-        versionName = "1.0"
+        versionCode = 2
+        versionName = "1.1"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -152,6 +168,7 @@ android {
         release {
             isMinifyEnabled = true
             isShrinkResources = true
+            signingConfig = signingConfigs.getByName("release")
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"

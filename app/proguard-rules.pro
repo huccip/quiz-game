@@ -35,6 +35,9 @@
     @retrofit2.http.* <methods>;
 }
 
+# ── Data models (Gson deserialization — keep all fields from R8 renaming) ─────
+-keep class com.example.quiz_game.data.** { *; }
+
 # ── AdMob / Google Mobile Ads ─────────────────────────────────────────────────
 -keep class com.google.android.gms.ads.** { *; }
 -keep class com.google.android.ump.** { *; }
@@ -55,3 +58,6 @@
 
 # ── Play Core (In-App Review) ─────────────────────────────────────────────────
 -keep class com.google.android.play.core.** { *; }
+
+# ── R8 missing-class suppressions (auto-generated) ───────────────────────────
+-dontwarn com.google.android.gms.common.annotation.NoNullnessRewrite
