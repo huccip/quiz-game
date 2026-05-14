@@ -34,8 +34,9 @@ class QuoteViewModel : ViewModel() {
                 is QuoteAction.GetQuote ->
                         execute {
                             val quote = Repository.quoteRepository.get()
+                            val effectiveTranslator = action.translator ?: TranslatorManager.translator.value
                             val translatedQuote =
-                                    action.translator?.translate(quote.quote!!)?.await()
+                                    effectiveTranslator?.translate(quote.quote!!)?.await()
                                             ?: quote.quote!!
                             state.value =
                                     state.value.copy(quote = quote.copy(quote = translatedQuote))

@@ -20,7 +20,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -38,12 +37,7 @@ fun ShimmerBox(
     modifier: Modifier = Modifier,
     shape: Shape = RoundedCornerShape(8.dp),
 ) {
-    val dark = isSystemInDarkTheme()
-    val placeholderColor = if (dark) {
-        MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.6f)
-    } else {
-        MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.9f)
-    }
+    val placeholderColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.6f)
     Box(
         modifier = modifier
             .clip(shape)
@@ -55,13 +49,20 @@ fun ShimmerBox(
 /** Convenience: a single-line text shimmer of a given width. */
 @Composable
 private fun ShimmerLine(
+    modifier: Modifier = Modifier,
     width: Dp? = null,
     height: Dp = 14.dp,
-    modifier: Modifier = Modifier,
 ) {
     ShimmerBox(
         modifier = modifier
-            .then(if (width != null) Modifier.size(width = width, height = height) else Modifier.fillMaxWidth().height(height)),
+            .then(
+                if (width != null) Modifier.size(
+                    width = width,
+                    height = height
+                ) else Modifier
+                    .fillMaxWidth()
+                    .height(height)
+            ),
         shape = RoundedCornerShape(6.dp),
     )
 }

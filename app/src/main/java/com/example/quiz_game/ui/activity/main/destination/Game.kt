@@ -133,6 +133,13 @@ fun Game(
     var loading by remember { mutableStateOf(true) }
     val scope = rememberCoroutineScope()
 
+    DisposableEffect(Unit) {
+        onDispose {
+            // Sync gems (and other user data) any time the Game screen is closed
+            sharedAction(SharedAction.RefreshUser)
+        }
+    }
+
     DisposableEffect(currentSession) {
         if (currentSession != null) {
             loading = true

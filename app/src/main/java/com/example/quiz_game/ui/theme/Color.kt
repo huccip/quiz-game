@@ -30,6 +30,7 @@ val Amber500 = Color(0xFFF59E0B)
 // ── Branded warm surface tokens (light theme) ─────────────────────────
 val Amber50  = Color(0xFFFFFBEB) // page background
 val Yellow50 = Color(0xFFFEFCE8) // cards / chips
+val Yellow75 = Color(0xFFFDF6B2) // Shimmer
 val Amber200 = Color(0xFFE3C95F) // outline / dividers
 
 // Coin / gem accent — vibrant cyan that pops on both light and dark surfaces
