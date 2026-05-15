@@ -164,6 +164,7 @@ android {
             buildConfigField("String", "ADMOB_BANNER_ID",        "\"***REMOVED***\"")
             buildConfigField("String", "ADMOB_INTERSTITIAL_ID",  "\"***REMOVED***\"")
             buildConfigField("String", "ADMOB_REWARDED_ID",      "\"***REMOVED***\"")
+            buildConfigField("String", "ADMOB_REWARDED_INTERSTITIAL_ID",      "\"***REMOVED***\"")
         }
         release {
             isMinifyEnabled = true
@@ -178,6 +179,7 @@ android {
             buildConfigField("String", "ADMOB_BANNER_ID",        "\"***REMOVED***\"")
             buildConfigField("String", "ADMOB_INTERSTITIAL_ID",  "\"***REMOVED***\"")
             buildConfigField("String", "ADMOB_REWARDED_ID",      "\"***REMOVED***\"")
+            buildConfigField("String", "ADMOB_REWARDED_INTERSTITIAL_ID",      "\"***REMOVED***\"")
         }
     }
     compileOptions {
