@@ -23,10 +23,10 @@ tasks.register("generateAppIcons") {
 
     // (density → legacy px, foreground px)
     val sizes = mapOf(
-        "mdpi"    to Pair(48,  108),
-        "hdpi"    to Pair(72,  162),
-        "xhdpi"   to Pair(96,  216),
-        "xxhdpi"  to Pair(144, 324),
+        "mdpi" to Pair(48, 108),
+        "hdpi" to Pair(72, 162),
+        "xhdpi" to Pair(96, 216),
+        "xxhdpi" to Pair(144, 324),
         "xxxhdpi" to Pair(192, 432)
     )
 
@@ -34,17 +34,20 @@ tasks.register("generateAppIcons") {
         val original = ImageIO.read(src)
 
         // Center-crop to square
-        val side    = minOf(original.width, original.height)
-        val cropX   = (original.width  - side) / 2
-        val cropY   = (original.height - side) / 2
+        val side = minOf(original.width, original.height)
+        val cropX = (original.width - side) / 2
+        val cropY = (original.height - side) / 2
         val cropped = original.getSubimage(cropX, cropY, side, side)
 
         fun resizeTo(size: Int): BufferedImage {
             val out = BufferedImage(size, size, BufferedImage.TYPE_INT_ARGB)
-            val g   = out.createGraphics()
-            g.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BICUBIC)
-            g.setRenderingHint(RenderingHints.KEY_RENDERING,     RenderingHints.VALUE_RENDER_QUALITY)
-            g.setRenderingHint(RenderingHints.KEY_ANTIALIASING,  RenderingHints.VALUE_ANTIALIAS_ON)
+            val g = out.createGraphics()
+            g.setRenderingHint(
+                RenderingHints.KEY_INTERPOLATION,
+                RenderingHints.VALUE_INTERPOLATION_BICUBIC
+            )
+            g.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY)
+            g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON)
             g.drawImage(cropped, 0, 0, size, size, null)
             g.dispose()
             return out
@@ -53,7 +56,7 @@ tasks.register("generateAppIcons") {
         fun writePng(img: BufferedImage, dest: File) {
             dest.parentFile.mkdirs()
             ImageIO.write(img, "png", dest)
-            println("  → ${dest.relativeTo(projectDir)}  (${dest.length()/1024}KB)")
+            println("  → ${dest.relativeTo(projectDir)}  (${dest.length() / 1024}KB)")
         }
 
         sizes.forEach { (density, pair) ->
@@ -65,7 +68,7 @@ tasks.register("generateAppIcons") {
             // Round icon (same image — Android clips it to circle)
             writePng(resizeTo(legacyPx), File(dir, "ic_launcher_round.png"))
             // Adaptive foreground (108dp + bleed)
-            writePng(resizeTo(fgPx),     File(dir, "ic_launcher_foreground.png"))
+            writePng(resizeTo(fgPx), File(dir, "ic_launcher_foreground.png"))
         }
         println("generateAppIcons: done.")
     }
@@ -79,36 +82,39 @@ tasks.register("generateAppIcons") {
 // registered as a real res source-set below.
 // ---------------------------------------------------------------------------
 val compressCategoryImages by tasks.registering {
-    val srcDir  = file("src/main/category-images")
-    val outDir  = layout.buildDirectory.dir("generated/res/compressed/drawable").get().asFile
+    val srcDir = file("src/main/category-images")
+    val outDir = layout.buildDirectory.dir("generated/res/compressed/drawable").get().asFile
 
     inputs.files(fileTree(srcDir) { include("img_category_*.jpg") })
     outputs.dir(outDir)
 
     doLast {
         outDir.mkdirs()
-        val maxWidth  = 800
-        val quality   = 0.85f
+        val maxWidth = 800
+        val quality = 0.85f
 
         fileTree(srcDir) { include("img_category_*.jpg") }.forEach { src ->
-            val out      = File(outDir, src.name)
+            val out = File(outDir, src.name)
             val original = ImageIO.read(src)
 
             val scale = minOf(1.0, maxWidth.toDouble() / original.width)
-            val newW  = (original.width  * scale).toInt()
-            val newH  = (original.height * scale).toInt()
+            val newW = (original.width * scale).toInt()
+            val newH = (original.height * scale).toInt()
 
             val scaled = BufferedImage(newW, newH, BufferedImage.TYPE_INT_RGB)
             val g = scaled.createGraphics()
-            g.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR)
-            g.setRenderingHint(RenderingHints.KEY_RENDERING,     RenderingHints.VALUE_RENDER_QUALITY)
-            g.setRenderingHint(RenderingHints.KEY_ANTIALIASING,  RenderingHints.VALUE_ANTIALIAS_ON)
+            g.setRenderingHint(
+                RenderingHints.KEY_INTERPOLATION,
+                RenderingHints.VALUE_INTERPOLATION_BILINEAR
+            )
+            g.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY)
+            g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON)
             g.drawImage(original, 0, 0, newW, newH, null)
             g.dispose()
 
             val writer = ImageIO.getImageWritersByFormatName("jpeg").next()
             val params = writer.defaultWriteParam.apply {
-                compressionMode    = ImageWriteParam.MODE_EXPLICIT
+                compressionMode = ImageWriteParam.MODE_EXPLICIT
                 compressionQuality = quality
             }
             val ios = ImageIO.createImageOutputStream(out)
@@ -118,7 +124,7 @@ val compressCategoryImages by tasks.registering {
             writer.dispose()
 
             val savedKb = (src.length() - out.length()) / 1024
-            println("  ${src.name}: ${src.length()/1024}KB → ${out.length()/1024}KB  (-${savedKb}KB)")
+            println("  ${src.name}: ${src.length() / 1024}KB → ${out.length() / 1024}KB  (-${savedKb}KB)")
         }
     }
 }
@@ -135,10 +141,10 @@ android {
 
     signingConfigs {
         create("release") {
-            storeFile     = file(localProps.getProperty("RELEASE_STORE_FILE", "kwikkwiz-release.jks"))
+            storeFile = file(localProps.getProperty("RELEASE_STORE_FILE", "kwikkwiz-release.jks"))
             storePassword = localProps.getProperty("RELEASE_STORE_PASSWORD", "")
-            keyAlias      = localProps.getProperty("RELEASE_KEY_ALIAS",      "kwikkwiz-key")
-            keyPassword   = localProps.getProperty("RELEASE_KEY_PASSWORD",   "")
+            keyAlias = localProps.getProperty("RELEASE_KEY_ALIAS", "kwikkwiz-key")
+            keyPassword = localProps.getProperty("RELEASE_KEY_PASSWORD", "")
         }
     }
 
@@ -159,12 +165,28 @@ android {
 
     buildTypes {
         debug {
-            manifestPlaceholders["admobAppId"] = "***REMOVED***"
-            buildConfigField("String", "ADMOB_APP_ID",           "\"***REMOVED***\"")
-            buildConfigField("String", "ADMOB_BANNER_ID",        "\"***REMOVED***\"")
-            buildConfigField("String", "ADMOB_INTERSTITIAL_ID",  "\"***REMOVED***\"")
-            buildConfigField("String", "ADMOB_REWARDED_ID",      "\"***REMOVED***\"")
-            buildConfigField("String", "ADMOB_REWARDED_INTERSTITIAL_ID",      "\"***REMOVED***\"")
+            manifestPlaceholders["admobAppId"] = localProps.getProperty("ADMOB_TEST_APP_ID")
+            buildConfigField("String", "ADMOB_APP_ID", "\"${localProps.getProperty("ADMOB_TEST_APP_ID")}\"")
+            buildConfigField(
+                "String",
+                "ADMOB_BANNER_ID",
+                "\"${localProps.getProperty("ADMOB_TEST_BANNER_ID")}\""
+            )
+            buildConfigField(
+                "String",
+                "ADMOB_INTERSTITIAL_ID",
+                "\"${localProps.getProperty("ADMOB_TEST_INTERSTITIAL_ID")}\""
+            )
+            buildConfigField(
+                "String",
+                "ADMOB_REWARDED_ID",
+                "\"${localProps.getProperty("ADMOB_TEST_REWARDED_ID")}\""
+            )
+            buildConfigField(
+                "String",
+                "ADMOB_REWARDED_INTERSTITIAL_ID",
+                "\"${localProps.getProperty("ADMOB_TEST_REWARDED_INTERSTITIAL_ID")}\""
+            )
         }
         release {
             isMinifyEnabled = true
@@ -174,12 +196,28 @@ android {
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
-            manifestPlaceholders["admobAppId"] = "***REMOVED***"
-            buildConfigField("String", "ADMOB_APP_ID",           "\"***REMOVED***\"")
-            buildConfigField("String", "ADMOB_BANNER_ID",        "\"***REMOVED***\"")
-            buildConfigField("String", "ADMOB_INTERSTITIAL_ID",  "\"***REMOVED***\"")
-            buildConfigField("String", "ADMOB_REWARDED_ID",      "\"***REMOVED***\"")
-            buildConfigField("String", "ADMOB_REWARDED_INTERSTITIAL_ID",      "\"***REMOVED***\"")
+            manifestPlaceholders["admobAppId"] = localProps.getProperty("ADMOB_APP_ID")
+            buildConfigField("String", "ADMOB_APP_ID", "\"${localProps.getProperty("ADMOB_APP_ID")}\"")
+            buildConfigField(
+                "String",
+                "ADMOB_BANNER_ID",
+                "\"${localProps.getProperty("ADMOB_BANNER_ID")}\""
+            )
+            buildConfigField(
+                "String",
+                "ADMOB_INTERSTITIAL_ID",
+                "\"${localProps.getProperty("ADMOB_INTERSTITIAL_ID")}\""
+            )
+            buildConfigField(
+                "String",
+                "ADMOB_REWARDED_ID",
+                "\"${localProps.getProperty("ADMOB_REWARDED_ID")}\""
+            )
+            buildConfigField(
+                "String",
+                "ADMOB_REWARDED_INTERSTITIAL_ID",
+                "\"${localProps.getProperty("ADMOB_REWARDED_INTERSTITIAL_ID")}\""
+            )
         }
     }
     compileOptions {
