@@ -2,4 +2,13 @@
 <resources>
 
     <style name="Theme.Quizgame" parent="android:Theme.Material.Light.NoActionBar" />
+    
+    <style name="Theme.AnimatedWelcomeScreen" parent="Theme.SplashScreen">
+        <item name="android:statusBarColor">@color/amber50</item>
+        <item name="android:windowBackground">@color/amber50</item>
+
+        <!-- Set the theme of the Activity that directly follows your splash
+   screen. This is required. -->
+        <item name="postSplashScreenTheme">@style/Theme.Quizgame</item>
+    </style>
 </resources>

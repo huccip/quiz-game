@@ -89,13 +89,14 @@ import com.example.quiz_game.other.SoundManager
 import com.example.quiz_game.other.withTap
 import com.example.quiz_game.ui.activity.main.MainDestination
 import com.example.quiz_game.ui.shared.component.ButtonPrimary
-import com.example.quiz_game.ui.shared.component.LoadingFullScreenLowOpacityWithInfiniteSpinner
+import com.example.quiz_game.ui.shared.component.BannerAd
+import com.example.quiz_game.ui.shared.component.GameSkeletonLoader
 import com.example.quiz_game.ui.shared.component.TextBig
 import com.example.quiz_game.ui.shared.component.TextButton
 import com.example.quiz_game.ui.shared.component.TextFancy
 import com.example.quiz_game.ui.shared.component.TextSmol
 import com.example.quiz_game.ui.shared.effect.scaleDownOnPress
-import com.example.quiz_game.ui.theme.Indigo600
+import com.example.quiz_game.ui.theme.Violet600
 import com.example.quiz_game.ui.viewmodel.QuizAction
 import com.example.quiz_game.ui.viewmodel.QuizState
 import com.example.quiz_game.ui.viewmodel.SessionAction
@@ -203,11 +204,11 @@ fun Game(
         Box(modifier = modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
             when {
                 loading -> {
-                    LoadingFullScreenLowOpacityWithInfiniteSpinner()
+                    GameSkeletonLoader()
                 }
 
                 currentQuizzes.isEmpty() -> {
-                    TextSmol(text = "No available quizzes")
+                    Text(text = "No available quizzes")
                 }
 
                 quiz != null -> {
@@ -416,7 +417,7 @@ fun QuizCard(
                 // the timer-color threshold below). Stop the previous tick
                 // first so back-to-back longer samples don't overlap.
                 if (timer > 0) {
-                    val intense = timer < Constants.DEFAULT_QUIZ_TIMER / 6
+                    val intense = timer < Constants.DEFAULT_QUIZ_TIMER / 3
                     SoundManager.stop(tickStreamId)
                     tickStreamId = SoundManager.play(
                         if (intense) Sound.COUNTDOWN_TICK_INTENSE
@@ -438,7 +439,7 @@ fun QuizCard(
     val timerColor = when (timer) {
         in Constants.DEFAULT_QUIZ_TIMER / 2..Constants.DEFAULT_QUIZ_TIMER ->
             MaterialTheme.colorScheme.primary
-        in Constants.DEFAULT_QUIZ_TIMER / 6..Constants.DEFAULT_QUIZ_TIMER / 2 -> Color(0xFFF59E0B)
+        in Constants.DEFAULT_QUIZ_TIMER / 3..Constants.DEFAULT_QUIZ_TIMER / 2 -> Color(0xFFF59E0B)
         else -> MaterialTheme.colorScheme.error
     }
 
@@ -483,7 +484,7 @@ fun QuizCard(
             ShopItemType.SCORE_MULTIPLIER -> {
                 // Only armable while the user has not yet picked an answer
                 // (per the design: the multiplier is a confidence bet placed
-                // BEFORE seeing your own commit). Also one-shot per question.
+                // BEFORE seeing your own commit). Also, one-shot per question.
                 if (!multiplierUsed && answeredState == AnsweredState.IDLE) {
                     multiplierUsed = true
                     pendingMultiplier = item.multiplier.coerceAtLeast(1)
@@ -679,8 +680,13 @@ fun QuizCard(
                                     mark = quiz.mark ?: 0,
                                     wasAnswered = answer == choice,
                                     onClick = {
-                                        answer = choice
-                                        answeredState = AnsweredState.PICKED
+                                        if (answer == choice) {
+                                            answer = ""
+                                            answeredState = AnsweredState.IDLE
+                                        } else {
+                                            answer = choice
+                                            answeredState = AnsweredState.PICKED
+                                        }
                                     }
                                 )
                             }
@@ -696,7 +702,7 @@ fun QuizCard(
                         animationSpec = tween(350),
                         initialOffsetY = { it }
                     ),
-                    exit = fadeOut() + slideOutVertically { it }
+                    exit = fadeOut()
                 ) {
                     Column {
                         HorizontalDivider(
@@ -728,23 +734,46 @@ fun QuizCard(
                 }
 
                 // Reserve extra bottom space so the bottom-overlay deck never
-                // hides the last answer choice while collapsed.
+                // hides the last answer choice while collapsed. Always reserve
+                // an additional BANNER_AD_HEIGHT so the banner ad pinned at
+                // the very bottom of the screen never overlaps the scrollable
+                // content either.
                 if (ownedCollectibles.isNotEmpty() && answeredState == AnsweredState.IDLE) {
-                    Spacer(Modifier.height(96.dp))
+                    Spacer(Modifier.height(96.dp + BANNER_AD_HEIGHT))
+                } else {
+                    Spacer(Modifier.height(BANNER_AD_HEIGHT))
                 }
             }
         }
 
         // ── Bottom-anchored collectibles deck (overlay) ──
+        // The deck lifts itself by BANNER_AD_HEIGHT so neither its collapsed
+        // fan nor its expanded row overlaps the banner ad pinned below. The
+        // scrim still covers the entire screen because it lives inside the
+        // outer Box (not the deck's own offset wrapper).
         if (ownedCollectibles.isNotEmpty() && answeredState == AnsweredState.IDLE) {
             CollectiblesDeck(
                 items = ownedCollectibles,
                 ownedCounts = ownedCounts,
-                onUse = useCollectible
+                onUse = useCollectible,
+                bottomInset = BANNER_AD_HEIGHT
             )
+        }
+
+        // ── Banner ad pinned at the very bottom of the screen ──
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .align(Alignment.BottomCenter)
+                .background(MaterialTheme.colorScheme.background)
+        ) {
+            BannerAd()
         }
     }
 }
+
+/** Standard AdMob BANNER size is 320×50dp; we reserve 50dp for layout. */
+private val BANNER_AD_HEIGHT = 50.dp
 
 @Composable
 private fun AnswerChoiceCard(
@@ -779,8 +808,8 @@ private fun AnswerChoiceCard(
             textColor = MaterialTheme.colorScheme.error
         }
         isSelected && !locked -> {
-            borderColor = Indigo600
-            containerColor = Indigo600.copy(alpha = 0.10f)
+            borderColor = Violet600
+            containerColor = Violet600.copy(alpha = 0.10f)
             textColor = MaterialTheme.colorScheme.onSurface
         }
         else -> {
@@ -798,7 +827,7 @@ private fun AnswerChoiceCard(
             enabled = !locked && enabled,
             shape = RoundedCornerShape(16.dp),
             border = BorderStroke(
-                width = if ((isSelected && !locked) || (locked && isCorrect) || (locked && wasAnswered && !isCorrect)) 2.dp else 1.dp,
+                width = if ((isSelected && !locked) || (locked && isCorrect) || (locked && wasAnswered)) 2.dp else 1.dp,
                 color = borderColor
             ),
             colors = CardDefaults.outlinedCardColors(
@@ -864,22 +893,28 @@ fun String?.toCategoryImageRes(): Int = when {
     this == null -> R.drawable.img_category_general
     contains("General", ignoreCase = true) -> R.drawable.img_category_general
     contains("Book", ignoreCase = true) -> R.drawable.img_category_books
-    contains("Film", ignoreCase = true) || contains("Movie", ignoreCase = true) -> R.drawable.img_category_movies
-    contains("Musical", ignoreCase = true) || contains("Theatre", ignoreCase = true) -> R.drawable.img_category_musicals
+    contains("Film", ignoreCase = true) || contains("Movie", ignoreCase = true) -> R.drawable.img_category_film
+    contains("Musical", ignoreCase = true) || contains("Theatre", ignoreCase = true) -> R.drawable.img_category_musicals_theatres
     contains("Music", ignoreCase = true) -> R.drawable.img_category_music
-    contains("Television", ignoreCase = true) || contains("TV", ignoreCase = true) || contains("Series", ignoreCase = true) -> R.drawable.img_category_series
-    contains("Video Game", ignoreCase = true) -> R.drawable.img_category_video_games
-    contains("Board Game", ignoreCase = true) -> R.drawable.img_category_board_games
-    contains("Nature", ignoreCase = true) -> R.drawable.img_category_nature
-    contains("Science", ignoreCase = true) -> R.drawable.img_category_science
-    contains("Computer", ignoreCase = true) || contains("Gadget", ignoreCase = true) -> R.drawable.img_category_computers
-    contains("Math", ignoreCase = true) -> R.drawable.img_category_math
+    contains("Television", ignoreCase = true) || contains("TV", ignoreCase = true) || contains("Series", ignoreCase = true) -> R.drawable.img_category_television
+    contains("Video Game", ignoreCase = true) -> R.drawable.img_category_videogames
+    contains("Board Game", ignoreCase = true) -> R.drawable.img_category_boardgames
+    contains("Science", ignoreCase = true) || contains("Nature", ignoreCase = true) -> R.drawable.img_category_science_nature
+    contains("Computer", ignoreCase = true) -> R.drawable.img_category_computers
+    contains("Gadget", ignoreCase = true) -> R.drawable.img_category_gadgets
+    contains("Math", ignoreCase = true) -> R.drawable.img_category_mathematics
     contains("Mythology", ignoreCase = true) -> R.drawable.img_category_mythology
     contains("Sport", ignoreCase = true) -> R.drawable.img_category_sports
     contains("Geography", ignoreCase = true) -> R.drawable.img_category_geography
     contains("History", ignoreCase = true) -> R.drawable.img_category_history
     contains("Politics", ignoreCase = true) -> R.drawable.img_category_politics
+    contains("Art", ignoreCase = true) -> R.drawable.img_category_art
+    contains("Celebrit", ignoreCase = true) -> R.drawable.img_category_celebrities
     contains("Animal", ignoreCase = true) -> R.drawable.img_category_animals
+    contains("Vehicle", ignoreCase = true) -> R.drawable.img_category_vehicles
+    contains("Comic", ignoreCase = true) -> R.drawable.img_category_comics
+    contains("Anime", ignoreCase = true) || contains("Manga", ignoreCase = true) -> R.drawable.img_category_japaneseanime_manga
+    contains("Cartoon", ignoreCase = true) || contains("Animation", ignoreCase = true) -> R.drawable.img_category_cartoon_animations
     else -> R.drawable.img_category_general
 }
 
@@ -902,6 +937,7 @@ private fun BoxScope.CollectiblesDeck(
     items: List<ShopItem>,
     ownedCounts: Map<String, Int>,
     onUse: (ShopItem) -> Unit,
+    bottomInset: androidx.compose.ui.unit.Dp = 0.dp,
 ) {
     var expanded by rememberSaveable { mutableStateOf(false) }
 
@@ -960,6 +996,7 @@ private fun BoxScope.CollectiblesDeck(
         modifier = Modifier
             .align(Alignment.BottomCenter)
             .fillMaxWidth()
+            .padding(bottom = bottomInset)
             .height(containerHeight)
     ) {
         // Title strip — fixed at the top of the deck, NOT inside the scroll
@@ -1072,8 +1109,8 @@ private fun CollectibleBigCard(
             .background(
                 brush = Brush.linearGradient(
                     listOf(
-                        Indigo600,
-                        Indigo600.copy(alpha = 0.78f)
+                        Violet600,
+                        Violet600.copy(alpha = 0.78f)
                     )
                 )
             )
@@ -1093,7 +1130,12 @@ private fun CollectibleBigCard(
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.Top
             ) {
-                Text(text = item.icon, fontSize = 28.sp)
+                androidx.compose.material3.Icon(
+                    painter = painterResource(item.icon),
+                    contentDescription = null,
+                    tint = Color.White,
+                    modifier = Modifier.size(28.dp)
+                )
                 Box(
                     modifier = Modifier
                         .background(Color.White.copy(alpha = 0.22f), CircleShape)

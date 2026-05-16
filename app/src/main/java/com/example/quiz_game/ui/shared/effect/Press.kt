@@ -14,6 +14,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.scale
+import androidx.compose.ui.graphics.graphicsLayer
 
 fun Modifier.scaleDownOnPress(
     scaleRatio: Float = .6f,
@@ -73,4 +74,26 @@ fun Modifier.bounceOnPress(
     )
 
     return@composed this.scale(scale)
+}
+
+fun Modifier.gamePressEffect(
+    interactionSource: InteractionSource = MutableInteractionSource(),
+    offsetDp: Float = 4f
+) = composed {
+    val isPressed by interactionSource.collectIsPressedAsState()
+
+    val animationSpec = spring<Float>(
+        dampingRatio = Spring.DampingRatioNoBouncy,
+        stiffness = Spring.StiffnessMedium
+    )
+
+    val offset by animateFloatAsState(
+        targetValue = if (isPressed) offsetDp else 0f,
+        animationSpec = animationSpec,
+        label = "gamePressEffect"
+    )
+
+    return@composed this.graphicsLayer {
+        translationY = offset * density
+    }
 }

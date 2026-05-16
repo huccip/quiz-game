@@ -311,6 +311,8 @@
     <string name="shop_banner_subtitle">اشترِ بطاقات مساعدة لتعزيز لعبتك</string>
     <string name="shop_banner_cta">افتح المتجر</string>
     <string name="shop_your_balance">رصيدك</string>
+    <string name="shop_watch_ad_title">عملات مجانية!</string>
+    <string name="shop_watch_ad_subtitle">شاهد إعلانًا قصيرًا</string>
 
     <!-- Collectibles in-game tray + rewards -->
     <string name="collectibles_tray_title">المعززات</string>

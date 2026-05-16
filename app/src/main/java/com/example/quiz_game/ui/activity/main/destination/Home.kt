@@ -10,7 +10,6 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.PaddingValues
@@ -25,11 +24,10 @@ import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.layout.wrapContentWidth
-import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -39,12 +37,10 @@ import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -53,7 +49,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawBehind
-import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
@@ -62,21 +57,16 @@ import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.res.stringArrayResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.util.fastFilter
 import androidx.compose.ui.util.fastForEach
 import androidx.compose.ui.util.fastMap
-import androidx.core.graphics.toColorInt
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
@@ -87,22 +77,27 @@ import com.example.quiz_game.data.session.Session
 import com.example.quiz_game.other.Constants
 import com.example.quiz_game.other.DailyRewards
 import com.example.quiz_game.other.TranslatorManager
+import com.example.quiz_game.other.TranslatorStatus
 import com.example.quiz_game.other.Utils
 import com.example.quiz_game.other.withTap
 import com.example.quiz_game.ui.activity.main.MainDestination
-import com.example.quiz_game.ui.shared.component.CardClickable
+import com.example.quiz_game.ui.shared.component.BannerAd
 import com.example.quiz_game.ui.shared.component.DialogLootBoxReveal
 import com.example.quiz_game.ui.shared.component.DialogStreakReward
 import com.example.quiz_game.ui.shared.component.DialogYesOrNo
-import com.example.quiz_game.ui.shared.component.InformativeChip
-import com.example.quiz_game.ui.shared.component.LoadingInfiniteLine
+import com.example.quiz_game.ui.shared.component.HomeSkeletonLoader
 import com.example.quiz_game.ui.shared.effect.scaleDownOnPress
+import com.example.quiz_game.ui.shared.effect.dottedBackground
+import com.example.quiz_game.ui.shared.shape.TicketShape
+import com.example.quiz_game.ui.shared.shape.WobblyCardShape
+import com.example.quiz_game.ui.shared.component.ButtonPrimary
+import com.example.quiz_game.ui.shared.effect.cartoonBorder
+import com.example.quiz_game.ui.shared.effect.gamePressEffect
 import com.example.quiz_game.ui.theme.GemCyan
 import com.example.quiz_game.ui.theme.GemCyanDark
-import com.example.quiz_game.ui.theme.Indigo100
-import com.example.quiz_game.ui.theme.Indigo500
-import com.example.quiz_game.ui.theme.Indigo600
-import com.example.quiz_game.ui.theme.Indigo700
+import com.example.quiz_game.ui.theme.Violet500
+import com.example.quiz_game.ui.theme.Violet600
+import com.example.quiz_game.ui.theme.Violet700
 import com.example.quiz_game.ui.theme.PlayedTeal
 import com.example.quiz_game.ui.theme.PlayedTealBg
 import com.example.quiz_game.ui.theme.PlayedTealBgDark
@@ -273,9 +268,16 @@ fun Home(
     }
 
     val isDarkTheme = isSystemInDarkTheme()
+    
+    val translatorStatus by TranslatorManager.status.collectAsStateWithLifecycle()
+    val isTranslatorBusy = translatorStatus in listOf(
+        TranslatorStatus.Saving,
+        TranslatorStatus.Downloading,
+        TranslatorStatus.SlowDownload
+    )
 
-    if (quizState.executing || categoryState.executing || startGameTrigger || isCategoryLoading) {
-        LoadingInfiniteLine(subject = stringArrayResource(R.array.home_loading_subjects))
+    if (quizState.executing || categoryState.executing || startGameTrigger || isCategoryLoading || isTranslatorBusy) {
+        HomeSkeletonLoader()
     } else {
         // ── Confirmation Dialog for Active Session Interruption ──
         if (pendingSessionAction != null) {
@@ -341,10 +343,14 @@ fun Home(
             modifier = modifier
                 .fillMaxSize()
                 .background(MaterialTheme.colorScheme.background)
+                .dottedBackground(
+                    color = MaterialTheme.colorScheme.outline,
+                    opacity = 0.15f
+                )
         ) {
             // ── 1. Edge-to-edge Illustration (Parallax) ──
             Image(
-                painter = painterResource(R.drawable.img_illustration_home),
+                painter = painterResource(if (isDarkTheme) R.drawable.img_illustration_home_dark else R.drawable.img_illustration_home_light),
                 contentDescription = null,
                 contentScale = ContentScale.Crop,
                 modifier = Modifier
@@ -511,7 +517,7 @@ fun Home(
                     .align(Alignment.BottomCenter)
                     .background(MaterialTheme.colorScheme.background)
             ) {
-                com.example.quiz_game.ui.shared.component.BannerAd()
+                BannerAd()
             }
 
             // ── 9. Sticky top-right: gems + trophies + settings pills ──
@@ -588,7 +594,7 @@ private fun GreetingSection() {
             style = MaterialTheme.typography.headlineLarge,
             fontWeight = FontWeight.Bold,
             color = MaterialTheme.colorScheme.onBackground,
-            maxLines = 1,
+            maxLines = 2,
             overflow = TextOverflow.Ellipsis,
         )
         Spacer(Modifier.height(4.dp))
@@ -607,17 +613,16 @@ private fun QuoteSection(quoteState: QuoteState) {
     Box(
         modifier = Modifier
             .fillMaxWidth()
+            .cartoonBorder(
+                color = MaterialTheme.colorScheme.outline,
+                shape = WobblyCardShape,
+                width = 3.dp,
+                shadowOffset = 5.dp
+            )
             .background(
                 color = MaterialTheme.colorScheme.surface,
-                shape = RoundedCornerShape(18.dp)
+                shape = WobblyCardShape
             )
-            .drawBehind {
-                drawRoundRect(
-                    color = Color(0xFFE2E8F0).copy(alpha = 0.6f),
-                    cornerRadius = CornerRadius(18.dp.toPx()),
-                    style = Stroke(width = 1.dp.toPx())
-                )
-            }
             .padding(horizontal = 16.dp, vertical = 14.dp)
     ) {
         Column {
@@ -646,9 +651,7 @@ private fun QuoteSection(quoteState: QuoteState) {
                     stringResource(R.string.home_quote_not_found),
                 style = MaterialTheme.typography.bodyMedium,
                 fontStyle = FontStyle.Italic,
-                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.88f),
-                maxLines = 3,
-                overflow = TextOverflow.Ellipsis
+                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.88f)
             )
 
             if (!quoteState.quote?.author.isNullOrBlank()) {
@@ -710,61 +713,41 @@ private fun ContinueHeroButton(
     subtitle: String,
     onClick: () -> Unit
 ) {
-    val interactionSource = remember { MutableInteractionSource() }
-    val dark = isSystemInDarkTheme()
-    val gradientStart = if (dark) Indigo500 else Indigo600
-    val gradientEnd = if (dark) Indigo700 else Indigo500
-    Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .heightIn(min = 68.dp)
-            .scaleDownOnPress(.97f, interactionSource)
-            .background(
-                brush = Brush.linearGradient(listOf(gradientStart, gradientEnd)),
-                shape = RoundedCornerShape(16.dp)
-            )
-            .clickable(
-                interactionSource = interactionSource,
-                indication = LocalIndication.current,
-                onClick = withTap(onClick)
-            )
-            .padding(horizontal = 20.dp, vertical = 12.dp)
-    ) {
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier.fillMaxWidth()
-        ) {
+    ButtonPrimary(
+        onClick = onClick,
+        modifier = Modifier.fillMaxWidth().height(68.dp),
+        color = MaterialTheme.colorScheme.primary,
+        content = {
             Box(
                 modifier = Modifier
                     .size(40.dp)
-                    .background(Color.White.copy(alpha = 0.18f), CircleShape),
+                    .background(Color.White.copy(alpha = 0.2f), shape = CircleShape),
                 contentAlignment = Alignment.Center
             ) {
-                Text(
-                    text = "\u25B6",
-                    color = Color.White,
-                    fontSize = 18.sp,
-                    fontWeight = FontWeight.Bold
+                Icon(
+                    painter = painterResource(R.drawable.ic_live),
+                    contentDescription = null,
+                    tint = Color.White,
+                    modifier = Modifier.size(20.dp)
                 )
             }
-            Spacer(Modifier.width(14.dp))
             Column(modifier = Modifier.weight(1f)) {
                 Text(
                     text = title,
-                    style = MaterialTheme.typography.titleLarge,
-                    fontWeight = FontWeight.Bold,
-                    color = Color.White
+                    style = MaterialTheme.typography.titleMedium,
+                    color = Color.White,
+                    fontWeight = FontWeight.Bold
                 )
                 Text(
                     text = subtitle,
                     style = MaterialTheme.typography.bodySmall,
-                    color = Color.White.copy(alpha = 0.85f),
+                    color = Color.White.copy(alpha = 0.8f),
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
                 )
             }
         }
-    }
+    )
 }
 
 @Composable
@@ -773,33 +756,18 @@ private fun PrimaryCtaButton(
     onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val interactionSource = remember { MutableInteractionSource() }
-    val dark = isSystemInDarkTheme()
-    val gradientStart = if (dark) Indigo500 else Indigo600
-    val gradientEnd = if (dark) Indigo700 else Indigo500
-    Box(
-        modifier = modifier
-            .fillMaxWidth()
-            .heightIn(min = 60.dp)
-            .scaleDownOnPress(.97f, interactionSource)
-            .background(
-                brush = Brush.linearGradient(listOf(gradientStart, gradientEnd)),
-                shape = RoundedCornerShape(14.dp)
+    ButtonPrimary(
+        onClick = onClick,
+        modifier = modifier.fillMaxWidth().height(64.dp),
+        color = MaterialTheme.colorScheme.primary,
+        content = {
+            Text(
+                text = text,
+                style = MaterialTheme.typography.titleLarge,
+                fontWeight = FontWeight.Bold
             )
-            .clickable(
-                interactionSource = interactionSource,
-                indication = LocalIndication.current,
-                onClick = withTap(onClick)
-            ),
-        contentAlignment = Alignment.Center
-    ) {
-        Text(
-            text = text,
-            style = MaterialTheme.typography.titleMedium,
-            fontWeight = FontWeight.Bold,
-            color = Color.White
-        )
-    }
+        }
+    )
 }
 
 @Composable
@@ -911,13 +879,16 @@ private fun ExploreTopicsSection(
                 item(key = "daily-${dailyCategory.uid}") {
                     DailyChallengeCard(
                         category = dailyCategory,
-                        onClick = { onCategoryClick(dailyCategory) }
+                        onClick = { onCategoryClick(dailyCategory) },
+                        rotation = 1.5f
                     )
                 }
-                items(items = suggested, key = { it.uid }) { category ->
+                itemsIndexed(items = suggested, key = { _, it -> it.uid }) { index, category ->
+                    val angle = if (index % 2 == 0) -1.5f else 1.5f
                     FeaturedCategoryCard(
                         category = category,
-                        onClick = { onCategoryClick(category) }
+                        onClick = { onCategoryClick(category) },
+                        rotation = angle
                     )
                 }
             }
@@ -928,7 +899,8 @@ private fun ExploreTopicsSection(
 @Composable
 private fun DailyChallengeCard(
     category: Category,
-    onClick: () -> Unit
+    onClick: () -> Unit,
+    rotation: Float = 0f
 ) {
     val screenWidth = LocalConfiguration.current.screenWidthDp.dp
     val cardWidth = screenWidth * 0.38f
@@ -939,16 +911,10 @@ private fun DailyChallengeCard(
         modifier = Modifier
             .width(cardWidth)
             .aspectRatio(0.78f)
-            .scaleDownOnPress(.95f, interactionSource)
+            .graphicsLayer { rotationZ = rotation }
+            .gamePressEffect(interactionSource)
             .clip(RoundedCornerShape(18.dp))
-            .background(
-                Brush.linearGradient(
-                    listOf(
-                        if (dark) Indigo500 else Indigo600,
-                        if (dark) Indigo700 else Indigo700
-                    )
-                )
-            )
+            .background(if (dark) Violet700 else Violet600)
             .clickable(
                 interactionSource = interactionSource,
                 indication = LocalIndication.current,
@@ -1020,7 +986,8 @@ private fun DailyChallengeCard(
 @Composable
 private fun FeaturedCategoryCard(
     category: Category,
-    onClick: () -> Unit
+    onClick: () -> Unit,
+    rotation: Float = 0f
 ) {
     val screenWidth = LocalConfiguration.current.screenWidthDp.dp
     val cardWidth = screenWidth * 0.38f
@@ -1030,7 +997,8 @@ private fun FeaturedCategoryCard(
         modifier = Modifier
             .width(cardWidth)
             .aspectRatio(0.78f)
-            .scaleDownOnPress(.95f, interactionSource)
+            .graphicsLayer { rotationZ = rotation }
+            .gamePressEffect(interactionSource)
             .clip(RoundedCornerShape(18.dp))
             .background(MaterialTheme.colorScheme.surface)
             .clickable(
@@ -1163,14 +1131,13 @@ private fun StatPill(
 ) {
     Column(
         modifier = modifier
-            .background(MaterialTheme.colorScheme.surface, RoundedCornerShape(14.dp))
-            .drawBehind {
-                drawRoundRect(
-                    color = Color(0xFFE2E8F0).copy(alpha = 0.5f),
-                    cornerRadius = CornerRadius(14.dp.toPx()),
-                    style = Stroke(width = 1.dp.toPx())
-                )
-            }
+            .cartoonBorder(
+                color = MaterialTheme.colorScheme.outline,
+                shape = WobblyCardShape,
+                width = 3.dp,
+                shadowOffset = 4.dp
+            )
+            .background(MaterialTheme.colorScheme.surface, WobblyCardShape)
             .padding(horizontal = 12.dp, vertical = 10.dp)
     ) {
         Row(verticalAlignment = Alignment.CenterVertically) {
@@ -1223,15 +1190,10 @@ private fun ShopBannerSection(
     Box(
         modifier = modifier
             .fillMaxWidth()
-            .scaleDownOnPress(.97f, interactionSource)
+            .gamePressEffect(interactionSource)
             .background(
-                brush = Brush.linearGradient(
-                    listOf(
-                        if (dark) Indigo500 else Indigo600,
-                        if (dark) Indigo700 else Indigo500
-                    )
-                ),
-                shape = RoundedCornerShape(20.dp)
+                color = if (dark) Violet700 else Violet500,
+                shape = TicketShape
             )
             .clickable(
                 interactionSource = interactionSource,
@@ -1313,25 +1275,18 @@ private fun DailyLootBoxSection(
     onClaim: () -> Unit,
 ) {
     val interactionSource = remember { MutableInteractionSource() }
-    val gradient = if (available) {
-        Brush.linearGradient(
-            listOf(Color(0xFFFFB300), Color(0xFFFF7043))
-        )
+    val bgColor = if (available) {
+        Color(0xFFFFB300)
     } else {
-        Brush.linearGradient(
-            listOf(
-                MaterialTheme.colorScheme.surfaceVariant,
-                MaterialTheme.colorScheme.surfaceVariant,
-            )
-        )
+        MaterialTheme.colorScheme.surfaceVariant
     }
     val onColor = if (available) Color.White else MaterialTheme.colorScheme.onSurfaceVariant
 
     Box(
         modifier = Modifier
             .fillMaxWidth()
-            .scaleDownOnPress(.97f, interactionSource)
-            .background(brush = gradient, shape = RoundedCornerShape(20.dp))
+            .gamePressEffect(interactionSource)
+            .background(color = bgColor, shape = RoundedCornerShape(20.dp))
             .clickable(
                 enabled = available,
                 interactionSource = interactionSource,
@@ -1429,8 +1384,10 @@ private fun TopBar(
         val (title, body) = when (dialog) {
             SettingsDialog.ABOUT -> stringResource(R.string.settings_about_title) to
                     stringResource(R.string.settings_about_body)
+
             SettingsDialog.PRIVACY -> stringResource(R.string.settings_menu_privacy) to
                     stringResource(R.string.settings_legal_coming_soon)
+
             SettingsDialog.TERMS -> stringResource(R.string.settings_menu_terms) to
                     stringResource(R.string.settings_legal_coming_soon)
         }

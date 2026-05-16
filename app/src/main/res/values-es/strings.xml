@@ -309,6 +309,8 @@
     <string name="shop_banner_subtitle">Compra cartas de utilidad para potenciar tu juego</string>
     <string name="shop_banner_cta">Abrir tienda</string>
     <string name="shop_your_balance">Tu saldo</string>
+    <string name="shop_watch_ad_title">¡Monedas gratis!</string>
+    <string name="shop_watch_ad_subtitle">Mira un anuncio corto</string>
 
     <!-- Collectibles in-game tray + rewards -->
     <string name="collectibles_tray_title">Power-ups</string>

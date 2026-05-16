@@ -309,6 +309,8 @@
     <string name="shop_banner_subtitle">Kaufe Hilfskarten, um dein Quiz zu boosten</string>
     <string name="shop_banner_cta">Shop öffnen</string>
     <string name="shop_your_balance">Dein Guthaben</string>
+    <string name="shop_watch_ad_title">Gratis Münzen!</string>
+    <string name="shop_watch_ad_subtitle">Kurze Werbung ansehen</string>
 
     <!-- Collectibles in-game tray + rewards -->
     <string name="collectibles_tray_title">Power-Ups</string>

@@ -312,6 +312,8 @@
     <string name="shop_banner_subtitle">Buy utility cards to boost your quiz game</string>
     <string name="shop_banner_cta">Open Shop</string>
     <string name="shop_your_balance">Your balance</string>
+    <string name="shop_watch_ad_title">Free Coins!</string>
+    <string name="shop_watch_ad_subtitle">Watch a short ad</string>
 
     <!-- Collectibles in-game tray + rewards -->
     <string name="collectibles_tray_title">Power-Ups</string>

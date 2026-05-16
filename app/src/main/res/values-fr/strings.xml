@@ -309,6 +309,8 @@
     <string name="shop_banner_subtitle">Achète des cartes utilitaires pour booster ton quiz</string>
     <string name="shop_banner_cta">Ouvrir la boutique</string>
     <string name="shop_your_balance">Ton solde</string>
+    <string name="shop_watch_ad_title">Pièces gratuites !</string>
+    <string name="shop_watch_ad_subtitle">Regarde une courte pub</string>
 
     <!-- Collectibles in-game tray + rewards -->
     <string name="collectibles_tray_title">Boosts</string>

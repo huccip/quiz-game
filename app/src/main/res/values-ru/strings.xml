@@ -309,6 +309,8 @@
     <string name="shop_banner_subtitle">Покупай карты-помощники, чтобы прокачать игру</string>
     <string name="shop_banner_cta">Открыть магазин</string>
     <string name="shop_your_balance">Твой баланс</string>
+    <string name="shop_watch_ad_title">Бесплатные монеты!</string>
+    <string name="shop_watch_ad_subtitle">Посмотри короткую рекламу</string>
 
     <!-- Collectibles in-game tray + rewards -->
     <string name="collectibles_tray_title">Бусты</string>

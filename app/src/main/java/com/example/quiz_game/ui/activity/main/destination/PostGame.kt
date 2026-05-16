@@ -1,5 +1,6 @@
 package com.example.quiz_game.ui.activity.main.destination
 
+import android.app.Activity
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.FastOutSlowInEasing
@@ -52,6 +53,7 @@ import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -61,25 +63,23 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
-import android.app.Activity
-import androidx.compose.ui.platform.LocalContext
-import com.example.quiz_game.other.AdManager
 import com.example.quiz_game.R
+import com.example.quiz_game.other.AdManager
+import com.example.quiz_game.other.InAppReviewManager
 import com.example.quiz_game.other.Sound
 import com.example.quiz_game.other.SoundManager
 import com.example.quiz_game.other.Utils.achievementIcon
 import com.example.quiz_game.other.withTap
 import com.example.quiz_game.ui.activity.main.MainDestination
+import com.example.quiz_game.ui.shared.component.BannerAd
 import com.example.quiz_game.ui.shared.component.ButtonPrimary
 import com.example.quiz_game.ui.shared.component.IconButton
-import com.example.quiz_game.ui.shared.component.LayoutSectionHeadline
 import com.example.quiz_game.ui.shared.component.TextBerySmol
 import com.example.quiz_game.ui.shared.component.TextBig
 import com.example.quiz_game.ui.shared.component.TextButton
 import com.example.quiz_game.ui.shared.component.TextFancy
-import com.example.quiz_game.ui.shared.component.TextSmol
-import com.example.quiz_game.ui.theme.Indigo100
-import com.example.quiz_game.ui.theme.Indigo600
+import com.example.quiz_game.ui.theme.Violet100
+import com.example.quiz_game.ui.theme.Violet600
 import com.example.quiz_game.ui.viewmodel.QuizAction
 import com.example.quiz_game.ui.viewmodel.QuizState
 import com.example.quiz_game.ui.viewmodel.SessionAction
@@ -120,7 +120,7 @@ fun PostGame(
     // Percentage text is colored by performance
     val scoreTextColor = when {
         scorePercentage >= 80 -> Color(0xFF22C55E)
-        scorePercentage >= 50 -> Indigo600
+        scorePercentage >= 50 -> Violet600
         else -> Color(0xFFEF4444)
     }
 
@@ -136,7 +136,7 @@ fun PostGame(
     // Stable scatter params per chip — seeded by index so they never recompose-jitter
     // Each entry: (xOffsetDp, yOffsetDp, rotation, sizeDp, alpha)
     val scatterParams = remember(categoryChips.size) {
-        categoryChips.mapIndexed { i, _ ->
+        List(categoryChips.size) { i ->
             val rng = Random(seed = i * 31 + 7)
             // Split items: even indices go left, odd go right
             val isRight = (i % 2 == 1)
@@ -147,7 +147,8 @@ fun PostGame(
             val xOffset = if (isRight) xMagnitude else -xMagnitude
             // Vertical offset: spread vertically, first chips near top, last near bottom
             // Map i to a vertical band across the ring height (~200dp), add jitter
-            val fraction = if (categoryChips.size > 1) i.toFloat() / (categoryChips.size - 1) else 0.5f
+            val fraction =
+                if (categoryChips.size > 1) i.toFloat() / (categoryChips.size - 1) else 0.5f
             val yCenter = (fraction - 0.5f) * 160f  // -80..+80 dp
             val yJitter = (rng.nextFloat() - 0.5f) * 40f
             val yOffset = yCenter + yJitter
@@ -166,6 +167,14 @@ fun PostGame(
     BackHandler {
         AdManager.onQuizCompleted(context as Activity)
         sharedAction(SharedAction.Navigate(MainDestination.Home, navController))
+    }
+
+    // Silently prompt for an in-app review whenever the user sets a new
+    // personal high score — the most positive moment in the session.
+    LaunchedEffect(achievements) {
+        if (R.string.achievements_new_record in achievements) {
+            InAppReviewManager.requestReview(context as Activity)
+        }
     }
 
     LaunchedEffect(sessionState) {
@@ -188,188 +197,203 @@ fun PostGame(
     }
 
     Box(modifier = modifier.fillMaxSize()) {
-    Column(
-        horizontalAlignment = Alignment.CenterHorizontally,
-        modifier = Modifier
-            .fillMaxSize()
-            .verticalScroll(rememberScrollState())
-    ) {
-
-        // ── Header — score ring + scattered category chips ────────────────────
-        Box(
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
             modifier = Modifier
-                .fillMaxWidth()
-                .background(
-                    Brush.verticalGradient(
-                        colors = listOf(
-                            MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.5f),
-                            MaterialTheme.colorScheme.surface
+                .fillMaxSize()
+                .verticalScroll(rememberScrollState())
+        ) {
+
+            // ── Header — score ring + scattered category chips ────────────────────
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .background(
+                        Brush.verticalGradient(
+                            colors = listOf(
+                                MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.5f),
+                                MaterialTheme.colorScheme.surface
+                            )
                         )
                     )
-                )
-                // Fixed height gives us room to scatter chips around the ring
-                .height(if (categoryChips.isNotEmpty()) 380.dp else 300.dp),
-            contentAlignment = Alignment.Center
-        ) {
-            // Title sits at top of the box
-            TextFancy(
-                text = stringResource(R.string.postgame_title),
-                color = MaterialTheme.colorScheme.onSurface,
-                textAlign = TextAlign.Center,
-                style = MaterialTheme.typography.headlineSmall,
-                fontWeight = FontWeight.SemiBold,
-                modifier = Modifier
-                    .align(Alignment.TopCenter)
-                    .padding(top = 36.dp)
-            )
-
-            // Scattered category chips — drawn as absolute-offset children of the same Box,
-            // centred on the ring centre, offset outward with random params
-            categoryChips.forEachIndexed { index, (name, imageRes) ->
-                val p = scatterParams[index]
-                ScatteredCategoryChip(
-                    name = name,
-                    imageRes = imageRes,
-                    rotation = p.rotation,
-                    sizeDp = p.sizeDp,
-                    chipAlpha = p.alpha,
-                    delayMs = index * 100L,
-                    modifier = Modifier
-                        .align(Alignment.Center)
-                        .offset {
-                            IntOffset(
-                                x = (p.xOffset * density).roundToInt(),
-                                y = (p.yOffset * density).roundToInt()
-                            )
-                        }
-                )
-            }
-
-            // Score ring — centred in the box
-            Box(
-                contentAlignment = Alignment.Center,
-                modifier = Modifier.align(Alignment.Center)
+                    // Fixed height gives us room to scatter chips around the ring
+                    .height(if (categoryChips.isNotEmpty()) 380.dp else 300.dp),
+                contentAlignment = Alignment.Center
             ) {
-                Canvas(modifier = Modifier.size(190.dp)) {
-                    val strokeWidth = 16.dp.toPx()
-                    // Track
-                    drawArc(
-                        color = Color.Gray.copy(alpha = 0.22f),
-                        startAngle = -90f,
-                        sweepAngle = 360f,
-                        useCenter = false,
-                        style = Stroke(width = strokeWidth, cap = StrokeCap.Round)
-                    )
-                    // Progress — always green
-                    if (sweepAngle.value > 0f) {
-                        drawArc(
-                            brush = Brush.sweepGradient(
-                                colors = listOf(
-                                    ArcGreen.copy(alpha = 0.55f),
-                                    ArcGreen
+                // Title sits at top of the box
+                TextFancy(
+                    text = stringResource(R.string.postgame_title),
+                    color = MaterialTheme.colorScheme.onSurface,
+                    textAlign = TextAlign.Center,
+                    style = MaterialTheme.typography.headlineSmall,
+                    fontWeight = FontWeight.SemiBold,
+                    modifier = Modifier
+                        .align(Alignment.TopCenter)
+                        .padding(top = 36.dp)
+                )
+
+                // Scattered category chips — drawn as absolute-offset children of the same Box,
+                // centred on the ring centre, offset outward with random params
+                categoryChips.forEachIndexed { index, (name, imageRes) ->
+                    val p = scatterParams[index]
+                    ScatteredCategoryChip(
+                        name = name,
+                        imageRes = imageRes,
+                        rotation = p.rotation,
+                        sizeDp = p.sizeDp,
+                        chipAlpha = p.alpha,
+                        delayMs = index * 100L,
+                        modifier = Modifier
+                            .align(Alignment.Center)
+                            .offset {
+                                IntOffset(
+                                    x = (p.xOffset * density).roundToInt(),
+                                    y = (p.yOffset * density).roundToInt()
                                 )
-                            ),
+                            }
+                    )
+                }
+
+                // Score ring — centred in the box
+                Box(
+                    contentAlignment = Alignment.Center,
+                    modifier = Modifier.align(Alignment.Center)
+                ) {
+                    Canvas(modifier = Modifier.size(190.dp)) {
+                        val strokeWidth = 16.dp.toPx()
+                        // Track
+                        drawArc(
+                            color = Color.Gray.copy(alpha = 0.22f),
                             startAngle = -90f,
-                            sweepAngle = sweepAngle.value,
+                            sweepAngle = 360f,
                             useCenter = false,
                             style = Stroke(width = strokeWidth, cap = StrokeCap.Round)
                         )
-                    }
-                }
-
-                // Only the percentage inside the ring — big, bold, coloured by performance
-                androidx.compose.material3.Text(
-                    text = "$scorePercentage%",
-                    color = scoreTextColor,
-                    fontSize = 40.sp,
-                    fontWeight = FontWeight.ExtraBold,
-                    textAlign = TextAlign.Center
-                )
-            }
-        }
-
-        // ── Achievements section ──────────────────────────────────────────────
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 20.dp)
-        ) {
-            Spacer(modifier = Modifier.height(24.dp))
-
-            // ── Earned collectibles reward card ──
-            val granted = shopState.lastGranted
-            if (granted.isNotEmpty()) {
-                Card(
-                    modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(20.dp),
-                    elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
-                    colors = CardDefaults.cardColors(
-                        containerColor = Indigo100.copy(alpha = 0.55f)
-                    )
-                ) {
-                    Column(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(horizontal = 18.dp, vertical = 16.dp)
-                    ) {
-                        TextBig(
-                            text = stringResource(R.string.collectibles_reward_title, granted.size),
-                            fontWeight = FontWeight.Bold
-                        )
-                        Spacer(Modifier.height(4.dp))
-                        TextBerySmol(
-                            text = stringResource(R.string.collectibles_reward_subtitle),
-                            color = MaterialTheme.colorScheme.outline
-                        )
-                        Spacer(Modifier.height(12.dp))
-                        Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                            granted.forEach { item ->
-                                Box(
-                                    modifier = Modifier
-                                        .size(48.dp)
-                                        .clip(RoundedCornerShape(14.dp))
-                                        .background(MaterialTheme.colorScheme.surface),
-                                    contentAlignment = Alignment.Center
-                                ) {
-                                    androidx.compose.material3.Text(
-                                        text = item.icon,
-                                        fontSize = 24.sp
+                        // Progress — always green
+                        if (sweepAngle.value > 0f) {
+                            drawArc(
+                                brush = Brush.sweepGradient(
+                                    colors = listOf(
+                                        ArcGreen.copy(alpha = 0.55f),
+                                        ArcGreen
                                     )
+                                ),
+                                startAngle = -90f,
+                                sweepAngle = sweepAngle.value,
+                                useCenter = false,
+                                style = Stroke(width = strokeWidth, cap = StrokeCap.Round)
+                            )
+                        }
+                    }
+
+                    // Only the percentage inside the ring — big, bold, coloured by performance
+                    androidx.compose.material3.Text(
+                        text = "$scorePercentage%",
+                        color = scoreTextColor,
+                        fontSize = 40.sp,
+                        fontWeight = FontWeight.ExtraBold,
+                        textAlign = TextAlign.Center
+                    )
+                }
+            }
+
+            // ── Achievements section ──────────────────────────────────────────────
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 20.dp)
+            ) {
+                Spacer(modifier = Modifier.height(24.dp))
+
+                // ── Earned collectibles reward card ──
+                val granted = shopState.lastGranted
+                if (granted.isNotEmpty()) {
+                    Card(
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(20.dp),
+                        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
+                        colors = CardDefaults.cardColors(
+                            containerColor = Violet100.copy(alpha = 0.55f)
+                        )
+                    ) {
+                        Column(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(horizontal = 18.dp, vertical = 16.dp)
+                        ) {
+                            TextBig(
+                                text = stringResource(
+                                    R.string.collectibles_reward_title,
+                                    granted.size
+                                ),
+                                fontWeight = FontWeight.Bold
+                            )
+                            Spacer(Modifier.height(4.dp))
+                            TextBerySmol(
+                                text = stringResource(R.string.collectibles_reward_subtitle),
+                                color = MaterialTheme.colorScheme.outline
+                            )
+                            Spacer(Modifier.height(12.dp))
+                            Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                                granted.forEach { item ->
+                                    Box(
+                                        modifier = Modifier
+                                            .size(48.dp)
+                                            .clip(RoundedCornerShape(14.dp))
+                                            .background(MaterialTheme.colorScheme.surface),
+                                        contentAlignment = Alignment.Center
+                                    ) {
+                                        androidx.compose.material3.Icon(
+                                            painter = painterResource(id = item.icon),
+                                            contentDescription = null,
+                                            tint = MaterialTheme.colorScheme.primary,
+                                            modifier = Modifier.size(24.dp)
+                                        )
+                                    }
                                 }
                             }
                         }
                     }
+                    Spacer(modifier = Modifier.height(20.dp))
+                    // Note: granted collectibles intentionally remain visible for
+                    // the entire visit to PostGame — the user explicitly requested
+                    // a permanent reward summary instead of a fleeting toast.
                 }
-                Spacer(modifier = Modifier.height(20.dp))
-                // Note: granted collectibles intentionally remain visible for
-                // the entire visit to PostGame — the user explicitly requested
-                // a permanent reward summary instead of a fleeting toast.
-            }
 
-            // Achievements are revealed exclusively via the Steam-style popup
-            // overlay rendered at the top of the screen — no in-page section
-            // here on purpose.
+                // Achievements are revealed exclusively via the Steam-style popup
+                // overlay rendered at the top of the screen — no in-page section
+                // here on purpose.
 
-            Spacer(modifier = Modifier.height(32.dp))
+                Spacer(modifier = Modifier.height(32.dp))
 
-            ButtonPrimary(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(54.dp),
-                onClick = {
-                    AdManager.onQuizCompleted(context as Activity)
-                    sharedAction(SharedAction.Navigate(MainDestination.Home, navController))
+                ButtonPrimary(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(54.dp),
+                    onClick = {
+                        AdManager.onQuizCompleted(context as Activity)
+                        sharedAction(SharedAction.Navigate(MainDestination.Home, navController))
+                    }
+                ) {
+                    TextButton(
+                        text = stringResource(R.string.postgame_button_navigate_home),
+                        fontWeight = FontWeight.SemiBold
+                    )
                 }
-            ) {
-                TextButton(
-                    text = stringResource(R.string.postgame_button_navigate_home),
-                    fontWeight = FontWeight.SemiBold
-                )
-            }
 
-            Spacer(modifier = Modifier.height(24.dp))
+                Spacer(modifier = Modifier.height(24.dp))
+            }
         }
-    }
+
+        // ── 8. Banner Ad ──
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .align(Alignment.BottomCenter)
+                .background(MaterialTheme.colorScheme.background)
+        ) {
+            BannerAd()
+        }
 
         // ── Steam-style achievement popups (overlay) ────────────────────────
         AchievementPopupHost(
@@ -487,14 +511,14 @@ private fun AchievementRecapRow(
                 modifier = Modifier
                     .size(48.dp)
                     .clip(RoundedCornerShape(12.dp))
-                    .background(Indigo100.copy(alpha = 0.6f)),
+                    .background(Violet100.copy(alpha = 0.6f)),
                 contentAlignment = Alignment.Center
             ) {
                 IconButton(
                     painter = painterResource(id = iconRes),
                     contentDescription = stringResource(descriptionRes),
                     style = MaterialTheme.typography.titleLarge,
-                    tint = Indigo600
+                    tint = Violet600
                 )
             }
             Spacer(modifier = Modifier.width(14.dp))
@@ -588,7 +612,7 @@ private fun AchievementPopup(
         ),
         border = BorderStroke(
             width = 1.dp,
-            color = Indigo600.copy(alpha = 0.45f)
+            color = Violet600.copy(alpha = 0.45f)
         )
     ) {
         Row(
@@ -603,7 +627,7 @@ private fun AchievementPopup(
                     .clip(RoundedCornerShape(12.dp))
                     .background(
                         Brush.linearGradient(
-                            listOf(Indigo600, Indigo600.copy(alpha = 0.75f))
+                            listOf(Violet600, Violet600.copy(alpha = 0.75f))
                         )
                     ),
                 contentAlignment = Alignment.Center
@@ -620,7 +644,7 @@ private fun AchievementPopup(
                 androidx.compose.material3.Text(
                     text = stringResource(R.string.achievement_popup_title),
                     style = MaterialTheme.typography.labelSmall,
-                    color = Indigo600,
+                    color = Violet600,
                     fontWeight = FontWeight.Bold
                 )
                 Spacer(modifier = Modifier.height(2.dp))
@@ -699,14 +723,14 @@ fun AchievementCard(
                 modifier = Modifier
                     .size(48.dp)
                     .clip(RoundedCornerShape(12.dp))
-                    .background(Indigo100.copy(alpha = 0.6f)),
+                    .background(Violet100.copy(alpha = 0.6f)),
                 contentAlignment = Alignment.Center
             ) {
                 IconButton(
                     painter = painterResource(id = iconRes),
                     contentDescription = stringResource(descriptionRes),
                     style = MaterialTheme.typography.titleLarge,
-                    tint = Indigo600
+                    tint = Violet600
                 )
             }
 
@@ -734,38 +758,76 @@ private fun categoryNameToImageRes(name: String): Int {
     return when {
         name.contains("General", ignoreCase = true) || name.contains("Knowledge", ignoreCase = true) ->
             R.drawable.img_category_general
+
         name.contains("Book", ignoreCase = true) || name.contains("Literature", ignoreCase = true) ->
             R.drawable.img_category_books
+
+        name.contains("Film", ignoreCase = true) || name.contains("Movie", ignoreCase = true) ->
+            R.drawable.img_category_film
+
         name.contains("Musical", ignoreCase = true) || name.contains("Theatre", ignoreCase = true) ->
-            R.drawable.img_category_musicals
-        name.contains("Film", ignoreCase = true) || name.contains("Movie", ignoreCase = true) ||
-        name.contains("Cartoon", ignoreCase = true) || name.contains("Anime", ignoreCase = true) ||
-        name.contains("Television", ignoreCase = true) || name.contains("Celebrit", ignoreCase = true) ->
-            R.drawable.img_category_movies
+            R.drawable.img_category_musicals_theatres
+
         name.contains("Music", ignoreCase = true) ->
             R.drawable.img_category_music
+
+        name.contains("Television", ignoreCase = true) || name.contains("TV", ignoreCase = true) || name.contains("Series", ignoreCase = true) ->
+            R.drawable.img_category_television
+
         name.contains("Video Game", ignoreCase = true) ->
-            R.drawable.img_category_video_games
+            R.drawable.img_category_videogames
+
         name.contains("Board Game", ignoreCase = true) ->
-            R.drawable.img_category_board_games
-        name.contains("Nature", ignoreCase = true) ->
-            R.drawable.img_category_nature
-        name.contains("Computer", ignoreCase = true) || name.contains("Gadget", ignoreCase = true) ->
+            R.drawable.img_category_boardgames
+
+        name.contains("Science", ignoreCase = true) || name.contains("Nature", ignoreCase = true) || name.contains("Biolog", ignoreCase = true) ->
+            R.drawable.img_category_science_nature
+
+        name.contains("Computer", ignoreCase = true) ->
             R.drawable.img_category_computers
+
+        name.contains("Gadget", ignoreCase = true) ->
+            R.drawable.img_category_gadgets
+
         name.contains("Math", ignoreCase = true) || name.contains("Mathemat", ignoreCase = true) ->
-            R.drawable.img_category_math
+            R.drawable.img_category_mathematics
+
         name.contains("Mytholog", ignoreCase = true) ->
             R.drawable.img_category_mythology
+
         name.contains("Sport", ignoreCase = true) ->
             R.drawable.img_category_sports
+
         name.contains("Geograph", ignoreCase = true) ->
             R.drawable.img_category_geography
-        name.contains("Histor", ignoreCase = true) || name.contains("Politic", ignoreCase = true) ->
+
+        name.contains("Histor", ignoreCase = true) ->
             R.drawable.img_category_history
+
+        name.contains("Politic", ignoreCase = true) ->
+            R.drawable.img_category_politics
+
+        name.contains("Art", ignoreCase = true) ->
+            R.drawable.img_category_art
+
+        name.contains("Celebrit", ignoreCase = true) ->
+            R.drawable.img_category_celebrities
+
         name.contains("Animal", ignoreCase = true) ->
             R.drawable.img_category_animals
-        name.contains("Science", ignoreCase = true) || name.contains("Biolog", ignoreCase = true) ->
-            R.drawable.img_category_science
+
+        name.contains("Vehicle", ignoreCase = true) ->
+            R.drawable.img_category_vehicles
+
+        name.contains("Comic", ignoreCase = true) ->
+            R.drawable.img_category_comics
+
+        name.contains("Anime", ignoreCase = true) || name.contains("Manga", ignoreCase = true) ->
+            R.drawable.img_category_japaneseanime_manga
+
+        name.contains("Cartoon", ignoreCase = true) || name.contains("Animation", ignoreCase = true) ->
+            R.drawable.img_category_cartoon_animations
+
         else -> R.drawable.img_category_general
     }
 }

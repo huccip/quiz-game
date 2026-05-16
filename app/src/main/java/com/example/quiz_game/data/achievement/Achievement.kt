@@ -1,7 +1,6 @@
 package com.example.quiz_game.data.achievement
 
 import android.util.Base64
-import androidx.compose.ui.util.fastJoinToString
 import kotlinx.serialization.Serializable
 
 @Serializable
@@ -17,7 +16,7 @@ data class Achievement(
         (createdAt.toString() + name + description + icon)
             .split("")
             .shuffled()
-            .fastJoinToString("")
+            .joinToString("")
             .toByteArray(),
         Base64.NO_WRAP
     )

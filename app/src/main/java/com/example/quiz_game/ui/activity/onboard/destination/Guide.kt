@@ -33,8 +33,11 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
+import androidx.navigation.compose.rememberNavController
 import com.example.quiz_game.R
 import com.example.quiz_game.ui.activity.main.MainActivity
+import com.example.quiz_game.ui.activity.onboard.OnboardDestination
 import com.example.quiz_game.ui.shared.component.ButtonPrimary
 import com.example.quiz_game.ui.shared.component.IconButton
 import com.example.quiz_game.ui.shared.component.Preview
@@ -47,7 +50,8 @@ import com.example.quiz_game.ui.viewmodel.SharedAction
 fun Guide(
     modifier: Modifier = Modifier,
     onboardAction: (OnboardAction) -> Unit = {},
-    sharedAction: (SharedAction) -> Unit = {}
+    sharedAction: (SharedAction) -> Unit = {},
+    navController: NavController = rememberNavController()
 ) {
     val context = LocalContext.current
 
@@ -120,11 +124,8 @@ fun Guide(
         ) {
             ButtonPrimary(
                 onClick = {
+                    sharedAction(SharedAction.Navigate(OnboardDestination.Welcome, navController))
                     onboardAction(OnboardAction.UpdateOnboarded)
-                    sharedAction(
-                        SharedAction.StartActivity(context, MainActivity::class.java)
-                    )
-                    (context as? android.app.Activity)?.finish()
                 },
                 modifier = Modifier.fillMaxWidth()
             ) {

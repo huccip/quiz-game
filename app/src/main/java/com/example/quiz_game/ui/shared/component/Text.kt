@@ -19,7 +19,7 @@ fun TextFancy(
     text: String,
     color: Color = MaterialTheme.colorScheme.onSurface,
     textAlign: TextAlign = TextAlign.Start,
-    fontWeight: FontWeight = FontWeight.Normal,
+    fontWeight: FontWeight = FontWeight.Bold,
     style: TextStyle = MaterialTheme.typography.headlineMedium
 ) {
     Text(
@@ -29,7 +29,7 @@ fun TextFancy(
         color = color,
         style = style,
         fontWeight = fontWeight,
-        fontFamily = FontFamily(Font(R.font.fancy))
+        fontFamily = FontFamily(Font(R.font.fredoka_bold))
     )
 }
 
@@ -47,7 +47,7 @@ fun TextBig(
         textAlign = textAlign,
         color = color,
         style = MaterialTheme.typography.titleLarge,
-        fontFamily = FontFamily(Font(R.font.regular)),
+        fontFamily = FontFamily(Font(R.font.fredoka_regular)),
         fontWeight = fontWeight
     )
 }
@@ -66,7 +66,7 @@ fun TextRegular(
         textAlign = textAlign,
         color = color,
         style = MaterialTheme.typography.bodyLarge,
-        fontFamily = FontFamily(Font(R.font.regular)),
+        fontFamily = FontFamily(Font(R.font.fredoka_regular)),
         fontWeight = fontWeight
     )
 }
@@ -85,7 +85,7 @@ fun TextMedium(
         textAlign = textAlign,
         color = color,
         style = MaterialTheme.typography.titleMedium,
-        //fontFamily = FontFamily(Font(R.font.regular)),
+        //fontFamily = FontFamily(Font(R.font.fredoka_regular)),
         fontWeight = fontWeight
     )
 }
@@ -94,7 +94,7 @@ fun TextMedium(
 fun TextSmol(
     modifier: Modifier = Modifier,
     text: String,
-    color: Color = MaterialTheme.colorScheme.outline,
+    color: Color = MaterialTheme.colorScheme.onSurface,
     textAlign: TextAlign = TextAlign.Start
 ) {
     Text(
@@ -102,8 +102,8 @@ fun TextSmol(
         text = text,
         textAlign = textAlign,
         color = color,
-        style = MaterialTheme.typography.titleMedium,
-        fontFamily = FontFamily(Font(R.font.regular))
+        style = MaterialTheme.typography.titleSmall,
+        fontFamily = FontFamily(Font(R.font.fredoka_regular))
     )
 }
 
@@ -121,7 +121,7 @@ fun TextBerySmol(
         color = color,
         textAlign = textAlign,
         style = MaterialTheme.typography.titleSmall,
-        fontFamily = FontFamily(Font(R.font.regular)),
+        fontFamily = FontFamily(Font(R.font.fredoka_regular)),
         fontWeight = fontWeight
     )
 }
@@ -138,7 +138,7 @@ fun TextButton(
         modifier = modifier,
         text = text,
         textAlign = textAlign,
-        fontFamily = FontFamily(Font(R.font.regular)),
+        fontFamily = FontFamily(Font(R.font.fredoka_regular)),
         fontWeight = fontWeight,
         textDecoration = textDecoration,
         style = MaterialTheme.typography.labelLarge,
