@@ -87,7 +87,7 @@ Whether you're a casual player or a hardcore trivia enthusiast, Kwizly offers **
 - **UI:** Jetpack Compose with Material 3
 - **Multi-language:** Full localization support
 - **Theming:** Dynamic Light & Dark Mode
-- **Offline Support:** Takes advantage of different options (SharedPrefs, SQLite, ...Etc).
+- **Offline Support:** Takes advantage of different storage options (SharedPrefs, SQLite, ...Etc).
 
 ---
 
