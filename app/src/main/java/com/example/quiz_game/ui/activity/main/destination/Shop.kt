@@ -52,9 +52,12 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
+import com.example.quiz_game.App
 import com.example.quiz_game.R
+import com.example.quiz_game.data.Repository
 import com.example.quiz_game.data.shop.ShopItem
 import com.example.quiz_game.other.AdManager.showRewardedAd
+import com.example.quiz_game.other.Constants
 import com.example.quiz_game.other.Sound
 import com.example.quiz_game.other.SoundManager
 import com.example.quiz_game.other.withTap
@@ -122,6 +125,11 @@ fun Shop(
         msg?.let {
             scope.launch { snackbarHostState.showSnackbar(it, duration = SnackbarDuration.Short) }
         }
+    }
+
+    // Keep Home TopBar coin balance in sync after any buy / sell operation.
+    LaunchedEffect(shopState.userCoins) {
+        sharedAction(com.example.quiz_game.ui.viewmodel.SharedAction.RefreshUser)
     }
 
     val lazyListState = rememberLazyListState()
@@ -255,7 +263,7 @@ fun Shop(
 
                     if (isRewardedLoaded && activity != null) {
                         val interactionSource =
-                            remember { androidx.compose.foundation.interaction.MutableInteractionSource() }
+                            remember { MutableInteractionSource() }
                         Row(
                             modifier = Modifier
                                 .fillMaxWidth()
@@ -271,18 +279,18 @@ fun Shop(
                                 )
                                 .clickable(
                                     interactionSource = interactionSource,
-                                    indication = androidx.compose.foundation.LocalIndication.current,
+                                    indication = LocalIndication.current,
                                     onClick = withTap {
                                         showRewardedAd(
                                             activity
                                         ) {
-                                            com.example.quiz_game.App.ioScope.launch {
+                                            App.ioScope.launch {
                                                 val user =
-                                                    com.example.quiz_game.data.Repository.getUser()
+                                                    Repository.getUser()
                                                 if (user != null) {
-                                                    com.example.quiz_game.data.Repository.updateUser {
+                                                    Repository.updateUser {
                                                         it.copy(
-                                                            coins = it.coins + 10
+                                                            coins = it.coins + Constants.DEFAULT_REWARD_AMOUNT
                                                         )
                                                     }
                                                     sharedAction(com.example.quiz_game.ui.viewmodel.SharedAction.RefreshUser)
@@ -336,7 +344,7 @@ fun Shop(
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
                                 Text(
-                                    text = "+10",
+                                    text = "+${Constants.DEFAULT_REWARD_AMOUNT}",
                                     style = MaterialTheme.typography.titleMedium,
                                     fontWeight = FontWeight.Bold,
                                     color = Color.White

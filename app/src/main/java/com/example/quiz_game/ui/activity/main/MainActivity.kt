@@ -2,6 +2,7 @@ package com.example.quiz_game.ui.activity.main
 
 import android.app.Activity
 import android.content.Intent
+import android.content.res.Configuration
 import android.os.Bundle
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -72,6 +73,10 @@ class MainActivity : BaseActivity() {
     val quoteViewModel by viewModels<QuoteViewModel>()
     val shopViewModel by viewModels<ShopViewModel>()
 
+    override fun onConfigurationChanged(newConfig: Configuration) {
+        super.onConfigurationChanged(newConfig)
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
@@ -106,7 +111,7 @@ class MainActivity : BaseActivity() {
             connectivityObserver
                 .observe()
                 .collectAsStateWithLifecycle(initialValue = initialNetworkStatus)
-            var isInitialStatus by rememberSaveable { mutableStateOf(true) }
+            var isInitialStatus by remember { mutableStateOf(true) }
             val pendingTasks by NetworkRecoveryManager.pendingTasks.collectAsStateWithLifecycle()
 
             val offlineMessage = stringResource(R.string.connectivity_offline)

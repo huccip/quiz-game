@@ -207,6 +207,7 @@
     <string name="generic_error_message">Что-то пошло не так</string>
     <string name="generic_warning_message">Внимание</string>
 
+    <string name="generic_internet_loss_message">Нет подключения к интернету</string>
     <string name="connectivity_offline">Вы не в сети</string>
     <string name="connectivity_online">Вы снова в сети!</string>
 
@@ -333,6 +334,11 @@
     <string name="settings_legal_coming_soon">Этот документ появится в будущем обновлении.</string>
     <string name="settings_ok">OK</string>
 
+    <string name="home_screen">Главный экран</string>
+    <string name="home_quizzes_list_empty">Не удалось загрузить викторины. Проверьте интернет-соединение.</string>
+    <string name="browse_screen">Экран поиска</string>
+    <string name="browse_quizzes_list_empty">Не удалось загрузить викторины. Проверьте интернет-соединение.</string>
+
     <!-- Browse redesign -->
     <string name="browse_title">Темы</string>
     <string name="browse_subtitle">Найди подходящую категорию</string>
@@ -366,4 +372,8 @@
     <string name="loot_box_reward_nothing">Сегодня не повезло — попробуйте завтра!</string>
     <string name="loot_box_reward_coins">+%1$d монет</string>
     <string name="loot_box_reward_power_up">Открыт усилитель: %1$s</string>
+    <!-- Juridical / onboarding consent -->
+    <string name="juridical_consent_prefix">Продолжая, вы соглашаетесь с</string>
+    <string name="juridical_terms">Условиями использования</string>
+    <string name="juridical_privacy">Политикой конфиденциальности</string>
 </resources>

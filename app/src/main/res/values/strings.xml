@@ -70,7 +70,6 @@
         <item>GG, EZ!</item>
         <item>achievements</item>
     </string-array>
-    <string name="game_loading_subject">Quizzes</string>
 
     <string name="home_title">Let\'s Go!</string>
     <string name="home_subtitle">One of the buttons should be enough to get you started</string>
@@ -209,7 +208,8 @@
 
     <string name="generic_error_message">Something went wrong</string>
     <string name="generic_warning_message">Attention</string>
-    
+    <string name="generic_internet_loss_message">No internet connection</string>
+
     <string name="connectivity_offline">You are offline</string>
     <string name="connectivity_online">You\'re back online!</string>
 
@@ -226,6 +226,10 @@
     <string name="onboard_guide_tip_daily_body">A fresh challenge drops on the home screen every day &#8212; keep your streak alive.</string>
     <string name="onboard_guide_cta">Let\'s play</string>
     <string name="postgame_player_fallback">Player #0000</string>
+
+    <!-- Game -->
+    <string name="game_first_of_day_banner">First quiz of the day — points are doubled!</string>
+    <string name="game_loading_subject">Quizzes</string>
 
     <string name="home_title_resume_journey">Resume Journey</string>
     <string name="home_title_play_now">Play Now</string>
@@ -288,6 +292,8 @@
     <string name="browse_no_results">No results for \"%s\"</string>
     <string name="browse_resume_title">You have an active quiz!</string>
     <string name="browse_resume_button">Resume</string>
+    <string name="home_screen">Home screen</string>
+    <string name="home_quizzes_list_empty">We couldn\'t get quizzes. Please check your internet connection.</string>
 
     <!-- Shop -->
     <string name="shop_title">Power-Up Shop</string>
@@ -339,6 +345,8 @@
     <!-- Browse redesign -->
     <string name="browse_title">Browse Topics</string>
     <string name="browse_subtitle">Find the perfect category for you</string>
+    <string name="browse_screen">Browse screen</string>
+    <string name="browse_quizzes_list_empty">We couldn\'t get quizzes. Please check your internet connection.</string>
 
     <!-- Score-multiplier power-ups (risk/reward) -->
     <string name="shop_item_mult_x2_name">2x Multiplier</string>
@@ -347,9 +355,6 @@
     <string name="shop_item_mult_x3_desc">Triple the points on a correct answer. Higher reward, higher risk.</string>
     <string name="shop_item_mult_x5_name">5x Multiplier</string>
     <string name="shop_item_mult_x5_desc">Five times the points if you nail it. Only for the confident.</string>
-
-    <!-- First quiz of the day silent bonus -->
-    <string name="game_first_of_day_banner">First quiz of the day — points are doubled!</string>
 
     <!-- Daily-login streak reward popup -->
     <string name="streak_reward_title">Daily Streak!</string>
@@ -372,4 +377,8 @@
     <string name="loot_box_reward_nothing">No luck today — try again tomorrow!</string>
     <string name="loot_box_reward_coins">+%1$d coins</string>
     <string name="loot_box_reward_power_up">Power-up unlocked: %1$s</string>
+    <!-- Juridical / onboarding consent -->
+    <string name="juridical_consent_prefix">By continuing you agree to</string>
+    <string name="juridical_terms">Terms of Use</string>
+    <string name="juridical_privacy">Privacy Policy</string>
 </resources>

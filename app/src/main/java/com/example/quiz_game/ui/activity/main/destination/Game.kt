@@ -86,6 +86,7 @@ import com.example.quiz_game.other.Constants
 import com.example.quiz_game.other.DailyRewards
 import com.example.quiz_game.other.Sound
 import com.example.quiz_game.other.SoundManager
+import com.example.quiz_game.other.Utils
 import com.example.quiz_game.other.withTap
 import com.example.quiz_game.ui.activity.main.MainDestination
 import com.example.quiz_game.ui.shared.component.ButtonPrimary
@@ -129,8 +130,15 @@ fun Game(
     var currentQuizzes: List<Quiz> by remember { mutableStateOf(emptyList()) }
     var currentQuizState: QuizState by remember { mutableStateOf(QuizState()) }
     var currentErrors by remember { mutableStateOf(emptyList<String>()) }
-    var loading by rememberSaveable { mutableStateOf(false) }
+    var loading by remember { mutableStateOf(true) }
     val scope = rememberCoroutineScope()
+
+    DisposableEffect(Unit) {
+        onDispose {
+            // Sync gems (and other user data) any time the Game screen is closed
+            sharedAction(SharedAction.RefreshUser)
+        }
+    }
 
     DisposableEffect(currentSession) {
         if (currentSession != null) {
@@ -179,7 +187,7 @@ fun Game(
     val activity = context as? android.app.Activity
 
     currentSession?.let { session ->
-        var quizIndex by rememberSaveable(session.uid) { mutableIntStateOf(0) }
+        var quizIndex by remember(session.uid) { mutableIntStateOf(0) }
         var incorrectlyAnswered by rememberSaveable(session.uid) { mutableIntStateOf(0) }
 
         // First-quiz-of-the-day silent x2 multiplier. Computed ONCE at the
@@ -207,26 +215,25 @@ fun Game(
                     GameSkeletonLoader()
                 }
 
-                currentQuizzes.isEmpty() -> {
+                currentQuizzes.isEmpty() || quiz == null -> {
                     Text(text = "No available quizzes")
                 }
 
-                quiz != null -> {
-                    val choices =
-                        remember(quiz.uid) {
-                            buildList {
-                                add(quiz.correctAnswer ?: "")
-                                addAll(quiz.incorrectAnswers.orEmpty())
-                                shuffle()
-                            }
-                        }
+                else -> {
+                    val choices = rememberSaveable(quiz.uid) {
+                        buildList {
+                            add(quiz.correctAnswer ?: "")
+                            addAll(quiz.incorrectAnswers.orEmpty())
+                            shuffle()
+                        }.toCollection(ArrayList())
+                    }
 
                     QuizCard(
                         quiz = quiz,
                         choices = choices,
                         correctChoice = quiz.correctAnswer,
-                        questionIndex = quizIndex,
-                        totalQuestions = currentQuizzes.size,
+                        questionIndex = (session.quizzesUids?.size ?: currentQuizzes.size) - currentQuizzes.size + quizIndex,
+                        totalQuestions = session.quizzesUids?.size ?: currentQuizzes.size,
                         firstOfDayBonus = sessionFirstOfDay,
                         ownedCollectibles = ownedCollectibles,
                         ownedCounts = shopState.ownedCounts,
@@ -449,7 +456,7 @@ fun QuizCard(
         label = "timerProgress"
     )
 
-    val categoryImageRes = quiz.category.toCategoryImageRes()
+    val categoryImageRes = Utils.categoryImageRes(quiz.categoryId)
     val surfaceColor = MaterialTheme.colorScheme.background
 
     // Centralised power-up handler — invoked from the bottom-overlay deck.
@@ -549,7 +556,7 @@ fun QuizCard(
             ) {
                 Spacer(Modifier.height(20.dp))
 
-                // ── Header row: category label + counter + timer ──
+                // ── Header row: category label + difficulty badge + counter + timer ──
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     verticalAlignment = Alignment.CenterVertically,
@@ -567,6 +574,29 @@ fun QuizCard(
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.spacedBy(10.dp)
                     ) {
+                        // Difficulty badge
+                        quiz.difficulty?.let { diff ->
+                            val (diffColor, diffText) = when (diff.lowercase()) {
+                                "easy" -> Color(0xFF22C55E) to "Easy"
+                                "medium" -> Color(0xFFF59E0B) to "Medium"
+                                else -> MaterialTheme.colorScheme.error to "Hard"
+                            }
+                            Surface(
+                                shape = RoundedCornerShape(50),
+                                color = diffColor.copy(alpha = 0.15f),
+                                border = BorderStroke(1.dp, diffColor),
+                                tonalElevation = 0.dp
+                            ) {
+                                Text(
+                                    text = diffText,
+                                    style = MaterialTheme.typography.labelMedium,
+                                    fontWeight = FontWeight.SemiBold,
+                                    color = diffColor,
+                                    modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
+                                )
+                            }
+                        }
+
                         // Question counter chip
                         Surface(
                             shape = RoundedCornerShape(50),
@@ -887,36 +917,7 @@ private fun AnswerChoiceCard(
     }
 }
 
-// ── Category name → image resource ────────────────────────────────────────────
-@DrawableRes
-fun String?.toCategoryImageRes(): Int = when {
-    this == null -> R.drawable.img_category_general
-    contains("General", ignoreCase = true) -> R.drawable.img_category_general
-    contains("Book", ignoreCase = true) -> R.drawable.img_category_books
-    contains("Film", ignoreCase = true) || contains("Movie", ignoreCase = true) -> R.drawable.img_category_film
-    contains("Musical", ignoreCase = true) || contains("Theatre", ignoreCase = true) -> R.drawable.img_category_musicals_theatres
-    contains("Music", ignoreCase = true) -> R.drawable.img_category_music
-    contains("Television", ignoreCase = true) || contains("TV", ignoreCase = true) || contains("Series", ignoreCase = true) -> R.drawable.img_category_television
-    contains("Video Game", ignoreCase = true) -> R.drawable.img_category_videogames
-    contains("Board Game", ignoreCase = true) -> R.drawable.img_category_boardgames
-    contains("Science", ignoreCase = true) || contains("Nature", ignoreCase = true) -> R.drawable.img_category_science_nature
-    contains("Computer", ignoreCase = true) -> R.drawable.img_category_computers
-    contains("Gadget", ignoreCase = true) -> R.drawable.img_category_gadgets
-    contains("Math", ignoreCase = true) -> R.drawable.img_category_mathematics
-    contains("Mythology", ignoreCase = true) -> R.drawable.img_category_mythology
-    contains("Sport", ignoreCase = true) -> R.drawable.img_category_sports
-    contains("Geography", ignoreCase = true) -> R.drawable.img_category_geography
-    contains("History", ignoreCase = true) -> R.drawable.img_category_history
-    contains("Politics", ignoreCase = true) -> R.drawable.img_category_politics
-    contains("Art", ignoreCase = true) -> R.drawable.img_category_art
-    contains("Celebrit", ignoreCase = true) -> R.drawable.img_category_celebrities
-    contains("Animal", ignoreCase = true) -> R.drawable.img_category_animals
-    contains("Vehicle", ignoreCase = true) -> R.drawable.img_category_vehicles
-    contains("Comic", ignoreCase = true) -> R.drawable.img_category_comics
-    contains("Anime", ignoreCase = true) || contains("Manga", ignoreCase = true) -> R.drawable.img_category_japaneseanime_manga
-    contains("Cartoon", ignoreCase = true) || contains("Animation", ignoreCase = true) -> R.drawable.img_category_cartoon_animations
-    else -> R.drawable.img_category_general
-}
+// Removed toCategoryImageRes
 
 enum class AnsweredState {
     IDLE,

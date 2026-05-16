@@ -207,6 +207,7 @@
     <string name="generic_error_message">Une erreur est survenue</string>
     <string name="generic_warning_message">Attention</string>
 
+    <string name="generic_internet_loss_message">Pas de connexion internet</string>
     <string name="connectivity_offline">Vous êtes hors ligne</string>
     <string name="connectivity_online">Vous êtes de retour en ligne !</string>
 
@@ -333,6 +334,11 @@
     <string name="settings_legal_coming_soon">Ce document sera disponible dans une future mise à jour.</string>
     <string name="settings_ok">OK</string>
 
+    <string name="home_screen">Écran d\'accueil</string>
+    <string name="home_quizzes_list_empty">Impossible de charger les quiz. Vérifiez votre connexion internet.</string>
+    <string name="browse_screen">Écran de navigation</string>
+    <string name="browse_quizzes_list_empty">Impossible de charger les quiz. Vérifiez votre connexion internet.</string>
+
     <!-- Browse redesign -->
     <string name="browse_title">Parcourir les thèmes</string>
     <string name="browse_subtitle">Trouve la catégorie idéale</string>
@@ -366,4 +372,8 @@
     <string name="loot_box_reward_nothing">Pas de chance aujourd\'hui — réessayez demain !</string>
     <string name="loot_box_reward_coins">+%1$d pièces</string>
     <string name="loot_box_reward_power_up">Bonus débloqué : %1$s</string>
+    <!-- Juridical / onboarding consent -->
+    <string name="juridical_consent_prefix">En continuant, vous acceptez</string>
+    <string name="juridical_terms">les Conditions d\'utilisation</string>
+    <string name="juridical_privacy">la Politique de confidentialité</string>
 </resources>
