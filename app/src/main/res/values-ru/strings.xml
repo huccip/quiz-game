@@ -355,8 +355,9 @@
 
     <string name="streak_reward_title">Ежедневная серия!</string>
     <string name="streak_reward_day_label">ДЕНЬ</string>
-    <string name="streak_reward_subtitle">С возвращением! Вот ваша награда за сегодня.</string>
-    <string name="streak_reward_button">Забрать</string>
+    <string name="streak_reward_subtitle">С возвращением! Посмотрите видеорекламу, чтобы получить награду за сегодня.</string>
+    <string name="streak_reward_button">Реклама через %d сек.</string>
+    <string name="streak_skip_button">Пропустить</string>
     <string name="streak_reward_reset_notice">Вы пропустили день, поэтому серия сброшена.</string>
 
     <string name="loot_box_card_title_available">Ежедневный сундук</string>

@@ -355,8 +355,9 @@
 
     <string name="streak_reward_title">Tägliche Serie!</string>
     <string name="streak_reward_day_label">TAG</string>
-    <string name="streak_reward_subtitle">Willkommen zurück! Hier ist deine heutige Belohnung.</string>
-    <string name="streak_reward_button">Einsammeln</string>
+    <string name="streak_reward_subtitle">Willkommen zurück! Sieh dir die Video-Werbung an, um deine heutige Belohnung zu erhalten.</string>
+    <string name="streak_reward_button">Werbung in %d Sek.</string>
+    <string name="streak_skip_button">Überspringen</string>
     <string name="streak_reward_reset_notice">Du hast einen Tag verpasst, also wurde die Serie zurückgesetzt.</string>
 
     <string name="loot_box_card_title_available">Tägliche Beutekiste</string>

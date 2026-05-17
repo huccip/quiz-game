@@ -25,8 +25,10 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -41,12 +43,12 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.quiz_game.R
-import com.example.quiz_game.data.shop.ShopItem
+import com.example.quiz_game.other.Constants
 import com.example.quiz_game.other.DailyRewards
 import kotlinx.coroutines.delay
 
 /**
- * One-shot popup acknowledging a freshly-credited daily-login streak.
+ * One-shot timed popup acknowledging a freshly-credited daily-login streak.
  * Animates in with a spring scale + fade so the reward feels "earned" rather
  * than dropped on the user. The caller is responsible for keeping it shown
  * (e.g. while [com.example.quiz_game.ui.viewmodel.SharedState.pendingStreakReward]
@@ -58,9 +60,19 @@ fun DialogStreakReward(
     coinsGranted: Int,
     wasReset: Boolean,
     onDismiss: () -> Unit,
+    onLaunchRewardedInterstitialAd: () -> Unit = {},
 ) {
     var visible by remember { mutableStateOf(false) }
+    var skipTimer by rememberSaveable { mutableIntStateOf(Constants.DEFAULT_DAILY_STREAK_REWARD_TIMER) }
     LaunchedEffect(Unit) { visible = true }
+    LaunchedEffect(skipTimer) {
+        while (skipTimer > 0) {
+            delay(1000L)
+            skipTimer--
+        }
+
+        if (skipTimer == 0) onLaunchRewardedInterstitialAd()
+    }
     val scale by animateFloatAsState(
         targetValue = if (visible) 1f else 0.6f,
         animationSpec = spring(
@@ -81,10 +93,24 @@ fun DialogStreakReward(
             scaleX = scale
             scaleY = scale
         },
+        containerColor = MaterialTheme.colorScheme.background,
         onDismissRequest = onDismiss,
         confirmButton = {
-            ButtonPrimary(onClick = onDismiss) {
-                Text(stringResource(R.string.streak_reward_button))
+            ButtonPrimary(enabled = false) {
+                Text(stringResource(R.string.streak_reward_button, skipTimer))
+            }
+        },
+        dismissButton = {
+            ButtonSecondary(onClick = onDismiss) {
+                Text(
+                    stringResource(R.string.streak_skip_button),
+                    color = MaterialTheme.colorScheme.error
+                )
+                IconButton(
+                    painter = painterResource(R.drawable.ic_skip),
+                    contentDescription = stringResource(R.string.streak_skip_button),
+                    tint = MaterialTheme.colorScheme.error
+                )
             }
         },
         title = {
@@ -247,10 +273,12 @@ fun DialogLootBoxReveal(
                                 text = "\uD83C\uDF2B",  // 🌫
                                 fontSize = 56.sp,
                             )
+
                             is DailyRewards.LootBoxReward.Coins -> Text(
                                 text = "\uD83D\uDCB0", // 💰
                                 fontSize = 56.sp,
                             )
+
                             is DailyRewards.LootBoxReward.PowerUp -> Icon(
                                 painter = painterResource(reward.item.icon),
                                 contentDescription = null,
@@ -267,10 +295,12 @@ fun DialogLootBoxReveal(
                     val (label, accent) = when (reward) {
                         is DailyRewards.LootBoxReward.Nothing ->
                             stringResource(R.string.loot_box_reward_nothing) to
-                                MaterialTheme.colorScheme.onSurfaceVariant
+                                    MaterialTheme.colorScheme.onSurfaceVariant
+
                         is DailyRewards.LootBoxReward.Coins ->
                             stringResource(R.string.loot_box_reward_coins, reward.amount) to
-                                Color(0xFFB8860B)
+                                    Color(0xFFB8860B)
+
                         is DailyRewards.LootBoxReward.PowerUp ->
                             stringResource(
                                 R.string.loot_box_reward_power_up,

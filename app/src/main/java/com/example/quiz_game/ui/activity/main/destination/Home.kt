@@ -1,4 +1,4 @@
-package com.example.quiz_game.ui.activity.main.destination
+﻿package com.example.quiz_game.ui.activity.main.destination
 
 import android.util.Log
 import androidx.annotation.DrawableRes
@@ -75,12 +75,14 @@ import com.example.quiz_game.R
 import com.example.quiz_game.data.Repository
 import com.example.quiz_game.data.category.Category
 import com.example.quiz_game.data.session.Session
+import com.example.quiz_game.other.AdManager
 import com.example.quiz_game.other.Constants
 import com.example.quiz_game.other.DailyRewards
 import com.example.quiz_game.other.TranslatorManager
 import com.example.quiz_game.other.TranslatorStatus
 import com.example.quiz_game.other.Utils
 import com.example.quiz_game.other.withTap
+import com.example.quiz_game.ui.activity.main.MainActivity
 import com.example.quiz_game.ui.activity.main.MainDestination
 import com.example.quiz_game.ui.shared.component.BannerAd
 import com.example.quiz_game.ui.shared.component.ButtonPrimary
@@ -180,10 +182,8 @@ fun Home(
             categoryAction(CategoryAction.GetAll)
         }
 
-        // Daily-login streak: this is the single canonical entry-point. The
-        // ViewModel itself short-circuits if the user already logged in today,
-        // so it's safe to fire on every Home composition without spamming.
-        sharedAction(SharedAction.EvaluateDailyLogin)
+        // Show streak reward dialog if a daily login is due
+        sharedAction(SharedAction.ClaimDailyLogin)
     }
 
     // ── Regular Start Game Flow ──
@@ -192,7 +192,13 @@ fun Home(
         if (quizState.executing) return@LaunchedEffect
 
         if (!quizState.ready && quizState.errors.isNotEmpty()) {
-            onError("${context.getString(R.string.home_screen)}: ${if (!Utils.hasInternet()) context.getString(R.string.generic_internet_loss_message) else context.getString(R.string.generic_error_message)}.")
+            onError(
+                "${context.getString(R.string.home_screen)}: ${
+                    if (!Utils.hasInternet()) context.getString(
+                        R.string.generic_internet_loss_message
+                    ) else context.getString(R.string.generic_error_message)
+                }."
+            )
             quizState.errors.fastForEach { e -> Log.e("Home", "Home: ${e.message}") }
             startGameTrigger = false
             return@LaunchedEffect
@@ -272,6 +278,7 @@ fun Home(
     val isDarkTheme = isSystemInDarkTheme()
 
     val translatorStatus by TranslatorManager.status.collectAsStateWithLifecycle()
+    val isRewardedInterstitialAdLoaded by AdManager.isRewardedInterstitialLoaded.collectAsStateWithLifecycle()
     val isTranslatorBusy = translatorStatus in listOf(
         TranslatorStatus.Saving,
         TranslatorStatus.Downloading,
@@ -312,12 +319,26 @@ fun Home(
 
         // ── Daily-login streak popup (one-shot, surfaced by SharedViewModel) ──
         sharedState.pendingStreakReward?.let { event ->
-            DialogStreakReward(
-                streakDays = event.streakDays,
-                coinsGranted = event.coinsGranted,
-                wasReset = event.wasReset,
-                onDismiss = { sharedAction(SharedAction.ConsumeStreakReward) },
-            )
+            val activity = context as? MainActivity
+            var hasLaunchedAd by remember(event) { mutableStateOf(false) }
+
+            if (isRewardedInterstitialAdLoaded && activity != null && !hasLaunchedAd) {
+                DialogStreakReward(
+                    streakDays = event.streakDays,
+                    coinsGranted = event.coinsGranted,
+                    wasReset = event.wasReset,
+                    onDismiss = {
+                        sharedAction(SharedAction.DismissStreakReward)
+                    },
+                    onLaunchRewardedInterstitialAd = {
+                        hasLaunchedAd = true
+                        AdManager.showRewardedInterstitialAd(activity = activity) {
+                            sharedAction(SharedAction.EvaluateDailyLogin)
+                            sharedAction(SharedAction.ConsumedStreakReward)
+                        }
+                    }
+                )
+            }
         }
 
         // ── Daily loot box reveal (modal). The reward is rolled and persisted by

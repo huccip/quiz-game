@@ -162,12 +162,11 @@ fun ButtonSecondary(
 
         ) {
         Row(
-            modifier = Modifier.height(IntrinsicSize.Min),
+            modifier = Modifier,
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(12.dp),
+            horizontalArrangement = Arrangement.spacedBy(3.dp),
             content = {
                 content()
-
             }
         )
     }
