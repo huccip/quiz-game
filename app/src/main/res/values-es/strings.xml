@@ -355,8 +355,9 @@
 
     <string name="streak_reward_title">¡Racha diaria!</string>
     <string name="streak_reward_day_label">DÍA</string>
-    <string name="streak_reward_subtitle">¡Bienvenido de nuevo! Aquí tienes tu recompensa de hoy.</string>
-    <string name="streak_reward_button">Reclamar</string>
+    <string name="streak_reward_subtitle">¡Bienvenido de nuevo! Mira el anuncio de vídeo para obtener tu recompensa de hoy.</string>
+    <string name="streak_reward_button">Anuncio en %d seg.</string>
+    <string name="streak_skip_button">Saltar</string>
     <string name="streak_reward_reset_notice">Te saltaste un día, así que la racha se reinició.</string>
 
     <string name="loot_box_card_title_available">Caja diaria</string>

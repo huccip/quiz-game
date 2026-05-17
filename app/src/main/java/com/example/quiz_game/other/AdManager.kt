@@ -85,6 +85,7 @@ object AdManager {
             Log.d(TAG, "MobileAds initialized: $initializationStatus")
             loadInterstitialAd(context)
             loadRewardedAd(context)
+            loadRewardedInterstitialAd(context)
         }
     }
 
@@ -262,7 +263,7 @@ object AdManager {
             }
         } else {
             Log.d(TAG, "The rewarded interstitial ad wasn't ready yet.")
-            loadRewardedAd(activity)
+            loadRewardedInterstitialAd(activity)
         }
     }
 }

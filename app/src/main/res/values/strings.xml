@@ -359,8 +359,9 @@
     <!-- Daily-login streak reward popup -->
     <string name="streak_reward_title">Daily Streak!</string>
     <string name="streak_reward_day_label">DAY</string>
-    <string name="streak_reward_subtitle">Welcome back! Here is today\'s reward.</string>
-    <string name="streak_reward_button">Claim</string>
+    <string name="streak_reward_subtitle">Welcome back! Watch the video ad to get your today\'s reward.</string>
+    <string name="streak_reward_button">%d seconds until the ad</string>
+    <string name="streak_skip_button">Skip</string>
     <string name="streak_reward_reset_notice">You missed a day, so the streak restarted.</string>
 
     <!-- Daily loot box -->

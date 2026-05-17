@@ -81,9 +81,11 @@ class SharedViewModel : ViewModel() {
                         }
                 is SharedAction.RefreshUser -> refreshUser()
                 is SharedAction.EvaluateDailyLogin -> evaluateDailyLogin()
-                is SharedAction.ConsumeStreakReward -> {
+                is SharedAction.ClaimDailyLogin -> claimDailyLogin()
+                is SharedAction.ConsumedStreakReward -> {
                     state.value = state.value.copy(pendingStreakReward = null)
                 }
+                is SharedAction.DismissStreakReward -> dismissStreakReward()
                 is SharedAction.ClaimLootBox -> claimLootBox()
                 is SharedAction.ConsumeLootBoxReward -> {
                     state.value = state.value.copy(pendingLootBoxReward = null)
@@ -141,14 +143,53 @@ class SharedViewModel : ViewModel() {
             // If another writer beat us to today's grant, don't surface a popup.
             if (updated.lastLoginAt != now) return@launch
 
+            state.value = state.value.copy(user = updated)
+        }
+    }
+
+    /**
+     * Stages a one-shot daily-login streak reward on
+     * [SharedState.pendingStreakReward] without persisting the user blob.
+     * Called on Home launch to surface the dialog; the actual persistence
+     * (lastLoginAt, streakDays, coins) happens later via [evaluateDailyLogin]
+     * once the user watches the rewarded interstitial ad.
+     */
+    private fun claimDailyLogin() {
+        App.ioScope.launch {
+            val now = System.currentTimeMillis()
+            val snapshot = Repository.getUser() ?: return@launch
+            val outcome = DailyRewards.evaluateLogin(
+                now = now,
+                lastLoginAt = snapshot.lastLoginAt,
+                previousStreakDays = snapshot.loginStreakDays,
+            )
+            if (outcome.alreadyClaimedToday) return@launch
+
             state.value = state.value.copy(
-                user = updated,
                 pendingStreakReward = StreakRewardEvent(
                     streakDays = outcome.streakDays,
                     coinsGranted = outcome.coinsGranted,
                     wasReset = outcome.wasReset,
                 ),
             )
+        }
+    }
+
+    /**
+     * Called when the user explicitly skips the streak dialog (dismiss button).
+     * Marks today as "handled" by persisting [lastLoginAt] so
+     * [claimDailyLogin] short-circuits on future visits, but does NOT grant
+     * coins or increment the streak. The user forfeits the reward by skipping.
+     */
+    private fun dismissStreakReward() {
+        App.ioScope.launch {
+            val now = System.currentTimeMillis()
+            Repository.updateUser { user ->
+                val outcome = DailyRewards.evaluateLogin(now, user.lastLoginAt, user.loginStreakDays)
+                if (outcome.alreadyClaimedToday) return@updateUser user
+                user.copy(lastLoginAt = now)
+            }
+            state.value = state.value.copy(pendingStreakReward = null)
         }
     }
 
@@ -215,7 +256,7 @@ data class SharedState(
         /**
          * One-shot payload describing a freshly granted login-streak reward.
          * The Home screen renders a popup as long as this is non-null and
-         * fires [SharedAction.ConsumeStreakReward] once the user dismisses
+         * fires [SharedAction.ConsumedStreakReward] once the user dismisses
          * it so it doesn't reappear on rotation.
          */
         val pendingStreakReward: StreakRewardEvent? = null,
@@ -253,9 +294,13 @@ sealed interface SharedAction {
 
     /** Evaluate the daily-login streak; may stage a [StreakRewardEvent] for Home. */
     data object EvaluateDailyLogin : SharedAction
+    data object ClaimDailyLogin : SharedAction
 
     /** Mark the staged streak-reward event as consumed (Home uses this on dismiss). */
-    data object ConsumeStreakReward : SharedAction
+    data object ConsumedStreakReward : SharedAction
+
+    /** Skip the streak dialog without granting reward but mark today as handled. */
+    data object DismissStreakReward : SharedAction
 
     /** Roll + persist a daily loot-box reward atomically; stages a reveal payload. */
     data object ClaimLootBox : SharedAction

@@ -355,8 +355,9 @@
 
     <string name="streak_reward_title">Série quotidienne !</string>
     <string name="streak_reward_day_label">JOUR</string>
-    <string name="streak_reward_subtitle">Bon retour ! Voici votre récompense du jour.</string>
-    <string name="streak_reward_button">Réclamer</string>
+    <string name="streak_reward_subtitle">Bon retour ! Regardez la pub vidéo pour obtenir votre récompense du jour.</string>
+    <string name="streak_reward_button">Publicité dans %d s</string>
+    <string name="streak_skip_button">Passer</string>
     <string name="streak_reward_reset_notice">Vous avez raté un jour, la série a été réinitialisée.</string>
 
     <string name="loot_box_card_title_available">Coffre quotidien</string>
