@@ -98,6 +98,18 @@ Reach out at: **mohamedbellaala166@gmail.com**
 
 ---
 
+<div align="start">
+
+  ## ⚖️ Legal & Copyright
+
+**© 2026 Huccip Production. All Rights Reserved.**
+
+This repository is public strictly for demonstration and portfolio purposes. The source code, assets, and overall architecture are proprietary. You are strictly prohibited from copying, distributing, modifying, or using any part of this codebase for your own projects, whether personal or commercial.
+
+</div>
+
+---
+
 <div align="center">
 
   **Made with ❤️ for you Trivia Enthusiasts**
