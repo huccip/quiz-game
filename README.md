@@ -98,16 +98,8 @@ Reach out at: **mohamedbellaala166@gmail.com**
 
 ---
 
-## Show Your Support
-
-If you like the project, feel free to **star the repo** ⭐ and share Kwizly with your friends!
-
----
-
 <div align="center">
 
-  **Made with ❤️ for everybody**
-
-  **Challenge your brain. Beat the odds.**
+  **Made with ❤️ for you Trivia Enthusiasts**
 
 </div>
