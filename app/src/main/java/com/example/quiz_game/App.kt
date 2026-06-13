@@ -3,19 +3,17 @@ package com.example.quiz_game
 import android.app.Application
 import android.content.Context
 import android.content.SharedPreferences
-import androidx.core.content.edit
 import androidx.room.Room
 import com.example.quiz_game.data.Database
 import com.example.quiz_game.data.quote.Quote
 import com.example.quiz_game.data.user.User
 import com.example.quiz_game.other.LocaleHelper
 import com.example.quiz_game.other.SoundManager
-import com.example.quiz_game.other.Utils
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
-import java.util.Locale
+import kotlinx.serialization.json.Json
 
 class App : Application() {
 
@@ -43,24 +41,6 @@ class App : Application() {
 
         quotePrefs = getSharedPreferences(Quote.KEY_QUOTE, MODE_PRIVATE)
         userPrefs = getSharedPreferences(User.KEY_USER, MODE_PRIVATE)
-        if (!userPrefs.contains(User.KEY_LAST_KNOWN_LANGUAGE)) {
-            userPrefs.edit {
-                putString(
-                    User.KEY_LAST_KNOWN_LANGUAGE,
-                    if (Utils.supportedLanguage(Locale.getDefault().language)) Locale.getDefault().language else "en"
-                )
-                commit()
-            }
-        }
-        if (!userPrefs.contains(User.KEY_SELECTED_LANGUAGE)) {
-            userPrefs.edit {
-                putString(
-                    User.KEY_SELECTED_LANGUAGE,
-                    if (Utils.supportedLanguage(Locale.getDefault().language)) Locale.getDefault().language else "en"
-                )
-                commit()
-            }
-        }
 
         // AdMob is initialised from each Activity after UMP consent is resolved.
         SoundManager.init(this)
@@ -74,7 +54,11 @@ class App : Application() {
 
     override fun attachBaseContext(base: Context?) {
         val prefs = base?.getSharedPreferences(User.KEY_USER, MODE_PRIVATE)
-        val lang = prefs?.getString(User.KEY_SELECTED_LANGUAGE, "en") ?: "en"
+        val lang: String = try {
+            val userJson = prefs?.getString(User.KEY_USER, null)
+            if (userJson != null) Json.decodeFromString<User>(userJson).language ?: "en"
+            else "en"
+        } catch (e: Exception) { "en" }
         val newBase = LocaleHelper.wrap(base!!, lang)
         super.attachBaseContext(newBase)
     }
