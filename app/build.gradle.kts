@@ -157,8 +157,8 @@ android {
         applicationId = "com.hucciproduction.kwikkwiz"
         minSdk = 24
         targetSdk = 35
-        versionCode = 7
-        versionName = "1.6"
+        versionCode = 8
+        versionName = "1.7"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -230,6 +230,15 @@ android {
     buildFeatures {
         compose = true
         buildConfig = true
+    }
+
+    // Disable language splits so Play delivers ALL translations to every device,
+    // regardless of the device's system language. This is required because the app
+    // lets users pick a language independently of their system locale.
+    bundle {
+        language {
+            enableSplit = false
+        }
     }
 }
 
